@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
+  <title>Aviso - Avisos Jardines</title>
+  <link rel="stylesheet" href="/avisos-jardines/css/estilo.css">
+</head>
+<body>
+  <header class="header">
+    <div class="contenedor">
+      <h1>Avisos Jardines</h1>
+      <div>
+        <a href="/avisos-jardines/index.html">Volver</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="contenedor-chico">
+    <div id="mensaje-container"></div>
+    <div id="aviso-detalle" class="cargando">Cargando aviso...</div>
+  </main>
+
+  <!-- Contenedor donde se cargará el footer -->
+    <div id="footer-container"></div>
+
+    <script>
+        // Cargar el footer
+        fetch('/avisos-jardines/common/footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footer-container').innerHTML = data;
+                // Actualizar el año después de cargar el footer
+                document.getElementById('anio-actual').textContent = new Date().getFullYear();
+            })
+            .catch(error => console.error('Error cargando el footer:', error));
+    </script>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/aviso.js"></script>
+</body>
+</html>
