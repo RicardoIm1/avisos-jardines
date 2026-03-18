@@ -39,17 +39,19 @@
         <div id="paginacion" class="paginacion"></div>
     </main>
 
-    <footer class="footer">
-        <div class="contenedor">
-            <p>Periódico mural digital de la Colonia Jardines aporte de <a
-                    href="https://ricardoim1.github.io/jeronimoricardo/" target="_blank">Ricardo y Mimi</a></p>
-            <p>&copy; <span id="anio-actual"></span> - Todos los derechos reservados</p>
-        </div>
-    </footer>
+    <!-- Contenedor donde se cargará el footer -->
+    <div id="footer-container"></div>
 
     <script>
-        // Actualizar el año automáticamente
-        document.getElementById('anio-actual').textContent = new Date().getFullYear();
+        // Cargar el footer
+        fetch('/avisos-jardines/common/footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footer-container').innerHTML = data;
+                // Actualizar el año después de cargar el footer
+                document.getElementById('anio-actual').textContent = new Date().getFullYear();
+            })
+            .catch(error => console.error('Error cargando el footer:', error));
     </script>
 
     <script src="/avisos-jardines/js/api.js"></script>
