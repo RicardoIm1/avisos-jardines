@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
+    <title>Avisos Jardines</title>
+    <link rel="stylesheet" href="/avisos-jardines/css/estilo.css">
+    <link rel="manifest" href="/avisos-jardines/manifest.json">
+    <meta name="theme-color" content="#2c3e50">
+</head>
+
+<body>
+    <header class="header">
+        <div class="contenedor">
+            <h1>Avisos Jardines</h1>
+            <div>
+                <a href="/avisos-jardines/login.html" id="login-link">Iniciar sesión</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="contenedor">
+        <div class="filtros" id="filtros">
+            <button class="filtro activo" data-categoria="todos">Todos</button>
+            <button class="filtro" data-categoria="urgente">Urgente</button>
+            <button class="filtro" data-categoria="eventos">Eventos</button>
+            <button class="filtro" data-categoria="servicios">Servicios</button>
+            <button class="filtro" data-categoria="perdidos">Perdidos</button>
+            <button class="filtro" data-categoria="clasificados">Clasificados</button>
+        </div>
+
+        <div id="mensaje-container"></div>
+
+        <div id="avisos-container" class="grid-avisos">
+            <div class="cargando">Cargando avisos...</div>
+        </div>
+
+        <div id="paginacion" class="paginacion"></div>
+    </main>
+
+    <!-- Contenedor donde se cargará el footer -->
+    <div id="footer-container"></div>
+
+    <script>
+        // Cargar el footer
+        fetch('/avisos-jardines/common/footer.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('footer-container').innerHTML = data;
+                // Actualizar el año después de cargar el footer
+                document.getElementById('anio-actual').textContent = new Date().getFullYear();
+            })
+            .catch(error => console.error('Error cargando el footer:', error));
+    </script>
+
+    <script src="/avisos-jardines/js/api.js"></script>
+    <script src="/avisos-jardines/js/auth.js"></script>
+    <script src="/avisos-jardines/js/app.js"></script>
+</body>
+
+</html>
