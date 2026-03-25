@@ -4,10 +4,12 @@
   <meta charset="UTF-8">
   <title>Avisos Jardines</title>
   <style>
-    body { font-family: sans-serif; margin: 20px; }
-    .aviso { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
-    .titulo { font-weight: bold; }
+    body { font-family: sans-serif; margin: 20px; background: #f9f9f9; }
+    .aviso { background: #fff; border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; border-radius: 5px; }
+    .titulo { font-weight: bold; font-size: 1.2em; }
     .fecha { color: gray; font-size: 0.9em; }
+    .categoria { font-style: italic; color: #555; }
+    .prioridad { font-weight: bold; color: darkred; }
   </style>
 </head>
 <body>
@@ -15,7 +17,6 @@
   <div id="avisos"></div>
 
   <script>
-    // URL de tu WebApp publicado en Apps Script
     const API_URL = "https://script.google.com/macros/s/AKfycbzfHel-cMAp4tSyDt_a1w8HZ8G0u5yI4aEf6S32rVW8U2VqFYWY25jDQNuC0pU8SVTHWg/exec";
 
     async function cargarAvisos() {
@@ -32,7 +33,9 @@
           div.innerHTML = `
             <div class="titulo">${aviso.Titulo}</div>
             <div class="descripcion">${aviso.Descripcion}</div>
-            <div class="fecha">${new Date(aviso.Fecha).toLocaleString()}</div>
+            <div class="categoria">Categoría: ${aviso.Categoria}</div>
+            <div class="prioridad">Prioridad: ${aviso.Prioridad}</div>
+            <div class="fecha">Publicado: ${new Date(aviso.FechaCreacion).toLocaleString()}</div>
             <div class="autor">Por: ${aviso.Autor}</div>
           `;
           contenedor.appendChild(div);
