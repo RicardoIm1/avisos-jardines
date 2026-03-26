@@ -2,8 +2,12 @@
 
 let paginaActual = 1;
 let categoriaActual = 'todos';
+let mensajeInfoTimeout = null;
 
 document.addEventListener('DOMContentLoaded', async function() {
+  // Limpiar mensaje de conexión anterior si existe
+  if (mensajeInfoTimeout) clearTimeout(mensajeInfoTimeout);
+  
   // Primero verificar conexión
   const conectado = await API.verificarConexion();
   if (!conectado) {
@@ -14,6 +18,12 @@ document.addEventListener('DOMContentLoaded', async function() {
           🔄 Conectando con el servidor... Si el problema persiste, verifica tu conexión a internet.
         </div>
       `;
+      // Auto-ocultar después de 5 segundos si no hay respuesta
+      mensajeInfoTimeout = setTimeout(() => {
+        if (container.innerHTML.includes('Conectando')) {
+          container.innerHTML = '';
+        }
+      }, 5000);
     }
   }
   
@@ -52,7 +62,7 @@ async function cargarAvisos() {
     });
     
     if (!resultado || !resultado.datos || resultado.datos.length === 0) {
-      contenedor.innerHTML = '<div class="mensaje mensaje-info">No hay avisos en esta categoría</div>';
+      contenedor.innerHTML = '<div class="mensaje mensaje-info">📭 No hay avisos en esta categoría</div>';
     } else {
       contenedor.innerHTML = resultado.datos.map(aviso => crearTarjetaAviso(aviso)).join('');
     }
@@ -63,29 +73,37 @@ async function cargarAvisos() {
     
   } catch(error) {
     console.error('Error al cargar avisos:', error);
-    contenedor.innerHTML = '<div class="mensaje mensaje-error">Error al cargar avisos. Verifica tu conexión a internet.</div>';
+    contenedor.innerHTML = '<div class="mensaje mensaje-error">❌ Error al cargar avisos. Verifica tu conexión a internet e intenta de nuevo.</div>';
   }
 }
 
 function crearTarjetaAviso(aviso) {
-  const fecha = new Date(aviso.created_at).toLocaleDateString('es-MX', {
+  // Validar que aviso tenga los campos necesarios
+  if (!aviso) return '';
+  
+  const fecha = aviso.created_at ? new Date(aviso.created_at).toLocaleDateString('es-MX', {
     day: 'numeric',
     month: 'short',
     year: 'numeric'
-  });
+  }) : 'Fecha no disponible';
   
   const claseUrgente = aviso.categoria === 'urgente' ? 'urgente' : '';
+  const titulo = aviso.titulo || 'Sin título';
+  const contenido = aviso.contenido || '';
+  const categoria = aviso.categoria || 'general';
+  const ubicacion = aviso.ubicacion || '';
+  const id = aviso.id || '';
   
   return `
     <div class="tarjeta ${claseUrgente}">
-      <div class="tarjeta-titulo">${escapeHTML(aviso.titulo)}</div>
+      <div class="tarjeta-titulo">${escapeHTML(titulo)}</div>
       <div class="tarjeta-fecha">${fecha}</div>
-      <div class="tarjeta-contenido">${escapeHTML(aviso.contenido.substring(0, 150))}${aviso.contenido.length > 150 ? '...' : ''}</div>
+      <div class="tarjeta-contenido">${escapeHTML(contenido.substring(0, 150))}${contenido.length > 150 ? '...' : ''}</div>
       <div class="tarjeta-meta">
-        <span>${escapeHTML(aviso.categoria)}</span>
-        ${aviso.ubicacion ? `<span>📍 ${escapeHTML(aviso.ubicacion)}</span>` : ''}
+        <span>${escapeHTML(categoria)}</span>
+        ${ubicacion ? `<span>📍 ${escapeHTML(ubicacion)}</span>` : ''}
       </div>
-      <a href="aviso.html?id=${aviso.id}" class="boton boton-chico" style="margin-top: 16px;">Ver completo</a>
+      ${id ? `<a href="aviso.html?id=${id}" class="boton boton-chico" style="margin-top: 16px;">Ver completo</a>` : ''}
     </div>
   `;
 }
@@ -93,7 +111,7 @@ function crearTarjetaAviso(aviso) {
 // Función de seguridad para evitar XSS
 function escapeHTML(str) {
   if (!str) return '';
-  return str
+  return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -105,7 +123,7 @@ function renderizarPaginacion(paginacion) {
   const contenedor = document.getElementById('paginacion');
   if (!contenedor) return;
   
-  if (paginacion.paginas <= 1) {
+  if (!paginacion || paginacion.paginas <= 1) {
     contenedor.innerHTML = '';
     return;
   }
@@ -117,7 +135,7 @@ function renderizarPaginacion(paginacion) {
         (i >= paginaActual - 2 && i <= paginaActual + 2)) {
       html += `<button class="pagina ${i === paginaActual ? 'activa' : ''}" data-pagina="${i}">${i}</button>`;
     } else if (i === paginaActual - 3 || i === paginaActual + 3) {
-      html += `<span class="pagina" style="background: none; cursor: default;">...</span>`;
+      html += `<span class="paginacion-puntos" style="padding: 8px 12px; background: none; cursor: default;">...</span>`;
     }
   }
   

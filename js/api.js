@@ -140,7 +140,7 @@ const API = {
     if (contenedor) {
       contenedor.innerHTML = `<div class="mensaje mensaje-error">⚠️ ${mensaje}</div>`;
       setTimeout(() => {
-        if (contenedor.innerHTML.includes(mensaje)) {
+        if (contenedor.innerHTML && contenedor.innerHTML.includes(mensaje)) {
           contenedor.innerHTML = '';
         }
       }, 8000);
@@ -154,23 +154,29 @@ const API = {
     if (contenedor) {
       contenedor.innerHTML = `<div class="mensaje mensaje-exito">✓ ${mensaje}</div>`;
       setTimeout(() => {
-        if (contenedor.innerHTML.includes(mensaje)) {
+        if (contenedor.innerHTML && contenedor.innerHTML.includes(mensaje)) {
           contenedor.innerHTML = '';
         }
       }, 5000);
     }
   },
 
-  // Método para verificar conectividad
+  // Método para verificar conectividad (corregido)
   async verificarConexion() {
     try {
-      await fetch(this.baseUrl, {
-        method: 'HEAD',
-        mode: 'no-cors'
+      // Hacemos una petición OPTIONS o un POST ligero para verificar conectividad real
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
+      const respuesta = await fetch(this.baseUrl, {
+        method: 'OPTIONS',
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       return true;
     } catch (error) {
-      console.warn('No hay conexión con el servidor');
+      console.warn('No hay conexión con el servidor:', error.message);
       return false;
     }
   }
