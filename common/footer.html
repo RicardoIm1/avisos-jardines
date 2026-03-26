@@ -1,12 +1,91 @@
 <footer class="footer">
     <div class="contenedor">
-        <p>Periódico mural digital de la Colonia Jardines aporte de <a
-                href="https://ricardoim1.github.io/jeronimoricardo/" target="_blank">Ricardo y Mimi</a></p>
+        <p>Periódico mural digital de la Colonia Jardines aporte de 
+            <span class="autor-nombre">Ricardo y Mimi</span>
+        </p>
         <p>&copy; <span id="anio-actual"></span> - Todos los derechos reservados</p>
     </div>
 </footer>
 
+<style>
+    .footer {
+        background: linear-gradient(135deg, #1a2a3a, #0f1a24);
+        color: #e0e0e0;
+        padding: 2rem 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .contenedor {
+        max-width: 1200px;
+        margin: 0 auto;
+        text-align: center;
+        padding: 0 20px;
+    }
+
+    .autor-nombre {
+        display: inline-block;
+        font-weight: 600;
+        font-size: 1.1rem;
+        background: linear-gradient(135deg, #f5b042, #ff8c42);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        cursor: pointer;
+        position: relative;
+        padding: 0 4px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .autor-nombre::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #f5b042, #ff8c42);
+        transition: all 0.3s ease;
+        transform: translateX(-50%);
+    }
+
+    .autor-nombre:hover {
+        transform: translateY(-2px);
+        text-shadow: 0 2px 8px rgba(245, 176, 66, 0.3);
+        background: linear-gradient(135deg, #ffc46b, #ffa559);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .autor-nombre:hover::after {
+        width: 100%;
+    }
+
+    /* Efecto opcional: tooltip que indica que es clickeable */
+    .autor-nombre:active {
+        transform: translateY(1px);
+    }
+
+    .footer p {
+        margin: 0.5rem 0;
+        line-height: 1.6;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .autor-nombre {
+            font-size: 1rem;
+        }
+    }
+</style>
+
 <script>
     // Actualizar el año automáticamente
     document.getElementById('anio-actual').textContent = new Date().getFullYear();
+    
+    // Opcional: Si quieres mantener la funcionalidad del enlace original
+    document.querySelector('.autor-nombre')?.addEventListener('click', function() {
+        window.open('https://ricardoim1.github.io/jeronimoricardo/', '_blank');
+    });
 </script>
