@@ -20,24 +20,27 @@
         </div>
     </header>
 
-    <main class="contenedor">
-        <div class="filtros" id="filtros">
-            <button class="filtro activo" data-categoria="todos">Todos</button>
-            <button class="filtro" data-categoria="urgente">Urgente</button>
-            <button class="filtro" data-categoria="eventos">Eventos</button>
-            <button class="filtro" data-categoria="servicios">Servicios</button>
-            <button class="filtro" data-categoria="perdidos">Perdidos</button>
-            <button class="filtro" data-categoria="clasificados">Clasificados</button>
-        </div>
+    <div class="contenido-principal">
 
-        <div id="mensaje-container"></div>
+        <main class="contenedor">
+            <div class="filtros" id="filtros">
+                <button class="filtro activo" data-categoria="todos">Todos</button>
+                <button class="filtro" data-categoria="urgente">Urgente</button>
+                <button class="filtro" data-categoria="eventos">Eventos</button>
+                <button class="filtro" data-categoria="servicios">Servicios</button>
+                <button class="filtro" data-categoria="perdidos">Perdidos</button>
+                <button class="filtro" data-categoria="clasificados">Clasificados</button>
+            </div>
 
-        <div id="avisos-container" class="grid-avisos">
-            <div class="cargando">Cargando avisos...</div>
-        </div>
+            <div id="mensaje-container"></div>
 
-        <div id="paginacion" class="paginacion"></div>
-    </main>
+            <div id="avisos-container" class="grid-avisos">
+                <div class="cargando">Cargando avisos...</div>
+            </div>
+
+            <div id="paginacion" class="paginacion"></div>
+        </main>
+    </div>
 
     <!-- Contenedor donde se cargará el footer -->
     <div id="footer-container"></div>
