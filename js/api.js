@@ -29,6 +29,8 @@ const API = {
       api_key: this.apiKey
     };
 
+    console.log('Enviando petición:', { accion, coleccion, payload });
+
     // Control de reintentos
     let ultimoError = null;
     for (let intento = 1; intento <= 3; intento++) {
@@ -53,12 +55,25 @@ const API = {
         }
 
         const resultado = await respuesta.json();
+        console.log('Respuesta API:', resultado);
 
-        if (!resultado.success) {
-          throw new Error(resultado.error || 'Error en la operación');
+        // Verificar si la API devolvió success: true
+        if (resultado.success === true) {
+          // Si es el mensaje de bienvenida o datos reales
+          if (resultado.data && resultado.data.message === 'API de Avisos Jardines activa') {
+            // Es solo un mensaje de bienvenida, no datos reales
+            console.warn('API devolvió mensaje de bienvenida, puede que la colección no exista');
+            return { datos: [], paginacion: { pagina: 1, paginas: 0, total: 0 } };
+          }
+          return resultado.data;
         }
-
-        return resultado.data;
+        
+        // Si no tiene success o es false, lanzar error
+        if (!resultado.success && resultado.error) {
+          throw new Error(resultado.error);
+        }
+        
+        return resultado;
 
       } catch (error) {
         ultimoError = error;
@@ -161,20 +176,26 @@ const API = {
     }
   },
 
-  // Método para verificar conectividad (corregido)
+  // Método para verificar conectividad
   async verificarConexion() {
     try {
-      // Hacemos una petición OPTIONS o un POST ligero para verificar conectividad real
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
       
       const respuesta = await fetch(this.baseUrl, {
-        method: 'OPTIONS',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accion: 'PING' }),
         signal: controller.signal
       });
       
       clearTimeout(timeoutId);
-      return true;
+      
+      if (respuesta.ok) {
+        const data = await respuesta.json();
+        return data.success === true;
+      }
+      return false;
     } catch (error) {
       console.warn('No hay conexión con el servidor:', error.message);
       return false;

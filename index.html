@@ -41,16 +41,13 @@
         </main>
     </div>
 
-    <!-- Contenedor donde se cargará el footer -->
     <div id="footer-container"></div>
 
-    <!-- Cargar scripts en orden correcto -->
     <script src="/avisos-jardines/js/api.js"></script>
     <script src="/avisos-jardines/js/auth.js"></script>
     <script src="/avisos-jardines/js/app.js"></script>
     
     <script>
-        // Cargar el footer después de que los scripts principales estén listos
         document.addEventListener('DOMContentLoaded', function() {
             fetch('/avisos-jardines/common/footer.html')
                 .then(response => {
@@ -61,7 +58,6 @@
                     const footerContainer = document.getElementById('footer-container');
                     if (footerContainer) {
                         footerContainer.innerHTML = data;
-                        // Actualizar el año después de cargar el footer
                         const anioElement = document.getElementById('anio-actual');
                         if (anioElement) {
                             anioElement.textContent = new Date().getFullYear();
