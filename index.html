@@ -15,15 +15,33 @@
         <div class="contenedor">
             <h1>Avisos Jardines</h1>
             <div>
-                <a href="/avisos-jardines/login.html">Admin</a>
+                <a href="/avisos-jardines/login.html" id="login-link">Iniciar sesión</a>
             </div>
         </div>
     </header>
 
-    <main class="contenedor">
-        <h2>📢 Avisos Públicos</h2>
-        <div id="avisos-container"></div>
-    </main>
+    <div class="contenido-principal">
+        <main class="contenedor">
+            <div class="filtros" id="filtros">
+                <button class="filtro activo" data-categoria="todos">Todos</button>
+                <button class="filtro" data-categoria="urgente">Urgente</button>
+                <button class="filtro" data-categoria="eventos">Eventos</button>
+                <button class="filtro" data-categoria="servicios">Servicios</button>
+                <button class="filtro" data-categoria="perdidos">Perdidos</button>
+                <button class="filtro" data-categoria="clasificados">Clasificados</button>
+            </div>
+
+            <div id="mensaje-container"></div>
+
+            <div id="avisos-container" class="grid-avisos">
+                <div class="cargando">Cargando avisos...</div>
+            </div>
+
+            <div id="paginacion" class="paginacion"></div>
+        </main>
+    </div>
+
+    <div id="footer-container"></div>
 
     <script>
         async function cargarAvisosPublicos() {
@@ -70,6 +88,31 @@
         }
 
         cargarAvisosPublicos();
+    </script>
+
+    <script src="/avisos-jardines/js/api.js"></script>
+    <script src="/avisos-jardines/js/auth.js"></script>
+    <script src="/avisos-jardines/js/app.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            fetch('/avisos-jardines/common/footer.html')
+                .then(response => {
+                    if (!response.ok) throw new Error('Footer no encontrado');
+                    return response.text();
+                })
+                .then(data => {
+                    const footerContainer = document.getElementById('footer-container');
+                    if (footerContainer) {
+                        footerContainer.innerHTML = data;
+                        const anioElement = document.getElementById('anio-actual');
+                        if (anioElement) {
+                            anioElement.textContent = new Date().getFullYear();
+                        }
+                    }
+                })
+                .catch(error => console.error('Error cargando el footer:', error));
+        });
     </script>
 </body>
 
