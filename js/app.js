@@ -100,7 +100,7 @@ async function cargarAvisosPublicos() {
   contenedor.innerHTML = '<div class="cargando">📢 Cargando avisos...</div>';
 
   try {
-    const url = "https://docs.google.com/spreadsheets/d/1s8w2Wb8uiQQMMrZn2TQYD5sVDbp-NdpnnQR8l-YTqXM/edit?usp=sharing"; // reemplaza con la URL real
+    const url = "https://docs.google.com/spreadsheets/d/1s8w2Wb8uiQQMMrZn2TQYD5sVDbp-NdpnnQR8l-YTqXM"; // reemplaza con la URL real
     const resp = await fetch(url);
     const texto = await resp.text();
 
