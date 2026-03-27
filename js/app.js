@@ -100,7 +100,7 @@ async function cargarAvisosPublicos() {
   contenedor.innerHTML = '<div class="cargando">📢 Cargando avisos...</div>';
 
   try {
-    const url = "TU_URL_PUBLICADA_DE_GOOGLE_SHEETS"; // reemplaza con la URL real
+    const url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQwiL7oD3APPpLVgrGaBh0xULVoNJt09iVBL81eG2NYTIUbCdGUOQW1dpkgjw4-k_r6KMFfz8m5VVw0/pub?gid=0&single=true&output=csvTU_URL_PUBLICADA_DE_GOOGLE_SHEETS"; // reemplaza con la URL real
     const resp = await fetch(url);
     const texto = await resp.text();
 
