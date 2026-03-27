@@ -54,6 +54,65 @@
   <script src="/avisos-jardines/js/app.js"></script>
 
   <script>
+    // Función para crear tarjeta de aviso con enlace al detalle
+    function crearTarjetaAviso(aviso) {
+      const fecha = aviso.created_at
+        ? new Date(aviso.created_at).toLocaleDateString('es-MX', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+          })
+        : 'Fecha no disponible';
+
+      const claseUrgente = aviso.categoria === 'urgente' ? 'urgente' : '';
+      const titulo = aviso.titulo || 'Sin título';
+      const contenido = aviso.contenido || '';
+
+      return `
+        <div class="tarjeta ${claseUrgente}">
+          <div class="tarjeta-titulo">${titulo}</div>
+          <div class="tarjeta-fecha">📅 ${fecha}</div>
+          <div class="tarjeta-contenido">${contenido.substring(0, 150)}${contenido.length > 150 ? '...' : ''}</div>
+          <div class="tarjeta-meta">
+            <span>🏷️ ${aviso.categoria || 'general'}</span>
+            ${aviso.ubicacion ? `<span>📍 ${aviso.ubicacion}</span>` : ''}
+          </div>
+          ${aviso.id ? `<a href="aviso.html?id=${aviso.id}" class="boton boton-chico" style="margin-top: 16px;">Ver completo →</a>` : ''}
+        </div>
+      `;
+    }
+
+    // Cargar avisos públicos
+    async function cargarAvisosPublicos() {
+      const contenedor = document.getElementById('avisos-container');
+      contenedor.innerHTML = '<div class="cargando">📢 Cargando avisos...</div>';
+
+      try {
+        const url = "https://docs.google.com/spreadsheets/d/e/TU_ID/pub?output=csv"; // reemplaza TU_ID por el ID de tu hoja
+        const resp = await fetch(url);
+        const texto = await resp.text();
+
+        const filas = texto.split("\n").map(f => f.split(","));
+        const encabezados = filas[0];
+        const datos = filas.slice(1).map(fila => {
+          let obj = {};
+          encabezados.forEach((h, i) => obj[h.trim()] = fila[i] ? fila[i].trim() : "");
+          return obj;
+        });
+
+        if (datos.length === 0) {
+          contenedor.innerHTML = '<div class="mensaje mensaje-info">📭 No hay avisos publicados</div>';
+        } else {
+          contenedor.innerHTML = datos.map(aviso => crearTarjetaAviso(aviso)).join('');
+        }
+      } catch (error) {
+        console.error("Error cargando avisos públicos:", error);
+        contenedor.innerHTML = '<div class="mensaje mensaje-error">❌ Error al cargar avisos públicos</div>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', cargarAvisosPublicos);
+
     // Cargar footer dinámico
     document.addEventListener('DOMContentLoaded', function () {
       fetch('/avisos-jardines/common/footer.html')
