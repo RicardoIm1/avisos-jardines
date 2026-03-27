@@ -15,57 +15,61 @@
         <div class="contenedor">
             <h1>Avisos Jardines</h1>
             <div>
-                <a href="/avisos-jardines/login.html" id="login-link">Iniciar sesión</a>
+                <a href="/avisos-jardines/login.html">Admin</a>
             </div>
         </div>
     </header>
 
-    <div class="contenido-principal">
-        <main class="contenedor">
-            <div class="filtros" id="filtros">
-                <button class="filtro activo" data-categoria="todos">Todos</button>
-                <button class="filtro" data-categoria="urgente">Urgente</button>
-                <button class="filtro" data-categoria="eventos">Eventos</button>
-                <button class="filtro" data-categoria="servicios">Servicios</button>
-                <button class="filtro" data-categoria="perdidos">Perdidos</button>
-                <button class="filtro" data-categoria="clasificados">Clasificados</button>
-            </div>
+    <main class="contenedor">
+        <h2>📢 Avisos Públicos</h2>
+        <div id="avisos-container"></div>
+    </main>
 
-            <div id="mensaje-container"></div>
-
-            <div id="avisos-container" class="grid-avisos">
-                <div class="cargando">Cargando avisos...</div>
-            </div>
-
-            <div id="paginacion" class="paginacion"></div>
-        </main>
-    </div>
-
-    <div id="footer-container"></div>
-
-    <script src="/avisos-jardines/js/api.js"></script>
-    <script src="/avisos-jardines/js/auth.js"></script>
-    <script src="/avisos-jardines/js/app.js"></script>
-    
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            fetch('/avisos-jardines/common/footer.html')
-                .then(response => {
-                    if (!response.ok) throw new Error('Footer no encontrado');
-                    return response.text();
-                })
-                .then(data => {
-                    const footerContainer = document.getElementById('footer-container');
-                    if (footerContainer) {
-                        footerContainer.innerHTML = data;
-                        const anioElement = document.getElementById('anio-actual');
-                        if (anioElement) {
-                            anioElement.textContent = new Date().getFullYear();
-                        }
-                    }
-                })
-                .catch(error => console.error('Error cargando el footer:', error));
-        });
+        async function cargarAvisosPublicos() {
+            const contenedor = document.getElementById('avisos-container');
+            contenedor.innerHTML = '<div class="cargando">Cargando avisos...</div>';
+
+            try {
+                // 👉 Reemplaza con la URL publicada de tu hoja AVISOS
+                const url = "https://docs.google.com/spreadsheets/d/e/TU_ID/pub?output=csv";
+                const resp = await fetch(url);
+                const texto = await resp.text();
+
+                // Parsear CSV
+                const filas = texto.split("\n").map(f => f.split(","));
+                const encabezados = filas[0];
+                const datos = filas.slice(1).map(fila => {
+                    let obj = {};
+                    encabezados.forEach((h, i) => obj[h.trim()] = fila[i] ? fila[i].trim() : "");
+                    return obj;
+                });
+
+                if (datos.length === 0) {
+                    contenedor.innerHTML = '<div class="mensaje mensaje-info">📭 No hay avisos publicados</div>';
+                } else {
+                    contenedor.innerHTML = datos.map(aviso => crearTarjetaAviso(aviso)).join('');
+                }
+            } catch (error) {
+                console.error("Error cargando avisos públicos:", error);
+                contenedor.innerHTML = '<div class="mensaje mensaje-error">❌ Error al cargar avisos públicos</div>';
+            }
+        }
+
+        function crearTarjetaAviso(aviso) {
+            return `
+        <div class="tarjeta-aviso">
+          <h3>${aviso.titulo || "Aviso sin título"}</h3>
+          <p>${aviso.contenido || ""}</p>
+          <div class="meta">
+            ${aviso.ubicacion ? "📍 " + aviso.ubicacion : ""}
+            ${aviso.created_at ? "📅 " + aviso.created_at : ""}
+          </div>
+        </div>
+      `;
+        }
+
+        cargarAvisosPublicos();
     </script>
 </body>
 
