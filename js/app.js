@@ -40,7 +40,7 @@ async function cargarAvisosPublicos() {
 
   try {
     // 👉 Usa la URL publicada de tu hoja AVISOS en formato CSV
-    const url = "https://docs.google.com/spreadsheets/d/e/TU_ID/pub?output=csv";
+    const url = "https://docs.google.com/spreadsheets/d/e/1s8w2Wb8uiQQMMrZn2TQYD5sVDbp-NdpnnQR8l-YTqXM/pub?output=csv";
     const resp = await fetch(url);
     const texto = await resp.text();
 
