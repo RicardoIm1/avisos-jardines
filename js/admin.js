@@ -2,6 +2,7 @@
 
 let paginaAdmin = 1;
 let avisosActuales = [];
+let filtroCategoriaAdmin = 'todos'; // Nuevo: filtro por categoría
 
 document.addEventListener('DOMContentLoaded', function() {
   // Verificar sesión
@@ -124,7 +125,40 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+  
+  // Agregar filtro de categorías en la pestaña de lista
+  agregarFiltroCategorias();
 });
+
+// Función para agregar filtro de categorías
+function agregarFiltroCategorias() {
+  const container = document.getElementById('mis-avisos-container');
+  if (!container) return;
+  
+  // Crear el filtro si no existe
+  if (!document.getElementById('filtro-categoria-admin')) {
+    const filtroHTML = `
+      <div class="filtros" style="margin-bottom: 20px; justify-content: flex-start;">
+        <button class="filtro filtro-categoria ${filtroCategoriaAdmin === 'todos' ? 'activo' : ''}" data-filtro="todos">Todos</button>
+        <button class="filtro filtro-categoria ${filtroCategoriaAdmin === 'urgente' ? 'activo' : ''}" data-filtro="urgente">Urgentes</button>
+        <button class="filtro filtro-categoria ${filtroCategoriaAdmin === 'eventos' ? 'activo' : ''}" data-filtro="eventos">Eventos</button>
+        <button class="filtro filtro-categoria ${filtroCategoriaAdmin === 'servicios' ? 'activo' : ''}" data-filtro="servicios">Servicios</button>
+        <button class="filtro filtro-categoria ${filtroCategoriaAdmin === 'perdidos' ? 'activo' : ''}" data-filtro="perdidos">Perdidos</button>
+        <button class="filtro filtro-categoria ${filtroCategoriaAdmin === 'clasificados' ? 'activo' : ''}" data-filtro="clasificados">Clasificados</button>
+      </div>
+    `;
+    container.insertAdjacentHTML('beforebegin', filtroHTML);
+    
+    // Agregar event listeners a los filtros
+    document.querySelectorAll('.filtro-categoria').forEach(btn => {
+      btn.addEventListener('click', function() {
+        filtroCategoriaAdmin = this.dataset.filtro;
+        paginaAdmin = 1; // Resetear página al cambiar filtro
+        cargarMisAvisos();
+      });
+    });
+  }
+}
 
 async function cargarMisAvisos() {
   const contenedor = document.getElementById('mis-avisos-container');
@@ -133,13 +167,30 @@ async function cargarMisAvisos() {
   contenedor.innerHTML = '<div class="cargando">Cargando avisos...</div>';
   
   try {
-    const resultado = await API.listar('AVISOS', { status: 'activo' }, {
+    // Obtener usuario actual para filtrar por sus avisos
+    const usuario = API.getUsuarioActual();
+    
+    // Construir filtros
+    let filtros = { status: 'activo' };
+    
+    // Si no es admin, filtrar por sus propios avisos
+    if (usuario.rol !== 'admin') {
+      filtros.usuario_id = usuario.id;
+    }
+    
+    // Aplicar filtro de categoría si no es "todos"
+    if (filtroCategoriaAdmin !== 'todos') {
+      filtros.categoria = filtroCategoriaAdmin;
+    }
+    
+    const resultado = await API.listar('AVISOS', filtros, {
       pagina: paginaAdmin,
-      limite: 10
+      limite: 10,
+      orderBy: 'created_at DESC'
     });
     
     if (!resultado || !resultado.datos || resultado.datos.length === 0) {
-      contenedor.innerHTML = '<div class="mensaje mensaje-info">No has publicado avisos</div>';
+      contenedor.innerHTML = '<div class="mensaje mensaje-info">No hay avisos que coincidan con los filtros seleccionados</div>';
       return;
     }
     
@@ -152,13 +203,16 @@ async function cargarMisAvisos() {
         : 'Fecha no disponible';
       const contenidoPreview = aviso.contenido ? aviso.contenido.substring(0, 100) : '';
       
+      // Clase especial para avisos urgentes
+      const tarjetaClass = aviso.destacado === 'TRUE' ? 'tarjeta urgente' : 'tarjeta';
+      
       html += `
-        <div class="tarjeta">
+        <div class="${tarjetaClass}">
           <div class="tarjeta-titulo">${escapeHTML(aviso.titulo || 'Sin título')}</div>
           <div class="tarjeta-fecha">📅 ${fecha}</div>
           <div class="tarjeta-contenido">${escapeHTML(contenidoPreview)}...</div>
           <div class="tarjeta-meta">
-            <span>${aviso.categoria || 'general'}</span>
+            <span class="categoria-badge categoria-${aviso.categoria}">${aviso.categoria}</span>
           </div>
           <div class="grupo-botones" style="margin-top: 16px;">
             <a href="/avisos-jardines/aviso.html?id=${aviso.id}" class="boton boton-chico" style="width: auto;">Ver</a>
@@ -187,15 +241,29 @@ function renderizarPaginacionAdmin(paginacion) {
     return;
   }
   
-  let html = '';
+  let html = '<div class="paginacion-info">Página ' + paginaAdmin + ' de ' + paginacion.paginas + '</div>';
+  html += '<div class="paginacion-botones">';
+  
+  // Botón anterior
+  if (paginaAdmin > 1) {
+    html += `<button class="pagina" data-pagina="${paginaAdmin - 1}">« Anterior</button>`;
+  }
+  
+  // Números de página
   for (let i = 1; i <= paginacion.paginas; i++) {
     if (i === 1 || i === paginacion.paginas || (i >= paginaAdmin - 2 && i <= paginaAdmin + 2)) {
       html += `<button class="pagina ${i === paginaAdmin ? 'activa' : ''}" data-pagina="${i}">${i}</button>`;
     } else if (i === paginaAdmin - 3 || i === paginaAdmin + 3) {
-      html += `<span class="pagina" style="background: none;">...</span>`;
+      html += `<span class="pagina" style="background: none; cursor: default;">...</span>`;
     }
   }
   
+  // Botón siguiente
+  if (paginaAdmin < paginacion.paginas) {
+    html += `<button class="pagina" data-pagina="${paginaAdmin + 1}">Siguiente »</button>`;
+  }
+  
+  html += '</div>';
   contenedor.innerHTML = html;
   
   contenedor.querySelectorAll('.pagina[data-pagina]').forEach(btn => {
@@ -254,6 +322,9 @@ async function cargarUsuarios() {
           <div><strong>${escapeHTML(user.nombre || 'Sin nombre')}</strong></div>
           <div>📧 ${escapeHTML(user.email)}</div>
           <div>👔 Rol: ${escapeHTML(user.rol)} | 🏷️ Categorías: ${escapeHTML(user.categorias || 'todas')}</div>
+          <div class="grupo-botones" style="margin-top: 12px;">
+            <button class="boton boton-chico boton-secundario" onclick="cambiarEstadoUsuario('${user.id}')">${user.activo === 'TRUE' ? 'Desactivar' : 'Activar'}</button>
+          </div>
         </div>
       `;
     });
@@ -264,6 +335,32 @@ async function cargarUsuarios() {
   } catch(error) {
     console.error('Error cargando usuarios:', error);
     contenedor.innerHTML = '<div class="mensaje mensaje-error">Error al cargar usuarios</div>';
+  }
+}
+
+// Función para activar notificaciones (implementación básica)
+async function activarNotificaciones() {
+  if ('Notification' in window) {
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      API.mostrarExito('Notificaciones activadas correctamente');
+      // Aquí puedes agregar lógica para suscribir al usuario a notificaciones push
+    } else {
+      API.mostrarError('No se pudieron activar las notificaciones');
+    }
+  } else {
+    API.mostrarError('Tu navegador no soporta notificaciones');
+  }
+}
+
+// Función para cambiar estado de usuario
+async function cambiarEstadoUsuario(id) {
+  try {
+    await API.peticion('ACTUALIZAR_USUARIO', { id, activo: 'FALSE' });
+    API.mostrarExito('Estado de usuario actualizado');
+    cargarUsuarios();
+  } catch(error) {
+    API.mostrarError('Error al actualizar usuario: ' + error.message);
   }
 }
 
