@@ -21,13 +21,13 @@ let paginaActual = 1;
 let categoriaActual = 'todos';
 let todosLosAvisos = [];
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   cargarAvisos();
-  
+
   // Configurar filtros
   const filtros = document.querySelectorAll('.filtro');
   filtros.forEach(btn => {
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function () {
       filtros.forEach(b => b.classList.remove('activo'));
       this.classList.add('activo');
       categoriaActual = this.dataset.categoria;
@@ -40,28 +40,28 @@ document.addEventListener('DOMContentLoaded', function() {
 async function cargarAvisos() {
   const contenedor = document.getElementById('avisos-container');
   if (!contenedor) return;
-  
+
   contenedor.innerHTML = '<div class="cargando">Cargando avisos...</div>';
-  
+
   try {
     const consulta = {};
     if (categoriaActual !== 'todos') {
       consulta.categoria = categoriaActual;
     }
-    
+
     const resultado = await API.listar('AVISOS', consulta, {
       pagina: paginaActual,
       limite: 12
     });
-    
+
     if (resultado && resultado.datos) {
       todosLosAvisos = resultado.datos;
       filtrarYAplicarPaginacion();
     } else {
       contenedor.innerHTML = '<div class="mensaje mensaje-info">No hay avisos disponibles</div>';
     }
-    
-  } catch(error) {
+
+  } catch (error) {
     console.error('Error cargando avisos:', error);
     contenedor.innerHTML = '<div class="mensaje mensaje-error">Error al cargar avisos: ' + error.message + '</div>';
   }
@@ -69,44 +69,44 @@ async function cargarAvisos() {
 
 function filtrarYAplicarPaginacion() {
   let avisosFiltrados = todosLosAvisos;
-  
+
   if (categoriaActual !== 'todos') {
     avisosFiltrados = todosLosAvisos.filter(a => a.categoria === categoriaActual);
   }
-  
+
   const limite = 6;
   const inicio = (paginaActual - 1) * limite;
   const avisosPaginados = avisosFiltrados.slice(inicio, inicio + limite);
-  
+
   const contenedor = document.getElementById('avisos-container');
   if (avisosFiltrados.length === 0) {
     contenedor.innerHTML = '<div class="mensaje mensaje-info">No hay avisos en esta categoría</div>';
   } else {
     contenedor.innerHTML = avisosPaginados.map(aviso => crearTarjetaAviso(aviso)).join('');
   }
-  
+
   const paginacion = {
     pagina: paginaActual,
     total: avisosFiltrados.length,
     paginas: Math.ceil(avisosFiltrados.length / limite)
   };
-  
+
   renderizarPaginacion(paginacion);
 }
 
 function crearTarjetaAviso(aviso) {
-  const fecha = aviso.created_at 
+  const fecha = aviso.created_at
     ? new Date(aviso.created_at).toLocaleDateString('es-MX', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric'
-      })
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    })
     : 'Fecha no disponible';
-  
+
   const claseUrgente = aviso.categoria === 'urgente' ? 'urgente' : '';
   const titulo = aviso.titulo || 'Sin título';
   const contenido = aviso.contenido || '';
-  
+
   const nombresCategoria = {
     'urgente': '⚠️ Urgente',
     'eventos': '🎉 Eventos',
@@ -114,9 +114,11 @@ function crearTarjetaAviso(aviso) {
     'perdidos': '🐾 Perdidos',
     'clasificados': '📢 Clasificados'
   };
-  
+
+  const clicks = aviso.clicks || 0;
+
   const categoriaNombre = nombresCategoria[aviso.categoria] || aviso.categoria || 'General';
-  
+
   return `
     <div class="tarjeta ${claseUrgente}">
       <div class="tarjeta-titulo">${escapeHTML(titulo)}</div>
@@ -126,7 +128,10 @@ function crearTarjetaAviso(aviso) {
         <span>${categoriaNombre}</span>
         ${aviso.ubicacion ? `<span>📍 ${escapeHTML(aviso.ubicacion)}</span>` : ''}
       </div>
-      <a href="/avisos-jardines/aviso.html?id=${aviso.id}" class="boton boton-chico" style="margin-top: 16px;">Ver detalles →</a>
+      <a href="${link}" 
+   target="_blank" 
+   class="boton boton-chico"
+   onclick="registrarClickWhatsApp('${aviso.id}')">
     </div>
   `;
 }
@@ -144,12 +149,12 @@ function escapeHTML(str) {
 function renderizarPaginacion(paginacion) {
   const contenedor = document.getElementById('paginacion');
   if (!contenedor) return;
-  
+
   if (paginacion.paginas <= 1) {
     contenedor.innerHTML = '';
     return;
   }
-  
+
   let html = '';
   for (let i = 1; i <= paginacion.paginas; i++) {
     if (i === 1 || i === paginacion.paginas || (i >= paginaActual - 2 && i <= paginaActual + 2)) {
@@ -158,14 +163,29 @@ function renderizarPaginacion(paginacion) {
       html += `<span class="pagina" style="background: none;">...</span>`;
     }
   }
-  
+
   contenedor.innerHTML = html;
-  
+
   contenedor.querySelectorAll('.pagina[data-pagina]').forEach(btn => {
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function () {
       paginaActual = parseInt(this.dataset.pagina);
       filtrarYAplicarPaginacion();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
+}
+
+function registrarClickWhatsApp(idAviso) {
+  try {
+    fetch("https://script.google.com/macros/s/AKfycbyt8aSZUOGUa5KOE6EzrdY_Hka5S1h9AVpSzlxinBs9q7KhXJr8ECRHiM8mW4ueSC4P/exec", {
+      method: "POST",
+      body: JSON.stringify({
+        accion: "CLICK_WHATSAPP",
+        id: idAviso,
+        timestamp: new Date().toISOString()
+      })
+    });
+  } catch (e) {
+    console.error("Error registrando click", e);
+  }
 }
