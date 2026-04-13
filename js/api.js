@@ -1,6 +1,6 @@
 // ==================== API CLIENT SIMPLIFICADO ====================
 const API = {
-  baseUrl: 'https://script.google.com/macros/s/AKfycbxtf48CFd11Dbc8ErnqzNFPv7QNa0Ha23jacYVxJO7LiHnsOTU-WEDDKxiJsH6Fvdxz/exec',
+  baseUrl: 'https://script.google.com/macros/s/AKfycbwS5rzdC14Nt8yBzHbbrokliZ6EuTvG-zh1tJtnEkkQRpvQRqVElNUstZ7d1eHNT0Zk/exec',
   
   get apiKey() {
     return localStorage.getItem('api_key');
