@@ -13,7 +13,10 @@ const UI = {
       const html = await res.text();
       container.innerHTML = html;
 
-      this.sincronizarAuth();
+      // 🔥 Esperar a que el DOM procese el HTML
+      requestAnimationFrame(() => {
+        this.sincronizarAuth();
+      });
 
     } catch (error) {
       console.error('Error cargando header:', error);
