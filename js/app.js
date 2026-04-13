@@ -1,3 +1,20 @@
+function normalizarTelefono(input) {
+  if (!input) return null;
+
+  let num = input.replace(/\D/g, '');
+
+  if (num.length === 10) return '521' + num;
+  if (num.startsWith('52') && num.length === 12) return num;
+  if (num.startsWith('521') && num.length === 13) return num;
+
+  return null;
+}
+
+function generarLinkWhatsApp(numero, aviso) {
+  const mensaje = `Hola, vi tu anuncio (${aviso.id}) de ${aviso.titulo} en Jardines Vallarta. ¿Sigue disponible?`;
+  return `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
+}
+
 // ==================== APLICACIÓN PRINCIPAL ====================
 
 let paginaActual = 1;

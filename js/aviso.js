@@ -54,11 +54,11 @@ function crearVistaDetalle(aviso) {
   // Manejo seguro de fecha de creación
   let fecha = aviso.created_at
     ? new Date(aviso.created_at).toLocaleDateString('es-MX', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
     : 'Fecha no disponible';
 
   const claseUrgente = aviso.categoria === 'urgente' ? 'urgente' : '';
@@ -75,7 +75,26 @@ function crearVistaDetalle(aviso) {
   }
 
   if (aviso.contacto) {
-    html += `<div class="tarjeta-meta"><span>📞 Contacto: ${aviso.contacto}</span></div>`;
+    const telefono = aviso.contacto.replace(/\D/g, '');
+    let telefonoFinal = null;
+
+    if (telefono.length === 10) telefonoFinal = '521' + telefono;
+    else if (telefono.startsWith('52')) telefonoFinal = telefono;
+
+    if (telefonoFinal) {
+      const mensaje = encodeURIComponent(`Hola, vi tu anuncio (${aviso.id}) en Jardines Vallarta`);
+      const link = `https://wa.me/${telefonoFinal}?text=${mensaje}`;
+
+      html += `
+      <div style="margin-top:16px;">
+        <a href="${link}" target="_blank" class="boton" style="background:#25D366; color:white;">
+          📲 Contactar por WhatsApp
+        </a>
+      </div>
+    `;
+    } else {
+      html += `<div class="tarjeta-meta"><span>📞 ${aviso.contacto}</span></div>`;
+    }
   }
 
   if (aviso.fecha_evento) {
