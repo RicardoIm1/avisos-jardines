@@ -13,6 +13,7 @@ const UI = {
       const html = await res.text();
       container.innerHTML = html;
 
+      // 🔥 SOLO ESTO
       this.sincronizarAuth();
 
     } catch (error) {
