@@ -108,3 +108,35 @@ function inicializarHeaderAuth() {
     });
   }
 }
+
+function inicializarHeaderAuth() {
+  const usuario = API.getUsuarioActual();
+  const loginLink = document.getElementById('login-link');
+  const cerrarSesion = document.getElementById('cerrar-sesion');
+
+  if (usuario) {
+    if (loginLink) {
+      loginLink.textContent = usuario.nombre || 'Mi cuenta';
+      loginLink.href = '/avisos-jardines/admin.html';
+    }
+
+    if (cerrarSesion) {
+      cerrarSesion.style.display = 'inline-block';
+      cerrarSesion.addEventListener('click', function (e) {
+        e.preventDefault();
+        API.logout();
+        window.location.href = '/avisos-jardines/index.html';
+      });
+    }
+
+  } else {
+    if (loginLink) {
+      loginLink.textContent = 'Iniciar sesión';
+      loginLink.href = '/avisos-jardines/login.html';
+    }
+
+    if (cerrarSesion) {
+      cerrarSesion.style.display = 'none';
+    }
+  }
+}
