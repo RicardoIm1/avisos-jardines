@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
   <title>Iniciar sesión - Avisos Colonia Jardines PVR</title>
   <link rel="stylesheet" href="/avisos-jardines/css/estilo.css">
 </head>
+
 <body>
   <div id="header-container"></div>
 
@@ -14,7 +16,7 @@
 
     <form id="form-login" class="formulario">
       <h2 style="margin-bottom: 24px; font-weight: 500;">Iniciar sesión</h2>
-      
+
       <div class="campo">
         <label for="email">Correo electrónico</label>
         <input type="email" id="email" name="email" required placeholder="ejemplo@correo.com">
@@ -36,8 +38,28 @@
   <script src="/avisos-jardines/js/auth.js"></script>
 
   <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+      // Cargar header
+      fetch('/avisos-jardines/common/header.html')
+        .then(res => {
+          if (!res.ok) throw new Error('Header no encontrado');
+          return res.text();
+        })
+        .then(html => {
+          document.getElementById('header-container').innerHTML = html;
+
+          // ⚡ IMPORTANTE: ejecutar lógica auth DESPUÉS de cargar el header
+          inicializarHeaderAuth();
+        })
+        .catch(err => console.error('Error cargando header:', err));
+
+    });
+  </script>
+
+  <script>
     // Cargar footer dinámico
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       fetch('/avisos-jardines/common/footer.html')
         .then(response => {
           if (!response.ok) throw new Error('Footer no encontrado');
@@ -57,4 +79,5 @@
     });
   </script>
 </body>
+
 </html>

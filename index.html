@@ -44,6 +44,26 @@
   <script src="/avisos-jardines/js/app.js"></script>
 
   <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+      // Cargar header
+      fetch('/avisos-jardines/common/header.html')
+        .then(res => {
+          if (!res.ok) throw new Error('Header no encontrado');
+          return res.text();
+        })
+        .then(html => {
+          document.getElementById('header-container').innerHTML = html;
+
+          // ⚡ IMPORTANTE: ejecutar lógica auth DESPUÉS de cargar el header
+          inicializarHeaderAuth();
+        })
+        .catch(err => console.error('Error cargando header:', err));
+
+    });
+  </script>
+
+  <script>
     // Cargar footer dinámico
     document.addEventListener('DOMContentLoaded', function () {
       fetch('/avisos-jardines/common/footer.html')
