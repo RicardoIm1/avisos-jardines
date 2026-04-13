@@ -1,6 +1,6 @@
-/* baseUrl: 'https://script.google.com/macros/s/AKfycbxNCWY2g5VkMNYXN8dmywt_ElACDM17Z-riMMU_ocm7oswRQGc76ErYhA-DlOmVTgk4/exec', */
 // ==================== API CLIENT ====================
 const API = {
+  /* baseUrl: 'https://script.google.com/macros/s/AKfycbxNCWY2g5VkMNYXN8dmywt_ElACDM17Z-riMMU_ocm7oswRQGc76ErYhA-DlOmVTgk4/exec', */
   baseUrl: 'https://script.google.com/macros/s/AKfycbzINnCQrPcFUrT4eUZ0M2KjJ4rN3wqA2HeUAGjJlBijP_VlNiiFjH21e4e-tnzdPQs4/exec',
   
   // Autenticación
