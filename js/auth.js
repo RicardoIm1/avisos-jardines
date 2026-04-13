@@ -7,11 +7,21 @@ const Auth = {
     try {
       const resultado = await API.login(email, password);
 
-      if (resultado && resultado.api_key) {
-        return resultado;
-      } else {
-        throw new Error('Credenciales inválidas');
+      console.log('Resultado login:', resultado);
+
+      // 🔍 Validación realista
+      if (!resultado) {
+        throw new Error('Sin respuesta del servidor');
       }
+
+      // ⚠️ Aquí depende de tu backend
+      // Ajusta según lo que realmente regrese tu API
+      if (resultado.error) {
+        throw new Error(resultado.error);
+      }
+
+      // ✔️ Login válido
+      return resultado;
 
     } catch (error) {
       console.error('Error en login:', error);
