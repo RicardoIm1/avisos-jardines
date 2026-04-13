@@ -121,7 +121,6 @@ function crearTarjetaAviso(aviso) {
   const categoriaNombre = nombresCategoria[aviso.categoria] || aviso.categoria || 'General';
   const clicks = aviso.clicks || 0;
 
-  // 🔥 construir botón solo si hay teléfono válido
   let botonWhatsApp = '';
 
   if (telefono) {
