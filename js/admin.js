@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Formulario nuevo aviso - CORREGIDO
+  // FORMULARIO NUEVO AVISO - CORREGIDO con nombres EXACTOS
   const formAviso = document.getElementById('form-aviso');
   if (formAviso) {
     formAviso.addEventListener('submit', async function(e) {
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
       
       const usuarioActual = API.getUsuarioActual();
       
-      // IMPORTANTE: Los nombres deben coincidir EXACTAMENTE con los encabezados del sheet
+      // LOS NOMBRES DEBEN COINCIDIR EXACTAMENTE con los encabezados de tu hoja
       const datos = {
         titulo: document.getElementById('titulo').value,
         contenido: document.getElementById('contenido').value,
@@ -52,12 +52,14 @@ document.addEventListener('DOMContentLoaded', function() {
         fecha_evento: document.getElementById('fecha_evento').value || '',
         destacado: document.getElementById('urgente').checked ? 'TRUE' : 'FALSE',
         status: 'activo',
-        created_by: usuarioActual.id,  // ← CAMBIADO: usar 'created_by' no 'usuario_id'
-        created_at: new Date().toISOString()
+        created_by: usuarioActual.id,
+        // Estos se generan automáticamente en el backend
+        // id, created_at, updated_at se generan en codigo.gs
       };
       
-      console.log('Enviando aviso:', datos);
+      console.log('Enviando aviso con datos:', datos);
       
+      // Validar campos requeridos
       if (!datos.categoria || !datos.titulo || !datos.contenido) {
         API.mostrarError('Completa los campos obligatorios');
         return;
@@ -65,11 +67,12 @@ document.addEventListener('DOMContentLoaded', function() {
       
       try {
         const resultado = await API.crear('AVISOS', datos);
-        console.log('Resultado creación:', resultado);
-        API.mostrarExito('Aviso publicado correctamente');
+        console.log('Respuesta del servidor:', resultado);
+        API.mostrarExito('✅ Aviso publicado correctamente');
         formAviso.reset();
         document.getElementById('urgente').checked = false;
         
+        // Cambiar a pestaña de lista
         const listaTab = document.querySelector('[data-tab="lista"]');
         if (listaTab) listaTab.click();
         
@@ -106,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
         email: document.getElementById('user-email').value,
         nombre: document.getElementById('user-nombre').value,
         rol: document.getElementById('user-rol').value,
-        password_hash: document.getElementById('user-password').value,  // ← usar 'password_hash'
+        password_hash: document.getElementById('user-password').value,
         categorias: document.getElementById('user-categorias').value || 'todas',
         activo: 'TRUE'
       };
@@ -118,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
       
       try {
         await API.peticion('CREAR_USUARIO', datos);
-        API.mostrarExito('Usuario creado correctamente');
+        API.mostrarExito('✅ Usuario creado correctamente');
         formUsuario.reset();
         cargarUsuarios();
       } catch(error) {
@@ -127,6 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
+  // Cargar avisos iniciales
   cargarMisAvisos();
 });
 
@@ -163,9 +167,10 @@ async function cargarMisAvisos() {
   const contenedor = document.getElementById('mis-avisos-container');
   if (!contenedor) return;
   
-  contenedor.innerHTML = '<div class="cargando">Cargando avisos...</div>';
+  contenedor.innerHTML = '<div class="cargando">🔄 Cargando avisos...</div>';
   
   try {
+    // Agregar filtro de categorías
     if (!document.querySelector('.filtros-categorias')) {
       const filtrosHTML = `
         <div class="filtros filtros-categorias" style="margin-bottom: 20px; justify-content: flex-start; flex-wrap: wrap;">
@@ -203,6 +208,8 @@ async function cargarMisAvisos() {
     const avisos = resultado.datos || [];
     const paginacion = resultado.paginacion || { pagina: 1, paginas: 1, total: 0 };
     
+    console.log('Avisos cargados:', avisos.length);
+    
     if (avisos.length === 0) {
       contenedor.innerHTML = '<div class="mensaje mensaje-info">📭 No hay avisos que coincidan con los filtros</div>';
       return;
@@ -218,11 +225,12 @@ async function cargarMisAvisos() {
       
       html += `
         <div class="tarjeta" style="${esUrgente ? 'border-left: 4px solid #dc3545; background: #fff5f5;' : ''}">
-          <div class="tarjeta-titulo">${escapeHTML(aviso.titulo || 'Sin título')} ${esUrgente ? '⚠️' : ''}</div>
+          <div class="tarjeta-titulo"><strong>${escapeHTML(aviso.titulo || 'Sin título')}</strong> ${esUrgente ? '⚠️' : ''}</div>
           <div class="tarjeta-fecha">📅 ${fecha}</div>
           <div class="tarjeta-contenido">${escapeHTML(contenidoPreview)}${aviso.contenido && aviso.contenido.length > 100 ? '...' : ''}</div>
           <div class="tarjeta-meta">
-            <span class="categoria-badge">🏷️ ${aviso.categoria || 'general'}</span>
+            <span style="background: #e0e0e0; padding: 4px 8px; border-radius: 4px; font-size: 12px;">🏷️ ${aviso.categoria || 'general'}</span>
+            ${aviso.ubicacion ? `<span style="margin-left: 8px;">📍 ${escapeHTML(aviso.ubicacion)}</span>` : ''}
           </div>
           <div class="grupo-botones" style="margin-top: 16px;">
             <button class="boton boton-chico" onclick="verAviso('${aviso.id}')">👁️ Ver</button>
@@ -235,8 +243,9 @@ async function cargarMisAvisos() {
     
     contenedor.innerHTML = html;
     
+    // Paginación
     if (paginacion.paginas > 1) {
-      let pagHtml = '<div class="paginacion-botones" style="display: flex; justify-content: center; gap: 8px; margin-top: 20px;">';
+      let pagHtml = '<div class="paginacion-botones" style="display: flex; justify-content: center; gap: 8px; margin-top: 20px; flex-wrap: wrap;">';
       if (paginaAdmin > 1) {
         pagHtml += `<button class="pagina" data-pagina="${paginaAdmin - 1}" style="padding: 8px 12px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer;">« Anterior</button>`;
       }
@@ -305,7 +314,7 @@ async function cargarUsuarios() {
   const contenedor = document.getElementById('lista-usuarios-container');
   if (!contenedor) return;
   
-  contenedor.innerHTML = '<div class="cargando">Cargando usuarios...</div>';
+  contenedor.innerHTML = '<div class="cargando">🔄 Cargando usuarios...</div>';
   
   try {
     const resultado = await API.listar('USUARIOS', { activo: 'TRUE' });
@@ -347,7 +356,8 @@ async function eliminarAviso(id) {
   if (!confirm('¿Eliminar este aviso permanentemente?')) return;
   
   try {
-    await API.eliminar('AVISOS', id);
+    const resultado = await API.eliminar('AVISOS', id);
+    console.log('Resultado eliminar:', resultado);
     API.mostrarExito('✅ Aviso eliminado correctamente');
     cargarMisAvisos();
   } catch(error) {
