@@ -1,7 +1,9 @@
+// ==================== UTILIDADES ====================
+
 function normalizarTelefono(input) {
   if (!input) return null;
 
-  // 🔥 convertir a string pase lo que pase
+  // Convertir a string siempre
   let num = String(input).replace(/\D/g, '');
 
   if (num.length === 10) return '521' + num;
@@ -16,16 +18,27 @@ function generarLinkWhatsApp(numero, aviso) {
   return `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
 }
 
-// ==================== APLICACIÓN PRINCIPAL ====================
+function escapeHTML(str) {
+  if (!str) return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ==================== ESTADO ====================
 
 let paginaActual = 1;
 let categoriaActual = 'todos';
 let todosLosAvisos = [];
 
+// ==================== INICIO ====================
+
 document.addEventListener('DOMContentLoaded', function () {
   cargarAvisos();
 
-  // Configurar filtros
   const filtros = document.querySelectorAll('.filtro');
   filtros.forEach(btn => {
     btn.addEventListener('click', function () {
@@ -37,6 +50,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 });
+
+// ==================== CARGA DE DATOS ====================
 
 async function cargarAvisos() {
   const contenedor = document.getElementById('avisos-container');
@@ -68,6 +83,8 @@ async function cargarAvisos() {
   }
 }
 
+// ==================== FILTRO + PAGINACIÓN ====================
+
 function filtrarYAplicarPaginacion() {
   let avisosFiltrados = todosLosAvisos;
 
@@ -80,6 +97,7 @@ function filtrarYAplicarPaginacion() {
   const avisosPaginados = avisosFiltrados.slice(inicio, inicio + limite);
 
   const contenedor = document.getElementById('avisos-container');
+
   if (avisosFiltrados.length === 0) {
     contenedor.innerHTML = '<div class="mensaje mensaje-info">No hay avisos en esta categoría</div>';
   } else {
@@ -95,15 +113,17 @@ function filtrarYAplicarPaginacion() {
   renderizarPaginacion(paginacion);
 }
 
+// ==================== TARJETA ====================
+
 function crearTarjetaAviso(aviso) {
   const telefono = normalizarTelefono(aviso.contacto || '');
 
   const fecha = aviso.created_at
     ? new Date(aviso.created_at).toLocaleDateString('es-MX', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    })
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      })
     : 'Fecha no disponible';
 
   const claseUrgente = aviso.categoria === 'urgente' ? 'urgente' : '';
@@ -164,62 +184,7 @@ function crearTarjetaAviso(aviso) {
   `;
 }
 
-const categoriaNombre = nombresCategoria[aviso.categoria] || aviso.categoria || 'General';
-const clicks = aviso.clicks || 0;
-
-// 🔧 WhatsApp
-let botonWhatsApp = '';
-const telefono = normalizarTelefono(aviso.contacto);
-
-if (telefono) {
-  const link = generarLinkWhatsApp(telefono, aviso);
-
-  botonWhatsApp = `
-      <a href="${link}" 
-         target="_blank" 
-         class="boton boton-chico"
-         onclick="registrarClickWhatsApp('${aviso.id}')"
-         style="margin-top: 8px; background:#25D366; color:white;">
-         📲 Contactar
-      </a>
-    `;
-}
-
-return `
-    <div class="tarjeta ${claseUrgente}">
-      <div class="tarjeta-titulo">${escapeHTML(titulo)}</div>
-      <div class="tarjeta-fecha">📅 ${fecha}</div>
-      <div class="tarjeta-contenido">
-        ${escapeHTML(contenido.substring(0, 150))}
-        ${contenido.length > 150 ? '...' : ''}
-      </div>
-
-      <div class="tarjeta-meta">
-        <span>${categoriaNombre}</span>
-        ${aviso.ubicacion ? `<span>📍 ${escapeHTML(aviso.ubicacion)}</span>` : ''}
-        <span>👁️ ${clicks} interesados</span>
-      </div>
-
-      ${botonWhatsApp}
-
-      <a href="/avisos-jardines/aviso.html?id=${aviso.id}" 
-         class="boton boton-chico" 
-         style="margin-top: 8px;">
-         Ver detalles →
-      </a>
-    </div>
-  `;
-}
-
-function escapeHTML(str) {
-  if (!str) return '';
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
+// ==================== PAGINACIÓN ====================
 
 function renderizarPaginacion(paginacion) {
   const contenedor = document.getElementById('paginacion');
@@ -231,8 +196,13 @@ function renderizarPaginacion(paginacion) {
   }
 
   let html = '';
+
   for (let i = 1; i <= paginacion.paginas; i++) {
-    if (i === 1 || i === paginacion.paginas || (i >= paginaActual - 2 && i <= paginaActual + 2)) {
+    if (
+      i === 1 ||
+      i === paginacion.paginas ||
+      (i >= paginaActual - 2 && i <= paginaActual + 2)
+    ) {
       html += `<button class="pagina ${i === paginaActual ? 'activa' : ''}" data-pagina="${i}">${i}</button>`;
     } else if (i === paginaActual - 3 || i === paginaActual + 3) {
       html += `<span class="pagina" style="background: none;">...</span>`;
@@ -249,6 +219,8 @@ function renderizarPaginacion(paginacion) {
     });
   });
 }
+
+// ==================== TRACKING ====================
 
 function registrarClickWhatsApp(idAviso) {
   try {
