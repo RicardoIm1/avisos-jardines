@@ -3,50 +3,85 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
   <title>Aviso - Avisos Colonia Jardines PVR</title>
+
+  <!-- Estilos -->
   <link rel="stylesheet" href="/avisos-jardines/css/estilo.css">
+
+  <!-- Meta -->
+  <meta name="theme-color" content="#2c3e50">
 </head>
 
 <body>
+
+  <!-- ================= HEADER ================= -->
   <header class="header">
     <div class="contenedor">
       <h1>Avisos Colonia Jardines PVR</h1>
       <h4>El canal oficial donde los vecinos sí ven las cosas</h4>
+
       <div>
         <a href="/avisos-jardines/login.html" id="login-link">Iniciar sesión</a>
       </div>
     </div>
   </header>
 
+  <!-- ================= CONTENIDO ================= -->
   <main class="contenedor-chico">
+
+    <!-- Mensajes del sistema -->
     <div id="mensaje-container"></div>
-    <div id="aviso-detalle" class="cargando">Cargando aviso...</div>
-    <div class="tarjeta-meta">
-      <span>${categoriaNombre}</span>
-      ${aviso.ubicacion ? `<span>📍 ${escapeHTML(aviso.ubicacion)}</span>` : ''}
-      <span>👁️ ${clicks} interesados</span>
+
+    <!-- Aquí se inyecta TODO el aviso desde aviso.js -->
+    <div id="aviso-detalle" class="cargando">
+      Cargando aviso...
     </div>
+
+    <!-- Botón de regreso -->
+    <div style="margin-top: 24px;">
+      <a href="/avisos-jardines/index.html" class="boton boton-chico">
+        ← Volver a avisos
+      </a>
+    </div>
+
   </main>
 
-  <!-- Contenedor donde se cargará el footer -->
+  <!-- ================= FOOTER ================= -->
   <div id="footer-container"></div>
 
+  <!-- ================= SCRIPTS ================= -->
+
   <script>
-    // Cargar el footer
-    fetch('/avisos-jardines/common/footer.html')
-      .then(response => response.text())
-      .then(data => {
-        document.getElementById('footer-container').innerHTML = data;
-        // Actualizar el año después de cargar el footer
-        document.getElementById('anio-actual').textContent = new Date().getFullYear();
-      })
-      .catch(error => console.error('Error cargando el footer:', error));
+    // 🔽 Cargar footer dinámico
+    document.addEventListener('DOMContentLoaded', function () {
+      fetch('/avisos-jardines/common/footer.html')
+        .then(response => {
+          if (!response.ok) throw new Error('Footer no encontrado');
+          return response.text();
+        })
+        .then(data => {
+          const footer = document.getElementById('footer-container');
+          if (footer) {
+            footer.innerHTML = data;
+
+            const anio = document.getElementById('anio-actual');
+            if (anio) {
+              anio.textContent = new Date().getFullYear();
+            }
+          }
+        })
+        .catch(error => console.error('Error cargando el footer:', error));
+    });
   </script>
 
+  <!-- Core -->
   <script src="/avisos-jardines/js/api.js"></script>
   <script src="/avisos-jardines/js/auth.js"></script>
-  <script src="/avisos-jardines/js/aviso.js"></script>
-</body>
 
+  <!-- Lógica del detalle -->
+  <script src="/avisos-jardines/js/aviso.js"></script>
+
+</body>
 </html>
