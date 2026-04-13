@@ -1,7 +1,8 @@
 function normalizarTelefono(input) {
   if (!input) return null;
 
-  let num = input.replace(/\D/g, '');
+  // 🔥 convertir a string pase lo que pase
+  let num = String(input).replace(/\D/g, '');
 
   if (num.length === 10) return '521' + num;
   if (num.startsWith('52') && num.length === 12) return num;
