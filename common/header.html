@@ -1,13 +1,13 @@
 <header class="header">
     <div class="contenedor header-contenido">
-        <!-- Logo y título -->
-        <div class="header-logo">
+        <!-- Logo y título - Ahora son un enlace al index -->
+        <a href="/avisos-jardines/index.html" class="header-logo" style="text-decoration: none;">
             <div class="logo-icon">🏘️</div>
             <div class="logo-texto">
                 <h1>Avisos Colonia Jardines PVR</h1>
                 <p class="header-slogan">El canal oficial donde los vecinos sí ven las cosas</p>
             </div>
-        </div>
+        </a>
 
         <!-- Acciones del usuario -->
         <div class="header-acciones" id="header-acciones">
@@ -22,26 +22,7 @@
         </div>
     </div>
 </header>
-<!-- Agrega esto justo después del header, antes del contenido principal -->
-<!-- <div class="header-nav">
-    <div class="contenedor">
-        <a href="/avisos-jardines/index.html">🏠 Inicio</a>
-        <a href="/avisos-jardines/index.html?categoria=urgente">⚠️ Urgentes</a>
-        <a href="/avisos-jardines/index.html?categoria=eventos">🎉 Eventos</a>
-        <a href="/avisos-jardines/index.html?categoria=servicios">🔧 Servicios</a>
-        <a href="/avisos-jardines/index.html?categoria=clasificados">💰 Clasificados</a>
-        <a href="/avisos-jardines/admin.html" id="nav-admin" style="display:none;">⚙️ Admin</a>
-    </div>
-</div> -->
 
-<script>
-    // Mostrar/ocultar el enlace de admin según el rol
-    const usuario = API?.getUsuarioActual ? API.getUsuarioActual() : null;
-    const navAdmin = document.getElementById('nav-admin');
-    if (navAdmin && usuario && usuario.rol === 'admin') {
-        navAdmin.style.display = 'inline-block';
-    }
-</script>
 <style>
     /* ========== HEADER MEJORADO ========== */
     .header {
@@ -63,11 +44,22 @@
         gap: 20px;
     }
 
-    /* Logo y título */
+    /* Logo y título - Ahora es un enlace clickeable */
     .header-logo {
         display: flex;
         align-items: center;
         gap: 15px;
+        text-decoration: none;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+
+    .header-logo:hover {
+        transform: translateX(5px);
+    }
+
+    .header-logo:hover .logo-icon {
+        transform: rotate(5deg) scale(1.05);
     }
 
     .logo-icon {
@@ -81,10 +73,6 @@
         justify-content: center;
         box-shadow: 0 4px 15px rgba(245, 176, 66, 0.3);
         transition: transform 0.3s ease;
-    }
-
-    .logo-icon:hover {
-        transform: rotate(5deg) scale(1.05);
     }
 
     .logo-texto h1 {
@@ -150,29 +138,6 @@
     .btn-logout:hover {
         background: linear-gradient(135deg, #e04a5a, #d42c3c);
         box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
-    }
-
-    /* Navegación rápida (opcional - puedes agregar pestañas aquí) */
-    .header-nav {
-        margin-top: 15px;
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        flex-wrap: wrap;
-    }
-
-    .header-nav a {
-        color: #b0b0b0;
-        text-decoration: none;
-        font-size: 0.9rem;
-        transition: all 0.3s ease;
-        padding: 5px 10px;
-        border-radius: 20px;
-    }
-
-    .header-nav a:hover {
-        color: #f5b042;
-        background: rgba(245, 176, 66, 0.1);
     }
 
     /* ========== RESPONSIVE ========== */
