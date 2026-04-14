@@ -104,7 +104,7 @@
       gap: 10px;
     }
 
-    /* Botón volver */
+    /* Botón volver - dentro del aviso.js */
     .boton-volver {
       display: inline-flex;
       align-items: center;
@@ -118,6 +118,7 @@
       border-radius: 40px;
       transition: all 0.2s ease;
       border: 1px solid #e0d5c0;
+      margin-top: 30px;
     }
 
     .boton-volver:hover {
@@ -168,17 +169,12 @@
     <!-- Mensajes del sistema -->
     <div id="mensaje-container"></div>
 
-    <!-- Aquí se inyecta TODO el aviso desde aviso.js -->
+    <!-- Aquí se inyecta TODO el aviso desde aviso.js (incluye el botón volver) -->
     <div id="aviso-detalle" class="cargando">
       📰 Cargando aviso...
     </div>
 
-    <!-- Botón de regreso -->
-    <div style="margin-top: 20px; text-align: center; padding-bottom: 30px;">
-      <a href="/avisos-jardines/index.html" class="boton-volver">
-        ← Volver al inicio
-      </a>
-    </div>
+    <!-- ✅ BOTÓN DUPLICADO ELIMINADO - ya no está aquí -->
 
   </main>
 
