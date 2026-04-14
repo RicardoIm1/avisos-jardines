@@ -39,10 +39,10 @@ const UI = {
       if (cerrarSesion) {
         cerrarSesion.style.display = 'inline-block';
 
-        cerrarSesion.onclick = (e) => {
+        cerrarSesion.onclick = function (e) {
           e.preventDefault();
-          API.cerrarSesion();
-          window.location.href = '/avisos-jardines/index.html';
+          if (API.cerrarSesion) API.cerrarSesion();
+          window.location.href = '/avisos-jardines/login.html';
         };
       }
 
