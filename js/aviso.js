@@ -27,11 +27,11 @@ async function cargarAviso(id, modoEditar = false) {
   try {
     // 🔥 USAR LA API EN LUGAR DEL CSV PÚBLICO
     const resultado = await API.listar('AVISOS');
-    
+
     if (!resultado || !resultado.datos) {
       throw new Error('No se pudieron cargar los avisos');
     }
-    
+
     const aviso = resultado.datos.find(a => a.id && a.id.toString().trim() === id.toString().trim());
 
     if (!aviso) {
@@ -73,11 +73,11 @@ async function registrarClick(id) {
 async function crearVistaDetalle(aviso, puedeEditar = false) {
   let fecha = aviso.created_at
     ? new Date(aviso.created_at).toLocaleDateString('es-MX', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
     : 'Fecha no disponible';
 
   const nombresCategoria = {
@@ -109,7 +109,7 @@ async function crearVistaDetalle(aviso, puedeEditar = false) {
 
   // Información adicional
   html += `<div class="aviso-info-adicional">`;
-  
+
   if (aviso.contacto) {
     const whatsappLink = generarWhatsAppLink(aviso.contacto, aviso.id, aviso.titulo);
     if (whatsappLink) {
@@ -124,16 +124,22 @@ async function crearVistaDetalle(aviso, puedeEditar = false) {
       html += `<p>📞 Contacto: ${escapeHtml(aviso.contacto)}</p>`;
     }
   }
-  
-  if (aviso.fecha_evento) {
-    const fechaEvento = new Date(aviso.fecha_evento).toLocaleDateString('es-MX');
+
+  // ✅ CORREGIDO: Manejo de fecha del evento
+  if (aviso.fecha_evento && aviso.fecha_evento !== '') {
+    let fechaEventoStr = aviso.fecha_evento;
+    // Si viene en formato ISO (2024-02-01T06:00:00.000Z), extraer solo la fecha
+    if (fechaEventoStr.includes('T')) {
+      fechaEventoStr = fechaEventoStr.split('T')[0];
+    }
+    const fechaEvento = new Date(fechaEventoStr).toLocaleDateString('es-MX');
     html += `<p>📅 Fecha del evento: ${fechaEvento}</p>`;
   }
-  
+
   if (aviso.ubicacion) {
     html += `<p>📍 Ubicación: ${escapeHtml(aviso.ubicacion)}</p>`;
   }
-  
+
   html += `</div>`;
 
   // Imagen destacada si existe
@@ -163,20 +169,111 @@ async function crearVistaDetalle(aviso, puedeEditar = false) {
 
   // Botones de acción
   html += `<div style="margin-top: 30px; display: flex; gap: 10px; flex-wrap: wrap;">`;
-  
+
   html += `<a href="index.html" class="boton-volver">← Volver al inicio</a>`;
-  
+
   if (puedeEditar) {
     html += `<a href="?id=${aviso.id}&editar=true" class="boton" style="background:#007bff; color:white; text-decoration:none; padding:10px 20px; border-radius:8px;">✏️ Editar aviso</a>`;
   }
-  
+
   if (usuarioActual && (usuarioActual.rol === 'admin' || aviso.created_by === usuarioActual.id)) {
     html += `<button onclick="eliminarAviso('${aviso.id}')" class="boton" style="background:#dc3545; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">🗑️ Eliminar aviso</button>`;
   }
-  
+
   html += `</div></div>`;
 
   return html;
+}
+
+const categoriaNombre = nombresCategoria[aviso.categoria] || '📰 General';
+
+let html = `
+    <div class="aviso-detalle-contenido">
+      <span class="aviso-categoria">${categoriaNombre}</span>
+      
+      <h1 class="aviso-titulo">${escapeHtml(aviso.titulo || 'Sin título')}</h1>
+      
+      <div class="aviso-meta">
+        <span>📅 ${fecha}</span>
+        ${aviso.ubicacion ? `<span>📍 ${escapeHtml(aviso.ubicacion)}</span>` : ''}
+        <span>👁️ ${aviso.clicks || 0} vistas</span>
+      </div>
+      
+      <div class="aviso-contenido">
+        ${formatContenido(aviso.contenido || '')}
+      </div>
+  `;
+
+// Información adicional
+html += `<div class="aviso-info-adicional">`;
+
+if (aviso.contacto) {
+  const whatsappLink = generarWhatsAppLink(aviso.contacto, aviso.id, aviso.titulo);
+  if (whatsappLink) {
+    html += `
+        <p>
+          <a href="${whatsappLink}" target="_blank" class="boton" style="background:#25D366; color:white; display:inline-block; padding:10px 20px; border-radius:8px; text-decoration:none;">
+            📲 Contactar por WhatsApp
+          </a>
+        </p>
+      `;
+  } else {
+    html += `<p>📞 Contacto: ${escapeHtml(aviso.contacto)}</p>`;
+  }
+}
+
+if (aviso.fecha_evento) {
+  const fechaEvento = new Date(aviso.fecha_evento).toLocaleDateString('es-MX');
+  html += `<p>📅 Fecha del evento: ${fechaEvento}</p>`;
+}
+
+if (aviso.ubicacion) {
+  html += `<p>📍 Ubicación: ${escapeHtml(aviso.ubicacion)}</p>`;
+}
+
+html += `</div>`;
+
+// Imagen destacada si existe
+if (aviso.imagen_url && aviso.imagen_url !== '') {
+  html += `
+      <div style="margin: 20px 0;">
+        <img src="${aviso.imagen_url}" alt="${escapeHtml(aviso.titulo)}" style="max-width:100%; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+      </div>
+    `;
+}
+
+// Galería multimedia
+html += `<div id="multimedia-gallery" class="gallery"><div class="cargando">🖼️ Cargando multimedia...</div></div>`;
+
+// Área de subida de multimedia (solo para usuarios autenticados)
+const usuarioActual = API.getUsuarioActual();
+if (usuarioActual) {
+  html += `
+      <div id="upload-area-container" style="margin: 20px 0;">
+        <div class="upload-area" id="dropZone">
+          📁 Arrastra imágenes o videos aquí o haz clic para seleccionar
+          <input type="file" id="fileInput" multiple accept="image/*,video/*" style="display:none">
+        </div>
+      </div>
+    `;
+}
+
+// Botones de acción
+html += `<div style="margin-top: 30px; display: flex; gap: 10px; flex-wrap: wrap;">`;
+
+html += `<a href="index.html" class="boton-volver">← Volver al inicio</a>`;
+
+if (puedeEditar) {
+  html += `<a href="?id=${aviso.id}&editar=true" class="boton" style="background:#007bff; color:white; text-decoration:none; padding:10px 20px; border-radius:8px;">✏️ Editar aviso</a>`;
+}
+
+if (usuarioActual && (usuarioActual.rol === 'admin' || aviso.created_by === usuarioActual.id)) {
+  html += `<button onclick="eliminarAviso('${aviso.id}')" class="boton" style="background:#dc3545; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">🗑️ Eliminar aviso</button>`;
+}
+
+html += `</div></div>`;
+
+return html;
 }
 
 function generarWhatsAppLink(contacto, avisoId, titulo) {
@@ -251,7 +348,7 @@ function crearFormularioEdicion(aviso) {
         
         <div class="campo">
           <label for="edit-fecha">Fecha del evento</label>
-          <input type="date" id="edit-fecha" value="${aviso.fecha_evento || ''}">
+          <input type="date" id="edit-fecha" value="${aviso.fecha_evento ? aviso.fecha_evento.split('T')[0] : ''}">
         </div>
         
         <div class="campo">
@@ -274,7 +371,7 @@ function inicializarFormularioEdicion(avisoId) {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     const datosActualizados = {
       titulo: document.getElementById('edit-titulo').value,
       categoria: document.getElementById('edit-categoria').value,
@@ -285,10 +382,10 @@ function inicializarFormularioEdicion(avisoId) {
       imagen_url: document.getElementById('edit-imagen').value,
       updated_at: new Date().toISOString()
     };
-    
+
     try {
       const resultado = await API.actualizar('AVISOS', avisoId, datosActualizados);
-      
+
       if (resultado && resultado.success) {
         API.mostrarExito('✅ Aviso actualizado correctamente');
         setTimeout(() => {
@@ -302,7 +399,7 @@ function inicializarFormularioEdicion(avisoId) {
       API.mostrarError('❌ Error al actualizar el aviso');
     }
   });
-  
+
   const cancelarBtn = document.getElementById('cancelar-editar');
   if (cancelarBtn) {
     cancelarBtn.addEventListener('click', () => {
@@ -313,13 +410,13 @@ function inicializarFormularioEdicion(avisoId) {
 
 async function cargarMultimedia(avisoId) {
   if (!multimediaManager) return;
-  
+
   try {
     const resultado = await multimediaManager.listarMultimedia(avisoId);
     const gallery = document.getElementById('multimedia-gallery');
-    
+
     if (!gallery) return;
-    
+
     if (resultado.success && resultado.data.archivos && resultado.data.archivos.length > 0) {
       mostrarGaleria(resultado.data.archivos, avisoId);
     } else {
@@ -337,15 +434,15 @@ async function cargarMultimedia(avisoId) {
 function mostrarGaleria(archivos, avisoId) {
   const gallery = document.getElementById('multimedia-gallery');
   if (!gallery) return;
-  
+
   if (!archivos || archivos.length === 0) {
     gallery.innerHTML = '<p style="color:#999; text-align:center;">📷 No hay imágenes o videos asociados</p>';
     return;
   }
-  
+
   const usuarioActual = API.getUsuarioActual();
   const puedeEliminar = usuarioActual !== null;
-  
+
   gallery.innerHTML = archivos.map(archivo => {
     let preview = '';
     if (archivo.mimeType.startsWith('image/')) {
@@ -355,10 +452,10 @@ function mostrarGaleria(archivos, avisoId) {
     } else {
       preview = `<div>📎 ${archivo.name}</div>`;
     }
-    
-    const botonEliminar = puedeEliminar ? 
+
+    const botonEliminar = puedeEliminar ?
       `<button class="btn-eliminar-media" onclick="eliminarArchivoMultimedia('${archivo.id}', '${avisoId}')">🗑️ Eliminar</button>` : '';
-    
+
     return `
       <div class="media-item">
         ${preview}
@@ -371,7 +468,7 @@ function mostrarGaleria(archivos, avisoId) {
 
 async function eliminarArchivoMultimedia(fileId, avisoId) {
   if (!confirm('¿Eliminar este archivo permanentemente?')) return;
-  
+
   try {
     const resultado = await multimediaManager.eliminarArchivo(fileId);
     if (resultado.success) {
@@ -389,27 +486,27 @@ async function eliminarArchivoMultimedia(fileId, avisoId) {
 function inicializarSubidaMultimedia(avisoId) {
   const dropZone = document.getElementById('dropZone');
   const fileInput = document.getElementById('fileInput');
-  
+
   if (!dropZone || !fileInput) return;
-  
+
   dropZone.addEventListener('click', () => fileInput.click());
-  
+
   dropZone.addEventListener('dragover', (e) => {
     e.preventDefault();
     dropZone.classList.add('drag-over');
   });
-  
+
   dropZone.addEventListener('dragleave', () => {
     dropZone.classList.remove('drag-over');
   });
-  
+
   dropZone.addEventListener('drop', async (e) => {
     e.preventDefault();
     dropZone.classList.remove('drag-over');
     const files = Array.from(e.dataTransfer.files);
     await subirArchivosMultimedia(avisoId, files);
   });
-  
+
   fileInput.addEventListener('change', async (e) => {
     const files = Array.from(e.target.files);
     await subirArchivosMultimedia(avisoId, files);
@@ -422,11 +519,11 @@ async function subirArchivosMultimedia(avisoId, files) {
     API.mostrarError('❌ Gestor multimedia no disponible');
     return;
   }
-  
+
   API.mostrarExito(`📤 Subiendo ${files.length} archivo(s)...`);
-  
+
   const resultados = await multimediaManager.subirMultiplesArchivos(avisoId, files);
-  
+
   resultados.forEach(r => {
     if (r.success) {
       API.mostrarExito(`✅ ${r.file} subido correctamente`);
@@ -434,17 +531,17 @@ async function subirArchivosMultimedia(avisoId, files) {
       API.mostrarError(`❌ ${r.file}: ${r.error}`);
     }
   });
-  
+
   await cargarMultimedia(avisoId);
 }
 
 // Función global para eliminar aviso
-window.eliminarAviso = async function(id) {
+window.eliminarAviso = async function (id) {
   if (!confirm('⚠️ ¿Estás seguro de que quieres eliminar este aviso? Esta acción no se puede deshacer.')) return;
-  
+
   try {
     const resultado = await API.eliminar('AVISOS', id);
-    
+
     if (resultado && resultado.success) {
       API.mostrarExito('✅ Aviso eliminado correctamente');
       setTimeout(() => {
