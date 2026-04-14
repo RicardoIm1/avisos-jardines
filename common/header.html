@@ -24,14 +24,12 @@
 </header>
 
 <style>
-.logo-texto h1 {
-    margin: 0;
-    font-size: 1.8rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #f5b042, #ff8c42);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+/* Header - logo y h1 uno al lado del otro */
+.header-logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    text-decoration: none;
 }
 
 .logo-icon {
@@ -43,7 +41,32 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: none; /* fuerza que no haya borde */
+    border: none;
+    flex-shrink: 0;
+}
+
+.logo-texto {
+    display: flex;
+    flex-direction: column;
+}
+
+.logo-texto h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #f5b042, #ff8c42);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    white-space: nowrap;
+}
+
+.header-slogan {
+    margin: 5px 0 0;
+    font-size: 0.85rem;
+    color: #b0b0b0;
+    font-style: italic;
+    white-space: nowrap;
 }
 
 .header-logo:hover h1 {
@@ -63,7 +86,7 @@
     border-radius: 30px;
     font-weight: 600;
     font-size: 0.9rem;
-    border: none; /* asegura que no aparezca borde */
+    border: none;
 }
 
 .btn-logout {
@@ -72,8 +95,25 @@
 
 .btn-login:hover, .btn-logout:hover {
     filter: brightness(1.1);
-    color: white; /* evita que cambie a blanco por defecto */
+    color: white;
     text-decoration: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .logo-texto h1 {
+        font-size: 1.2rem;
+        white-space: normal;
+    }
+    .header-slogan {
+        font-size: 0.7rem;
+        white-space: normal;
+    }
+    .logo-icon {
+        width: 45px;
+        height: 45px;
+        font-size: 2rem;
+    }
 }
 </style>
 
