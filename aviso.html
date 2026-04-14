@@ -9,131 +9,99 @@
   <!-- Estilos -->
   <link rel="stylesheet" href="/avisos-jardines/css/estilo.css">
 
-  <!-- Estilos adicionales estilo periódico SIN SERIFAS -->
+  <!-- Estilos adicionales formato periódico digital -->
   <style>
-    /* ========== ESTILO PERIÓDICO MODERNO ========== */
+    /* ========== ESTILO PERIÓDICO DIGITAL / SITIO DE NOTICIAS ========== */
     body {
-      background: #f0ece3;
+      background: #f5f5f0;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     }
 
-    /* Contenedor principal */
+    /* Contenedor principal estilo artículo */
     .contenedor-chico {
-      max-width: 850px;
+      max-width: 880px;
       margin: 30px auto;
       background: #ffffff;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-      padding: 0;
-      border-radius: 8px;
-    }
-
-    /* Header del periódico */
-    .periodico-header {
-      text-align: center;
-      padding: 20px 20px 15px;
-      border-bottom: 3px solid #f5b042;
-      margin-bottom: 20px;
-      background: #ffffff;
-    }
-
-    .periodico-titulo {
-      font-size: 2.5rem;
-      font-weight: 800;
-      letter-spacing: -1px;
-      background: linear-gradient(135deg, #1a1a2e 0%, #c0392b 50%, #f5b042 100%);
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin: 0;
-      text-transform: uppercase;
-    }
-
-    .periodico-fecha {
-      color: #7f8c8d;
-      font-size: 0.75rem;
-      letter-spacing: 1px;
-      margin-top: 8px;
-    }
-
-    .periodico-edicion {
-      font-size: 0.65rem;
-      color: #c0392b;
-      text-transform: uppercase;
-      font-weight: 600;
-      letter-spacing: 2px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      overflow: hidden;
     }
 
     /* Contenido del aviso */
     #aviso-detalle {
-      padding: 0 30px 30px;
+      padding: 0 35px 40px;
     }
 
-    /* Categoría badge */
+    /* Categoría - etiqueta de sección */
     .aviso-categoria {
       display: inline-block;
-      font-size: 0.65rem;
+      font-size: 0.7rem;
       text-transform: uppercase;
       letter-spacing: 2px;
       font-weight: 700;
-      padding: 4px 10px;
+      padding: 5px 12px;
       background: #1a1a2e;
       color: #f5b042;
-      margin-bottom: 15px;
+      border-radius: 20px;
+      margin-bottom: 20px;
     }
 
-    /* Título */
+    /* Título principal del aviso */
     .aviso-titulo {
-      font-size: 2rem;
+      font-size: 2.5rem;
       font-weight: 800;
       line-height: 1.2;
-      margin: 15px 0;
+      margin: 15px 0 20px;
       color: #1a1a2e;
-      border-left: 5px solid #f5b042;
-      padding-left: 20px;
+      letter-spacing: -0.5px;
     }
 
-    /* Metadatos */
+    /* Barra de metadatos */
     .aviso-meta {
       display: flex;
-      gap: 20px;
+      gap: 25px;
       flex-wrap: wrap;
-      padding: 12px 0;
-      margin: 15px 0;
+      padding: 15px 0;
+      margin: 15px 0 25px;
       border-top: 1px solid #e8e0d0;
       border-bottom: 1px solid #e8e0d0;
-      color: #5d4e37;
-      font-size: 0.75rem;
+      color: #6b5b4a;
+      font-size: 0.8rem;
     }
 
     .aviso-meta span {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
     }
 
-    /* Contenido principal */
+    /* Contenido del artículo */
     .aviso-contenido {
-      font-size: 1rem;
-      line-height: 1.6;
-      color: #333;
-      margin: 25px 0;
+      font-size: 1.1rem;
+      line-height: 1.7;
+      color: #2c3e2f;
+      margin: 30px 0;
     }
 
     .aviso-contenido p {
-      margin-bottom: 1.2em;
+      margin-bottom: 1.3em;
     }
 
-    /* Información adicional */
+    /* Recuadro de información adicional */
     .aviso-info-adicional {
-      background: #faf7f0;
+      background: #faf8f2;
       border-left: 4px solid #f5b042;
-      padding: 15px 20px;
-      margin: 25px 0;
+      padding: 18px 24px;
+      margin: 30px 0;
+      border-radius: 8px;
     }
 
     .aviso-info-adicional p {
-      margin: 8px 0;
-      font-size: 0.9rem;
+      margin: 10px 0;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     /* Botón volver */
@@ -141,38 +109,47 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: #1a1a2e;
-      color: #f5b042;
+      background: #f5f5f0;
+      color: #1a1a2e;
       text-decoration: none;
-      padding: 10px 20px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-size: 0.75rem;
-      border-radius: 30px;
+      padding: 10px 22px;
+      font-weight: 500;
+      font-size: 0.85rem;
+      border-radius: 40px;
       transition: all 0.2s ease;
+      border: 1px solid #e0d5c0;
     }
 
     .boton-volver:hover {
-      background: #f5b042;
-      color: #1a1a2e;
+      background: #1a1a2e;
+      color: #f5b042;
+      border-color: #1a1a2e;
+    }
+
+    /* Estado de carga */
+    .cargando {
+      text-align: center;
+      padding: 60px 20px;
+      color: #888;
+      font-size: 1rem;
     }
 
     /* Responsive */
     @media (max-width: 768px) {
-      .periodico-titulo {
-        font-size: 1.8rem;
+      .contenedor-chico {
+        margin: 15px;
       }
       .aviso-titulo {
-        font-size: 1.5rem;
-        border-left-width: 4px;
-        padding-left: 12px;
+        font-size: 1.8rem;
       }
       #aviso-detalle {
-        padding: 0 20px 25px;
+        padding: 0 20px 30px;
       }
-      .periodico-header {
-        padding: 15px;
+      .aviso-contenido {
+        font-size: 1rem;
+      }
+      .aviso-meta {
+        gap: 15px;
       }
     }
   </style>
@@ -188,13 +165,6 @@
   <!-- ================= CONTENIDO ================= -->
   <main class="contenedor-chico">
 
-    <!-- Header del periódico -->
-    <div class="periodico-header">
-      <div class="periodico-edicion">✦ VECINOS INFORMADOS ✦</div>
-      <h1 class="periodico-titulo">EL JARDINERO</h1>
-      <div class="periodico-fecha">COMUNIDAD • TRANSPARENCIA • UNIÓN</div>
-    </div>
-
     <!-- Mensajes del sistema -->
     <div id="mensaje-container"></div>
 
@@ -204,7 +174,7 @@
     </div>
 
     <!-- Botón de regreso -->
-    <div style="margin-top: 20px; text-align: center;">
+    <div style="margin-top: 20px; text-align: center; padding-bottom: 30px;">
       <a href="/avisos-jardines/index.html" class="boton-volver">
         ← Volver al inicio
       </a>
