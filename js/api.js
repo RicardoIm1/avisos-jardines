@@ -1,6 +1,6 @@
 // ==================== API CLIENT CON JSONP ====================
 const API = {
-  baseUrl: 'https://script.google.com/macros/s/AKfycbyGXLzUD_MiML2s6KNehPoJCyoKHy7TjzD-XNCYHRWLZoBuvTZKZPxaEPRppstoEr-2/exec',
+  baseUrl: 'https://script.google.com/macros/s/AKfycby_68N-wRMXs0nA9khuOKWn2PJWKHX08g8UL1EMaWkCx84XL8H28F2G-ePc0IM-5KcJ/exec',
 
   get apiKey() {
     return localStorage.getItem('api_key');
@@ -206,11 +206,13 @@ const API = {
     }
   }
 
-  // Al final de api.js, después de todo el objeto API
+}; // ← CIERRE CORRECTO DEL OBJETO API
+
+// ✅ EVENTO API-READY (FUERA DEL OBJETO)
 if (typeof window !== 'undefined') {
     // Disparar evento cuando API está lista
     setTimeout(() => {
+        console.log('✅ API lista, disparando evento api-ready');
         window.dispatchEvent(new CustomEvent('api-ready'));
     }, 0);
 }
-};
