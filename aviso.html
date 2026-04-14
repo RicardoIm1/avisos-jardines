@@ -104,7 +104,7 @@
       gap: 10px;
     }
 
-    /* Botón volver - dentro del aviso.js */
+    /* Botón volver */
     .boton-volver {
       display: inline-flex;
       align-items: center;
@@ -135,6 +135,64 @@
       font-size: 1rem;
     }
 
+    /* Galería multimedia */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+      margin: 30px 0;
+    }
+
+    .media-item {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      background: #f9f9f9;
+    }
+
+    .media-item img, .media-item video {
+      max-width: 100%;
+      max-height: 150px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+
+    .btn-eliminar-media {
+      margin-top: 8px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .btn-eliminar-media:hover {
+      background: #c82333;
+    }
+
+    /* Subida de archivos */
+    .upload-area {
+      border: 2px dashed #4CAF50;
+      padding: 20px;
+      text-align: center;
+      margin: 20px 0;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+
+    .upload-area:hover {
+      background: #f0f8f0;
+    }
+
+    .upload-area.drag-over {
+      background: #e8f5e9;
+      border-color: #45a049;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .contenedor-chico {
@@ -151,6 +209,9 @@
       }
       .aviso-meta {
         gap: 15px;
+      }
+      .gallery {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
       }
     }
   </style>
@@ -169,12 +230,10 @@
     <!-- Mensajes del sistema -->
     <div id="mensaje-container"></div>
 
-    <!-- Aquí se inyecta TODO el aviso desde aviso.js (incluye el botón volver) -->
+    <!-- Aquí se inyecta TODO el aviso desde aviso.js -->
     <div id="aviso-detalle" class="cargando">
       📰 Cargando aviso...
     </div>
-
-    <!-- ✅ BOTÓN DUPLICADO ELIMINADO - ya no está aquí -->
 
   </main>
 
@@ -182,7 +241,6 @@
   <div id="footer-container"></div>
 
   <!-- ================= SCRIPTS ================= -->
-
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       fetch('/avisos-jardines/common/header.html')
@@ -192,7 +250,7 @@
         })
         .then(html => {
           document.getElementById('header-container').innerHTML = html;
-          inicializarHeaderAuth();
+          if (typeof inicializarHeaderAuth === 'function') inicializarHeaderAuth();
         })
         .catch(err => console.error('Error cargando header:', err));
     });
@@ -222,11 +280,14 @@
   <!-- Core -->
   <script src="/avisos-jardines/js/api.js"></script>
   <script src="/avisos-jardines/js/ui.js"></script>
+  <script src="/avisos-jardines/js/multimedia.js"></script>
   <script src="/avisos-jardines/js/aviso.js"></script>
 
   <script>
     document.addEventListener('DOMContentLoaded', async function () {
-      await UI.cargarHeader();
+      if (typeof UI !== 'undefined' && UI.cargarHeader) {
+        await UI.cargarHeader();
+      }
     });
   </script>
 
