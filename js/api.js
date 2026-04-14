@@ -38,22 +38,15 @@ const API = {
         delete window[callbackName];
         if (document.body.contains(script)) document.body.removeChild(script);
 
-        console.log('📥 Respuesta eliminar:', respuesta);
+        console.log('📥 Respuesta cruda:', respuesta);
 
-        // Para ELIMINAR, la respuesta puede ser { success: true, data: {...} }
+        // La respuesta puede venir como { success: true, data: {...} }
         if (respuesta && respuesta.success === true) {
-          resolve(respuesta.data || { success: true });
-        }
-        else if (respuesta && respuesta.success === false) {
+          resolve(respuesta.data || respuesta);
+        } else if (respuesta && respuesta.success === false) {
           reject(new Error(respuesta.error || 'Error en la petición'));
-        }
-        else if (respuesta && respuesta.data && respuesta.data.success === true) {
-          resolve(respuesta.data);
-        }
-        else {
-          // Si llegamos aquí pero la operación probablemente funcionó
-          console.warn('Respuesta inesperada pero operación probablemente exitosa:', respuesta);
-          resolve({ success: true, data: respuesta });
+        } else {
+          resolve(respuesta);
         }
       };
 
@@ -147,19 +140,34 @@ const API = {
   async login(email, password) {
     try {
       const resultado = await this.peticionJSONP('LOGIN', { email, password });
-      console.log('Respuesta LOGIN:', resultado);
+      console.log('Respuesta LOGIN completa:', resultado);
 
-      if (resultado) {
-        if (resultado.api_key) {
-          this.apiKey = resultado.api_key;
-        }
-        if (resultado.usuario) {
-          localStorage.setItem('usuario', JSON.stringify(resultado.usuario));
-        }
-        return resultado;
+      // ✅ La respuesta viene en resultado.data
+      const data = resultado?.data || resultado;
+
+      if (data && data.api_key) {
+        this.apiKey = data.api_key;
+        localStorage.setItem('api_key', data.api_key);
       }
-      throw new Error('Respuesta vacía del servidor');
+
+      if (data && data.usuario) {
+        localStorage.setItem('usuario', JSON.stringify(data.usuario));
+      }
+
+      // Guardar también para renovación
+      if (email && password) {
+        localStorage.setItem('last_email', email);
+        localStorage.setItem('last_password', password);
+      }
+
+      // Disparar evento de cambio de login
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('login-status-changed'));
+      }
+
+      return { success: true, usuario: data?.usuario, api_key: data?.api_key };
     } catch (error) {
+      console.error('Error en login:', error);
       this.mostrarError('Error en login: ' + error.message);
       throw error;
     }
