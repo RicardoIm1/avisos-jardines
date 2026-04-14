@@ -265,11 +265,17 @@
   <div id="footer-container"></div>
 
   <!-- ================= SCRIPTS ================= -->
+  
+  <!-- Core Scripts - El ORDEN es IMPORTANTE -->
+  <script src="/avisos-jardines/js/api.js"></script>
+  <script src="/avisos-jardines/js/ui.js"></script>
+  <script src="/avisos-jardines/js/multimedia.js"></script>
+  <script src="/avisos-jardines/js/aviso.js"></script>
 
-  <!-- Cargar header  -->
-  // Cargar header correctamente
+  <!-- Cargar header y footer después de los scripts -->
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    // Función para cargar el header
+    function cargarHeader() {
       fetch('/avisos-jardines/common/header.html')
         .then(res => {
           if (!res.ok) throw new Error('Header no encontrado');
@@ -277,71 +283,47 @@
         })
         .then(html => {
           document.getElementById('header-container').innerHTML = html;
-          // ✅ Esperar a que el DOM se actualice y la función esté lista
-          let intentos = 0;
-          const maxIntentos = 20;
-
-          const esperarHeader = setInterval(() => {
-            intentos++;
+          // Esperar a que el DOM se actualice y la función esté disponible
+          setTimeout(() => {
             if (typeof window.inicializarHeaderAuth === 'function') {
-              clearInterval(esperarHeader);
               window.inicializarHeaderAuth();
-              console.log('✅ Header inicializado después de', intentos * 100, 'ms');
-            } else if (intentos >= maxIntentos) {
-              clearInterval(esperarHeader);
-              console.warn('⚠️ No se pudo encontrar inicializarHeaderAuth');
+            } else {
+              console.warn('⚠️ inicializarHeaderAuth no disponible, reintentando...');
+              setTimeout(() => {
+                if (typeof window.inicializarHeaderAuth === 'function') {
+                  window.inicializarHeaderAuth();
+                }
+              }, 500);
             }
-          }, 100);
+          }, 200);
         })
         .catch(err => console.error('Error cargando header:', err));
-    });
-  </script>
+    }
 
-  <!-- Cargar footer -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    // Función para cargar el footer
+    function cargarFooter() {
       fetch('/avisos-jardines/common/footer.html')
         .then(response => {
           if (!response.ok) throw new Error('Footer no encontrado');
           return response.text();
         })
         .then(data => {
-          const footer = document.getElementById('footer-container');
-          if (footer) {
-            footer.innerHTML = data;
-            const anio = document.getElementById('anio-actual');
-            if (anio) {
-              anio.textContent = new Date().getFullYear();
+          const footerContainer = document.getElementById('footer-container');
+          if (footerContainer) {
+            footerContainer.innerHTML = data;
+            const anioElement = document.getElementById('anio-actual');
+            if (anioElement) {
+              anioElement.textContent = new Date().getFullYear();
             }
           }
         })
         .catch(error => console.error('Error cargando el footer:', error));
-    });
-  </script>
+    }
 
-  <!-- Core Scripts -->
-  <!-- Core Scripts - El orden es importante -->
-  <script src="/avisos-jardines/js/api.js"></script> <!-- 1º API -->
-  <script src="/avisos-jardines/js/ui.js"></script> <!-- 2º UI -->
-  <script src="/avisos-jardines/js/multimedia.js"></script> <!-- 3º Multimedia -->
-  <script src="/avisos-jardines/js/aviso.js"></script> <!-- 4º Aviso -->
-
-  <!-- Inicialización final -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      // Pequeña pausa para asegurar que todos los scripts cargaron
-      setTimeout(() => {
-        // Verificar si ya estamos en modo edición
-        const urlParams = new URLSearchParams(window.location.search);
-        const modoEdicion = urlParams.get('editar') === 'true';
-
-        // El aviso.js ya maneja la carga, solo aseguramos el header
-        if (typeof window.actualizarHeaderSesion === 'function') {
-          window.actualizarHeaderSesion();
-        }
-
-        console.log('✅ aviso.html inicializado correctamente', modoEdicion ? '(modo edición)' : '(modo vista)');
-      }, 200);
+    // Inicializar todo cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', function() {
+      cargarHeader();
+      cargarFooter();
     });
   </script>
 
