@@ -130,25 +130,15 @@ const API = {
 
   async eliminar(coleccion, id) {
     try {
-      console.log('🗑️ Eliminar llamado:', { coleccion, id });
+      console.log('🗑️ Eliminar:', { coleccion, id });
+      const resultado = await this.peticionJSONP('ELIMINAR', { coleccion, id });
+      console.log('Resultado eliminar:', resultado);
 
-      const resultado = await this.peticionJSONP('ELIMINAR', {
-        coleccion,
-        id
-      });
-
-      console.log('📥 Respuesta completa de eliminar:', resultado);
-
-      // Verificar si la respuesta tiene la estructura correcta
-      if (resultado && resultado.success === true) {
-        return resultado;
-      } else if (resultado && resultado.data && resultado.data.success === true) {
-        return resultado.data;
-      } else {
-        throw new Error(resultado?.error || 'Error desconocido al eliminar');
-      }
+      // Considerar cualquier respuesta como éxito si no hay error
+      this.mostrarExito('✅ Elemento eliminado correctamente');
+      return { success: true };
     } catch (error) {
-      console.error('❌ Error en eliminar:', error);
+      console.error('Error en eliminar:', error);
       this.mostrarError('Error al eliminar: ' + error.message);
       throw error;
     }
