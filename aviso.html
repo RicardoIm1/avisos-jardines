@@ -267,6 +267,7 @@
   <!-- ================= SCRIPTS ================= -->
 
   <!-- Cargar header  -->
+  // Cargar header correctamente
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       fetch('/avisos-jardines/common/header.html')
@@ -276,10 +277,9 @@
         })
         .then(html => {
           document.getElementById('header-container').innerHTML = html;
-
-          // ✅ Esperar a que la función exista (máximo 3 segundos)
+          // ✅ Esperar a que el DOM se actualice y la función esté lista
           let intentos = 0;
-          const maxIntentos = 30; // 30 * 100ms = 3 segundos
+          const maxIntentos = 20;
 
           const esperarHeader = setInterval(() => {
             intentos++;
@@ -320,11 +320,11 @@
   </script>
 
   <!-- Core Scripts -->
-<!-- Core Scripts - El orden es importante -->
-<script src="/avisos-jardines/js/api.js"></script>        <!-- 1º API -->
-<script src="/avisos-jardines/js/ui.js"></script>        <!-- 2º UI -->
-<script src="/avisos-jardines/js/multimedia.js"></script> <!-- 3º Multimedia -->
-<script src="/avisos-jardines/js/aviso.js"></script>     <!-- 4º Aviso -->
+  <!-- Core Scripts - El orden es importante -->
+  <script src="/avisos-jardines/js/api.js"></script> <!-- 1º API -->
+  <script src="/avisos-jardines/js/ui.js"></script> <!-- 2º UI -->
+  <script src="/avisos-jardines/js/multimedia.js"></script> <!-- 3º Multimedia -->
+  <script src="/avisos-jardines/js/aviso.js"></script> <!-- 4º Aviso -->
 
   <!-- Inicialización final -->
   <script>
