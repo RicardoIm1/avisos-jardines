@@ -41,7 +41,7 @@ const UI = {
 
         cerrarSesion.onclick = (e) => {
           e.preventDefault();
-          API.logout();
+          API.cerrarSesion();
           window.location.href = '/avisos-jardines/index.html';
         };
       }
