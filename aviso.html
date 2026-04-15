@@ -76,6 +76,28 @@
       font-family: 'Georgia', 'Times New Roman', Times, serif;
     }
 
+    /* Imagen destacada */
+    .featured-image {
+      width: 100%;
+      max-height: 500px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .featured-image-container {
+      position: relative;
+      background: #1a1a2e;
+    }
+
+    .image-caption {
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: white;
+      border-top: 1px solid var(--border-light);
+      font-style: italic;
+    }
+
     /* Barra de metadatos */
     .article-meta {
       display: flex;
@@ -130,34 +152,81 @@
       color: var(--text-dark);
     }
 
-    /* Galería */
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1.2rem;
-      margin: 1.8rem 0;
+    /* Galería de imágenes */
+    .gallery-section {
+      margin: 2rem 0;
     }
 
-    .media-item {
+    .gallery-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--accent-gold);
+      display: inline-block;
+      font-family: system-ui, sans-serif;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    .gallery-item {
       background: white;
       border: 1px solid var(--border-light);
       border-radius: 12px;
-      padding: 0.8rem;
-      text-align: center;
+      padding: 0.5rem;
+      cursor: pointer;
       transition: transform 0.2s, box-shadow 0.2s;
     }
 
-    .media-item:hover {
+    .gallery-item:hover {
       transform: translateY(-4px);
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     }
 
-    .media-item img,
-    .media-item video {
-      max-width: 100%;
-      max-height: 160px;
+    .gallery-item img {
+      width: 100%;
+      height: 140px;
       object-fit: cover;
       border-radius: 8px;
+    }
+
+    /* Lightbox para ver imagen grande */
+    .lightbox {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 1000;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lightbox.active {
+      display: flex;
+    }
+
+    .lightbox img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: white;
+      font-size: 2rem;
+      cursor: pointer;
+      font-family: system-ui;
     }
 
     /* Botones de acción */
@@ -250,7 +319,7 @@
         gap: 0.2rem;
       }
       .gallery {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
       }
     }
   </style>
@@ -269,6 +338,12 @@
     </div>
   </main>
 
+  <!-- Lightbox para imágenes -->
+  <div id="lightbox" class="lightbox" onclick="cerrarLightbox()">
+    <span class="lightbox-close">&times;</span>
+    <img id="lightbox-img" src="" alt="Imagen ampliada">
+  </div>
+
   <!-- Footer -->
   <div id="footer-container"></div>
 
@@ -279,11 +354,9 @@
   <script src="/avisos-jardines/js/auth.js"></script>
 
   <script>
-    // ========== FUNCIÓN ESCAPE HTML CORREGIDA ==========
+    // ========== FUNCIONES DE UTILIDAD ==========
     function escapeHTML(str) {
-      // Si es null, undefined, o no es string, retornar string vacío
       if (str === null || str === undefined) return '';
-      // Convertir a string por si acaso
       const stringValue = String(str);
       return stringValue
         .replace(/&/g, '&amp;')
@@ -293,7 +366,6 @@
         .replace(/'/g, '&#39;');
     }
 
-    // Función para formatear contenido con párrafos
     function formatearContenido(texto) {
       if (!texto) return '<p>Sin contenido</p>';
       const stringTexto = String(texto);
@@ -301,12 +373,24 @@
       return parrafos.map(p => `<p>${escapeHTML(p).replace(/\n/g, '<br>')}</p>`).join('');
     }
 
+    // Lightbox
+    function abrirLightbox(src) {
+      const lightbox = document.getElementById('lightbox');
+      const img = document.getElementById('lightbox-img');
+      img.src = src;
+      lightbox.classList.add('active');
+    }
+
+    function cerrarLightbox() {
+      const lightbox = document.getElementById('lightbox');
+      lightbox.classList.remove('active');
+    }
+
     // ========== CARGA DEL AVISO ==========
     const AVISO_ID = new URLSearchParams(window.location.search).get('id');
-    const ES_EDICION = new URLSearchParams(window.location.search).get('editar') === 'true';
-
     let avisoActual = null;
     let usuarioActual = null;
+    let multimediaItems = [];
 
     const container = document.getElementById('aviso-container');
 
@@ -319,18 +403,13 @@
       try {
         console.log('Cargando aviso ID:', AVISO_ID);
 
-        // Intentar obtener usuario actual
         try {
           usuarioActual = API.getUsuarioActual();
         } catch (e) {
-          console.log('Usuario no logueado o error:', e);
           usuarioActual = null;
         }
 
-        // Obtener todos los avisos (la API no tiene getById directo)
         const resultado = await API.listar('AVISOS');
-        console.log('Resultado API:', resultado);
-        
         const avisos = resultado.datos || [];
         const aviso = avisos.find(a => String(a.id) === String(AVISO_ID));
 
@@ -341,11 +420,26 @@
 
         avisoActual = aviso;
         console.log('Aviso cargado:', avisoActual);
+
+        // Cargar multimedia asociado
+        await cargarMultimedia();
+
         renderizarAviso();
 
       } catch (error) {
         console.error('Error cargando aviso:', error);
         mostrarError('Error al cargar el aviso: ' + (error.message || 'Error desconocido'));
+      }
+    }
+
+    async function cargarMultimedia() {
+      if (!window.Multimedia || !AVISO_ID) return;
+      try {
+        multimediaItems = await Multimedia.obtenerPorAviso(AVISO_ID) || [];
+        console.log('Multimedia cargado:', multimediaItems.length, 'items');
+      } catch (e) {
+        console.warn('Error cargando multimedia:', e);
+        multimediaItems = [];
       }
     }
 
@@ -363,7 +457,7 @@
     function renderizarAviso() {
       if (!avisoActual) return;
 
-      // Manejo seguro de fechas
+      // Fecha
       let fechaTexto = 'Fecha no disponible';
       if (avisoActual.created_at) {
         try {
@@ -383,7 +477,6 @@
       const esPropietario = usuarioActual && String(usuarioActual.id) === String(avisoActual.created_by);
       const puedeEditar = esAdmin || esPropietario;
 
-      // Categoría legible
       const categoriaLegible = {
         'urgente': 'URGENTE',
         'eventos': 'EVENTOS',
@@ -392,7 +485,6 @@
         'clasificados': 'CLASIFICADOS'
       }[avisoActual.categoria] || avisoActual.categoria || 'GENERAL';
 
-      // Determinar clase y texto de categoría
       let categoriaClase = '';
       let categoriaTexto = categoriaLegible;
       if (esUrgente) {
@@ -403,6 +495,9 @@
         categoriaTexto = '⏳ PENDIENTE DE APROBACIÓN';
       }
 
+      // Obtener imagen destacada (primera imagen de la galería)
+      const imagenDestacada = multimediaItems.length > 0 ? multimediaItems[0].url : null;
+
       // Construir HTML
       let html = `
         <div class="article-header">
@@ -412,13 +507,23 @@
             <span>📅 ${escapeHTML(fechaTexto)}</span>
             <span>👤 Por: ${escapeHTML(avisoActual.created_by || 'Vecino')}</span>
             <span>🏷️ ${escapeHTML(categoriaLegible)}</span>
+            ${avisoActual.visitas ? `<span>👁️ ${avisoActual.visitas} vistas</span>` : ''}
           </div>
         </div>
-        <div class="article-body">
-          <div class="article-content">
-            ${formatearContenido(avisoActual.contenido)}
-          </div>
       `;
+
+      // Imagen destacada
+      if (imagenDestacada) {
+        html += `
+          <div class="featured-image-container">
+            <img src="${escapeHTML(imagenDestacada)}" alt="${escapeHTML(avisoActual.titulo || 'Imagen destacada')}" class="featured-image" onclick="abrirLightbox('${escapeHTML(imagenDestacada)}')">
+          </div>
+        `;
+      }
+
+      // Cuerpo
+      html += `<div class="article-body">`;
+      html += `<div class="article-content">${formatearContenido(avisoActual.contenido)}</div>`;
 
       // Información adicional
       const tieneUbicacion = avisoActual.ubicacion && String(avisoActual.ubicacion).trim() !== '';
@@ -427,12 +532,8 @@
 
       if (tieneUbicacion || tieneContacto || tieneFechaEvento) {
         html += `<div class="info-card">`;
-        if (tieneUbicacion) {
-          html += `<p><strong>📍 Ubicación</strong> ${escapeHTML(avisoActual.ubicacion)}</p>`;
-        }
-        if (tieneContacto) {
-          html += `<p><strong>📞 Contacto</strong> ${escapeHTML(avisoActual.contacto)}</p>`;
-        }
+        if (tieneUbicacion) html += `<p><strong>📍 Ubicación</strong> ${escapeHTML(avisoActual.ubicacion)}</p>`;
+        if (tieneContacto) html += `<p><strong>📞 Contacto</strong> ${escapeHTML(avisoActual.contacto)}</p>`;
         if (tieneFechaEvento) {
           try {
             const fechaEvento = new Date(avisoActual.fecha_evento).toLocaleDateString('es-MX');
@@ -444,14 +545,28 @@
         html += `</div>`;
       }
 
-      // Galería multimedia (placeholder - se puede implementar después)
-      if (window.Multimedia && avisoActual.id) {
-        html += `<div class="gallery" id="gallery-container"></div>`;
+      // Galería de imágenes (todas las imágenes excepto la primera que ya es destacada)
+      const imagenesGaleria = multimediaItems.slice(1);
+      if (imagenesGaleria.length > 0) {
+        html += `
+          <div class="gallery-section">
+            <div class="gallery-title">📸 Galería de imágenes</div>
+            <div class="gallery" id="gallery-container">
+        `;
+        
+        imagenesGaleria.forEach(img => {
+          html += `
+            <div class="gallery-item" onclick="abrirLightbox('${escapeHTML(img.url)}')">
+              <img src="${escapeHTML(img.url)}" alt="Imagen del aviso" loading="lazy">
+            </div>
+          `;
+        });
+        
+        html += `</div></div>`;
       }
 
       // Botones de acción
       html += `<div class="article-actions">`;
-      
       if (puedeEditar) {
         html += `<a href="/avisos-jardines/admin.html" class="btn-action back">← Volver al panel</a>`;
         html += `<button class="btn-action edit" onclick="irAEditar('${avisoActual.id}')">✏️ Editar aviso</button>`;
@@ -463,21 +578,6 @@
       html += `</div></div></div>`;
 
       container.innerHTML = html;
-
-      // Cargar galería multimedia si existe
-      if (window.Multimedia && avisoActual.id && typeof Multimedia.obtenerPorAviso === 'function') {
-        try {
-          const multimedia = Multimedia.obtenerPorAviso(avisoActual.id);
-          if (multimedia && multimedia.length > 0) {
-            const galleryContainer = document.getElementById('gallery-container');
-            if (galleryContainer && typeof Multimedia.renderGallery === 'function') {
-              Multimedia.renderGallery(galleryContainer, multimedia, avisoActual.id);
-            }
-          }
-        } catch (e) {
-          console.warn('Error cargando multimedia:', e);
-        }
-      }
     }
 
     // Funciones globales
@@ -502,9 +602,8 @@
       }
     };
 
-    // Cargar header y footer
+    // Cargar header, footer y el aviso
     document.addEventListener('DOMContentLoaded', function() {
-      // Header
       fetch('/avisos-jardines/common/header.html')
         .then(res => {
           if (!res.ok) throw new Error('Header no encontrado');
@@ -520,7 +619,6 @@
         })
         .catch(err => console.error('Error cargando header:', err));
 
-      // Footer
       fetch('/avisos-jardines/common/footer.html')
         .then(response => {
           if (!response.ok) throw new Error('Footer no encontrado');
@@ -531,14 +629,11 @@
           if (footerContainer) {
             footerContainer.innerHTML = data;
             const anioElement = document.getElementById('anio-actual');
-            if (anioElement) {
-              anioElement.textContent = new Date().getFullYear();
-            }
+            if (anioElement) anioElement.textContent = new Date().getFullYear();
           }
         })
         .catch(error => console.error('Error cargando footer:', error));
 
-      // Cargar el aviso
       cargarAviso();
     });
   </script>
