@@ -3,6 +3,7 @@
 let paginaAdmin = 1;
 let avisosActuales = [];
 let filtroCategoriaAdmin = 'todos';
+let filtroStatusAdmin = 'todos'; // Nuevo filtro para status: todos, pendiente, activo
 
 document.addEventListener('DOMContentLoaded', function () {
   console.log('Admin.js cargado correctamente');
@@ -31,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // FORMULARIO NUEVO AVISO - CORREGIDO con nombres EXACTOS
+  // FORMULARIO NUEVO AVISO
   const formAviso = document.getElementById('form-aviso');
   if (formAviso) {
     formAviso.addEventListener('submit', async function (e) {
@@ -39,7 +40,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const usuarioActual = API.getUsuarioActual();
 
-      // LOS NOMBRES DEBEN COINCIDIR EXACTAMENTE con los encabezados de tu hoja
       const datos = {
         titulo: document.getElementById('titulo').value,
         contenido: document.getElementById('contenido').value,
@@ -48,15 +48,12 @@ document.addEventListener('DOMContentLoaded', function () {
         contacto: document.getElementById('contacto').value || '',
         fecha_evento: document.getElementById('fecha_evento').value || '',
         destacado: document.getElementById('urgente').checked ? 'TRUE' : 'FALSE',
-        status: 'activo',
+        status: 'activo', // El backend lo cambiará a 'pendiente' si no es admin
         created_by: usuarioActual.id,
-        // Estos se generan automáticamente en el backend
-        // id, created_at, updated_at se generan en codigo.gs
       };
 
       console.log('Enviando aviso con datos:', datos);
 
-      // Validar campos requeridos
       if (!datos.categoria || !datos.titulo || !datos.contenido) {
         API.mostrarError('Completa los campos obligatorios');
         return;
@@ -65,11 +62,18 @@ document.addEventListener('DOMContentLoaded', function () {
       try {
         const resultado = await API.crear('AVISOS', datos);
         console.log('Respuesta del servidor:', resultado);
-        API.mostrarExito('✅ Aviso publicado correctamente');
+        
+        // Mensaje diferente si el aviso quedó pendiente
+        const usuarioActualRol = API.getUsuarioActual()?.rol;
+        if (usuarioActualRol !== 'admin') {
+          API.mostrarExito('✅ Aviso enviado para revisión. El administrador lo publicará en breve.');
+        } else {
+          API.mostrarExito('✅ Aviso publicado correctamente');
+        }
+        
         formAviso.reset();
         document.getElementById('urgente').checked = false;
 
-        // Cambiar a pestaña de lista
         const listaTab = document.querySelector('[data-tab="lista"]');
         if (listaTab) listaTab.click();
 
@@ -167,9 +171,13 @@ async function cargarMisAvisos() {
   contenedor.innerHTML = '<div class="cargando">🔄 Cargando avisos...</div>';
 
   try {
-    // Agregar filtro de categorías
+    // Verificar si el usuario es admin para mostrar filtros de status
+    const usuarioActual = API.getUsuarioActual();
+    const esAdmin = usuarioActual && usuarioActual.rol === 'admin';
+    
+    // Crear filtros de categorías y status (solo para admin)
     if (!document.querySelector('.filtros-categorias')) {
-      const filtrosHTML = `
+      let filtrosHTML = `
         <div class="filtros filtros-categorias" style="margin-bottom: 20px; justify-content: flex-start; flex-wrap: wrap;">
           <button class="filtro ${filtroCategoriaAdmin === 'todos' ? 'activo' : ''}" data-filtro-cat="todos">📋 Todos</button>
           <button class="filtro ${filtroCategoriaAdmin === 'urgente' ? 'activo' : ''}" data-filtro-cat="urgente">⚠️ Urgentes</button>
@@ -179,8 +187,22 @@ async function cargarMisAvisos() {
           <button class="filtro ${filtroCategoriaAdmin === 'clasificados' ? 'activo' : ''}" data-filtro-cat="clasificados">💰 Clasificados</button>
         </div>
       `;
+      
+      // Si es admin, agregar filtros de status
+      if (esAdmin) {
+        filtrosHTML += `
+          <div class="filtros filtros-status" style="margin-bottom: 20px; justify-content: flex-start; flex-wrap: wrap; border-top: 1px solid #ddd; padding-top: 10px;">
+            <span style="margin-right: 10px; font-weight: bold;">📌 Estado:</span>
+            <button class="filtro ${filtroStatusAdmin === 'todos' ? 'activo' : ''}" data-filtro-status="todos">📋 Todos</button>
+            <button class="filtro ${filtroStatusAdmin === 'pendiente' ? 'activo' : ''}" data-filtro-status="pendiente">⏳ Pendientes</button>
+            <button class="filtro ${filtroStatusAdmin === 'activo' ? 'activo' : ''}" data-filtro-status="activo">✅ Publicados</button>
+          </div>
+        `;
+      }
+      
       contenedor.insertAdjacentHTML('beforebegin', filtrosHTML);
 
+      // Eventos para filtros de categoría
       document.querySelectorAll('[data-filtro-cat]').forEach(btn => {
         btn.addEventListener('click', function () {
           document.querySelectorAll('[data-filtro-cat]').forEach(b => b.classList.remove('activo'));
@@ -190,11 +212,32 @@ async function cargarMisAvisos() {
           cargarMisAvisos();
         });
       });
+      
+      // Eventos para filtros de status (solo admin)
+      if (esAdmin) {
+        document.querySelectorAll('[data-filtro-status]').forEach(btn => {
+          btn.addEventListener('click', function () {
+            document.querySelectorAll('[data-filtro-status]').forEach(b => b.classList.remove('activo'));
+            this.classList.add('activo');
+            filtroStatusAdmin = this.dataset.filtroStatus;
+            paginaAdmin = 1;
+            cargarMisAvisos();
+          });
+        });
+      }
     }
 
-    let consulta = { status: 'activo' };
+    // Construir consulta
+    let consulta = {};
+    
+    // Filtro por categoría
     if (filtroCategoriaAdmin !== 'todos') {
       consulta.categoria = filtroCategoriaAdmin;
+    }
+    
+    // Filtro por status (solo si es admin y no es 'todos')
+    if (esAdmin && filtroStatusAdmin !== 'todos') {
+      consulta.status = filtroStatusAdmin;
     }
 
     const resultado = await API.listar('AVISOS', consulta, {
@@ -219,10 +262,26 @@ async function cargarMisAvisos() {
         : 'Fecha no disponible';
       const contenidoPreview = aviso.contenido ? aviso.contenido.substring(0, 100) : '';
       const esUrgente = aviso.destacado === 'TRUE' || aviso.categoria === 'urgente';
+      const esPendiente = aviso.status === 'pendiente';
+      
+      // Estilo diferente para avisos pendientes
+      let cardStyle = '';
+      let statusBadge = '';
+      
+      if (esPendiente) {
+        cardStyle = 'border-left: 4px solid #fbbf24; background: #fffbeb;';
+        statusBadge = '<span style="background: #fbbf24; color: #7b2e00; padding: 2px 8px; border-radius: 20px; font-size: 11px; margin-left: 8px;">⏳ Pendiente de aprobación</span>';
+      } else if (esUrgente) {
+        cardStyle = 'border-left: 4px solid #dc3545; background: #fff5f5;';
+      }
 
       html += `
-        <div class="tarjeta" style="${esUrgente ? 'border-left: 4px solid #dc3545; background: #fff5f5;' : ''}">
-          <div class="tarjeta-titulo"><strong>${escapeHTML(aviso.titulo || 'Sin título')}</strong> ${esUrgente ? '⚠️' : ''}</div>
+        <div class="tarjeta" style="${cardStyle}">
+          <div class="tarjeta-titulo">
+            <strong>${escapeHTML(aviso.titulo || 'Sin título')}</strong> 
+            ${esUrgente && !esPendiente ? '⚠️' : ''}
+            ${statusBadge}
+          </div>
           <div class="tarjeta-fecha">📅 ${fecha}</div>
           <div class="tarjeta-contenido">${escapeHTML(contenidoPreview)}${aviso.contenido && aviso.contenido.length > 100 ? '...' : ''}</div>
           <div class="tarjeta-meta">
@@ -231,8 +290,22 @@ async function cargarMisAvisos() {
           </div>
           <div class="grupo-botones" style="margin-top: 16px;">
             <button class="boton boton-chico" onclick="verAviso('${aviso.id}')">👁️ Ver</button>
+      `;
+      
+      // Si es admin y el aviso está pendiente, mostrar botones de aprobar/rechazar
+      if (esAdmin && esPendiente) {
+        html += `
+            <button class="boton boton-chico" style="background: #28a745; color: white;" onclick="aprobarAviso('${aviso.id}')">✅ Aprobar</button>
+            <button class="boton boton-chico" style="background: #dc3545; color: white;" onclick="rechazarAviso('${aviso.id}')">❌ Rechazar</button>
+        `;
+      } else {
+        html += `
             <button class="boton boton-chico boton-secundario" onclick="editarAviso('${aviso.id}')">✏️ Editar</button>
             <button class="boton boton-chico boton-secundario" onclick="eliminarAviso('${aviso.id}')">🗑️ Eliminar</button>
+        `;
+      }
+      
+      html += `
           </div>
         </div>
       `;
@@ -274,6 +347,38 @@ async function cargarMisAvisos() {
   } catch (error) {
     console.error('Error cargando avisos:', error);
     contenedor.innerHTML = '<div class="mensaje mensaje-error">❌ Error al cargar avisos: ' + error.message + '</div>';
+  }
+}
+
+// NUEVA FUNCIÓN: Aprobar aviso
+async function aprobarAviso(id) {
+  if (!confirm('¿Aprobar este aviso? Se publicará automáticamente en la página principal.')) return;
+  
+  try {
+    const apiKey = localStorage.getItem('api_key');
+    const resultado = await API.peticion('APROBAR_AVISO', { id: id }, apiKey);
+    console.log('Resultado aprobar:', resultado);
+    API.mostrarExito('✅ Aviso aprobado y publicado correctamente');
+    cargarMisAvisos();
+  } catch (error) {
+    console.error('Error al aprobar:', error);
+    API.mostrarError('Error al aprobar: ' + error.message);
+  }
+}
+
+// NUEVA FUNCIÓN: Rechazar aviso
+async function rechazarAviso(id) {
+  if (!confirm('¿Rechazar este aviso? El usuario será notificado y el aviso no se publicará.')) return;
+  
+  try {
+    const apiKey = localStorage.getItem('api_key');
+    const resultado = await API.peticion('RECHAZAR_AVISO', { id: id }, apiKey);
+    console.log('Resultado rechazar:', resultado);
+    API.mostrarExito('❌ Aviso rechazado');
+    cargarMisAvisos();
+  } catch (error) {
+    console.error('Error al rechazar:', error);
+    API.mostrarError('Error al rechazar: ' + error.message);
   }
 }
 
