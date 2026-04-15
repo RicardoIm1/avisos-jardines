@@ -1,383 +1,397 @@
 <!DOCTYPE html>
 <html lang="es-MX">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Compromiso de Confianza Vecinal | Plataforma de la Colonia</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Compromiso de Confianza Vecinal | Avisos Colonia Jardines PVR</title>
+  <link rel="stylesheet" href="/avisos-jardines/css/estilo.css">
+  <link rel="manifest" href="/avisos-jardines/manifest.json">
+  <meta name="theme-color" content="#2c3e50">
+  <style>
+    /* Estilos específicos para esta página */
+    .confianza-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
 
-        body {
-            font-family: system-ui, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
-            background: #eef2e6;
-            padding: 2rem 1rem;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    /* Header con gradiente verde igual que las otras páginas */
+    .confianza-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding: 2rem 1rem;
+      background: linear-gradient(135deg, #1e4620, #2b7a2b);
+      border-radius: 1rem;
+      color: white;
+    }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
+    .confianza-header h1 {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
 
-        /* Tarjeta principal */
-        .compromiso-card {
-            background: white;
-            border-radius: 2rem;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
+    .confianza-header .sub {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      margin-top: 0.5rem;
+    }
 
-        /* Encabezado */
-        .header {
-            background: linear-gradient(135deg, #1e4620, #2b6e2b);
-            color: white;
-            padding: 2rem 2rem 1.5rem;
-            text-align: center;
-        }
+    .sello {
+      display: inline-block;
+      background: #fbbf24;
+      color: #1e4620;
+      font-size: 0.7rem;
+      font-weight: bold;
+      padding: 0.3rem 1rem;
+      border-radius: 2rem;
+      margin-top: 1rem;
+      letter-spacing: 1px;
+    }
 
-        .header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-            font-weight: 700;
-        }
+    /* Tarjeta de contenido */
+    .confianza-content {
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      border: 1px solid var(--color-borde);
+      margin-bottom: 2rem;
+    }
 
-        .header .sub {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            margin-top: 0.5rem;
-        }
+    /* Introducción */
+    .intro {
+      background: #f0fdf4;
+      border-left: 4px solid #2b7a2b;
+      padding: 1.2rem;
+      border-radius: 0.75rem;
+      margin-bottom: 2rem;
+      font-size: 1rem;
+      line-height: 1.5;
+      color: var(--color-texto);
+    }
 
-        .sello {
-            display: inline-block;
-            background: #fbbf24;
-            color: #1e4620;
-            font-size: 0.7rem;
-            font-weight: bold;
-            padding: 0.3rem 1rem;
-            border-radius: 2rem;
-            margin-top: 1rem;
-            letter-spacing: 1px;
-        }
+    /* Secciones */
+    .seccion {
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--color-borde);
+      padding-bottom: 1.5rem;
+    }
 
-        /* Cuerpo */
-        .cuerpo {
-            padding: 2rem;
-        }
+    .seccion:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
 
-        /* Introducción */
-        .intro {
-            background: #f0fdf4;
-            border-left: 5px solid #1e4620;
-            padding: 1.2rem;
-            border-radius: 1rem;
-            margin-bottom: 2rem;
-            font-size: 1rem;
-            line-height: 1.5;
-            color: #1e2a3e;
-        }
+    .seccion h2 {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 1.3rem;
+      color: var(--color-primario);
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
 
-        /* Secciones */
-        .seccion {
-            margin-bottom: 2rem;
-            border-bottom: 1px solid #e5e7eb;
-            padding-bottom: 1.5rem;
-        }
+    .seccion h2 .emoji {
+      font-size: 1.5rem;
+    }
 
-        .seccion:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
+    .seccion p {
+      color: var(--color-texto);
+      line-height: 1.6;
+      margin-bottom: 0.8rem;
+    }
 
-        .seccion h2 {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            font-size: 1.3rem;
-            color: #1e4620;
-            margin-bottom: 1rem;
-            font-weight: 700;
-        }
+    .seccion ul {
+      margin: 0.8rem 0 0.8rem 1.5rem;
+      color: var(--color-texto);
+      line-height: 1.6;
+    }
 
-        .seccion h2 .emoji {
-            font-size: 1.5rem;
-        }
+    .seccion li {
+      margin-bottom: 0.4rem;
+    }
 
-        .seccion p {
-            color: #2c3e50;
-            line-height: 1.6;
-            margin-bottom: 0.8rem;
-        }
+    /* Tabla de lo que NO hacemos */
+    .no-hacemos {
+      background: #fef2e8;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-top: 0.5rem;
+    }
 
-        .seccion ul {
-            margin: 0.8rem 0 0.8rem 1.5rem;
-            color: #2c3e50;
-            line-height: 1.6;
-        }
+    .no-hacemos-item {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid #fde3c5;
+    }
 
-        .seccion li {
-            margin-bottom: 0.4rem;
-        }
+    .no-hacemos-item:last-child {
+      border-bottom: none;
+    }
 
-        /* Tabla de lo que NO hacemos */
-        .no-hacemos {
-            background: #fef2e8;
-            border-radius: 1rem;
-            padding: 1rem;
-            margin-top: 0.5rem;
-        }
+    .no-icon {
+      font-size: 1.3rem;
+    }
 
-        .no-hacemos-item {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            padding: 0.6rem 0;
-            border-bottom: 1px solid #fde3c5;
-        }
+    /* Recuadro de datos */
+    .datos-box {
+      background: var(--color-fondo);
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin: 1rem 0;
+      border: 1px solid var(--color-borde);
+    }
 
-        .no-hacemos-item:last-child {
-            border-bottom: none;
-        }
+    .datos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.8rem;
+      margin-top: 0.8rem;
+    }
 
-        .no-icon {
-            font-size: 1.3rem;
-        }
+    .dato-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
 
-        /* Recuadro de datos */
-        .datos-box {
-            background: #f8fafc;
-            border-radius: 1rem;
-            padding: 1rem;
-            margin: 1rem 0;
-        }
+    /* Botones */
+    .acciones {
+      background: var(--color-fondo);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      text-align: center;
+      margin-top: 1.5rem;
+      border: 1px solid var(--color-borde);
+    }
 
-        .datos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 0.8rem;
-            margin-top: 0.8rem;
-        }
+    .btn-aceptar {
+      background: var(--color-primario);
+      color: white;
+      border: none;
+      padding: 0.8rem 2rem;
+      border-radius: 2rem;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin: 0.5rem;
+    }
 
-        .dato-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-        }
+    .btn-aceptar:hover {
+      background: var(--color-secundario);
+      transform: scale(1.02);
+    }
 
-        /* Botones de aceptación */
-        .acciones {
-            background: #f9fafb;
-            border-radius: 1rem;
-            padding: 1.5rem;
-            text-align: center;
-            margin-top: 1.5rem;
-        }
+    .btn-regresar {
+      background: transparent;
+      border: 2px solid var(--color-primario);
+      color: var(--color-primario);
+      padding: 0.8rem 2rem;
+      border-radius: 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin: 0.5rem;
+    }
 
-        .btn-aceptar {
-            background: #1e4620;
-            color: white;
-            border: none;
-            padding: 0.9rem 2rem;
-            border-radius: 3rem;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin: 0.5rem;
-        }
+    .btn-regresar:hover {
+      background: #eef5e9;
+    }
 
-        .btn-aceptar:hover {
-            background: #2b6e2b;
-            transform: scale(1.02);
-        }
+    /* Fecha */
+    .fecha {
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--color-texto-claro);
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--color-borde);
+    }
 
-        .btn-regresar {
-            background: transparent;
-            border: 2px solid #1e4620;
-            color: #1e4620;
-            padding: 0.9rem 2rem;
-            border-radius: 3rem;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin: 0.5rem;
-        }
-
-        .btn-regresar:hover {
-            background: #eef5e9;
-        }
-
-        /* Fecha */
-        .fecha {
-            text-align: center;
-            font-size: 0.7rem;
-            color: #9ca3af;
-            margin-top: 1.5rem;
-            padding-top: 1rem;
-            border-top: 1px solid #e5e7eb;
-        }
-
-        /* Responsive */
-        @media (max-width: 600px) {
-            .cuerpo {
-                padding: 1.5rem;
-            }
-
-            .seccion h2 {
-                font-size: 1.1rem;
-            }
-
-            .header h1 {
-                font-size: 1.4rem;
-            }
-        }
-    </style>
+    @media (max-width: 600px) {
+      .confianza-content {
+        padding: 1.5rem;
+      }
+      .seccion h2 {
+        font-size: 1.1rem;
+      }
+      .confianza-header h1 {
+        font-size: 1.4rem;
+      }
+      .datos-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
-
 <body>
-    <div class="container">
-        <div class="compromiso-card">
-            <div class="header">
-                <h1>🤝 Compromiso de Confianza Vecinal</h1>
-                <div class="sub">Así cuidamos tus datos y tu confianza</div>
-                <div class="sello">SIN LETRAS CHIQUITAS · SIN SORPRESAS</div>
-            </div>
+  <div id="header-container"></div>
 
-            <div class="cuerpo">
-                <!-- Intro -->
-                <div class="intro">
-                    📢 <strong>Esto no es un documento de abogados.</strong> Somos vecinos, no un banco ni una empresa
-                    grande. Aquí solo queremos ayudarnos mutuamente.
-                </div>
+  <main class="contenedor">
+    <div class="confianza-container">
 
-                <!-- Sección 1: Qué somos -->
-                <div class="seccion">
-                    <h2><span class="emoji">🏠</span> 1. ¿Qué somos?</h2>
-                    <p>Somos una <strong>plataforma vecinal</strong> donde los residentes de la colonia compartimos
-                        avisos, servicios y oficios. No vendemos nada, no financiamos nada. Solo ponemos en contacto a
-                        los vecinos.</p>
-                </div>
+      <!-- Header -->
+      <div class="confianza-header">
+        <h1>🤝 Compromiso de Confianza Vecinal</h1>
+        <div class="sub">Así cuidamos tus datos y tu confianza</div>
+        <div class="sello">SIN LETRAS CHIQUITAS · SIN SORPRESAS</div>
+      </div>
 
-                <!-- Sección 2: Qué datos pedimos -->
-                <div class="seccion">
-                    <h2><span class="emoji">📋</span> 2. ¿Qué datos pedimos y por qué?</h2>
-                    <div class="datos-box">
-                        <div class="datos-grid">
-                            <div class="dato-item"><strong>📛 Nombre</strong> → Para que te conozcan</div>
-                            <div class="dato-item"><strong>📞 Teléfono/WhatsApp</strong> → Para que te contacten</div>
-                            <div class="dato-item"><strong>📍 Dirección general</strong> → Para saber tu ubicación en la
-                                colonia</div>
-                            <div class="dato-item"><strong>🔧 Oficio o profesión</strong> → Para agruparte en el
-                                directorio</div>
-                            <div class="dato-item"><strong>📸 Fotos (opcional)</strong> → Para mostrar tu trabajo</div>
-                        </div>
-                    </div>
-                    <p><strong>No pedimos</strong> tu CURP, RFC (a menos que pidas factura), ni datos bancarios. Solo lo
-                        necesario para que los vecinos te encuentren.</p>
-                </div>
-
-                <!-- Sección 3: Quién ve tus datos -->
-                <div class="seccion">
-                    <h2><span class="emoji">👁️</span> 3. ¿Quién ve tu información?</h2>
-                    <p><strong>Todos los vecinos que usan la plataforma</strong> pueden ver tu nombre, teléfono,
-                        dirección general y oficio. Así pueden contactarte si necesitan algo.</p>
-                    <p>Tu correo electrónico (si lo das) solo lo ve el administrador, por si necesitamos avisarte algo
-                        importante.</p>
-                </div>
-
-                <!-- Sección 4: Lo que NO hacemos (importante para generar confianza) -->
-                <div class="seccion">
-                    <h2><span class="emoji">🚫</span> 4. Lo que NO hacemos con tus datos</h2>
-                    <div class="no-hacemos">
-                        <div class="no-hacemos-item">
-                            <span class="no-icon">❌</span>
-                            <span><strong>No los vendemos</strong> — No somos una empresa de publicidad.</span>
-                        </div>
-                        <div class="no-hacemos-item">
-                            <span class="no-icon">❌</span>
-                            <span><strong>No los compartimos con bancos</strong> — No te van a llegar ofertas de
-                                préstamos.</span>
-                        </div>
-                        <div class="no-hacemos-item">
-                            <span class="no-icon">❌</span>
-                            <span><strong>No los damos a proveedores externos</strong> — Nadie te va a molestar para
-                                venderte nada.</span>
-                        </div>
-                        <div class="no-hacemos-item">
-                            <span class="no-icon">❌</span>
-                            <span><strong>No los usamos fuera de esta plataforma</strong> — Solo sirven aquí, entre
-                                vecinos.</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sección 5: Cómo borrar tus datos -->
-                <div class="seccion">
-                    <h2><span class="emoji">🗑️</span> 5. ¿Qué hago si quiero borrar mis datos?</h2>
-                    <p>Es muy fácil. Solo mándanos un <strong>WhatsApp</strong> pidiendo que te borremos. Sin trámites,
-                        sin formatos, sin explicaciones.</p>
-                    <p>En menos de <strong>3 días</strong>, tu información desaparece por completo de la plataforma.</p>
-                    <p><strong>WhatsApp:</strong> 📞 <a href="#"
-                            style="color:#1e4620; text-decoration:none; font-weight:bold;">[tu número aquí]</a></p>
-                </div>
-
-                <!-- Sección 6: Regla de oro -->
-                <div class="seccion">
-                    <h2><span class="emoji">💛</span> 6. Una regla de oro</h2>
-                    <p>La plataforma es para ayudarnos, no para molestar. Si alguien usa tus datos para acosarte,
-                        enviarte spam o algo que no te gusta, <strong>avísanos</strong> y esa persona será eliminada de
-                        la comunidad.</p>
-                </div>
-
-                <!-- Sección 7: Aceptación -->
-                <div class="seccion">
-                    <h2><span class="emoji">✅</span> 7. Aceptación</h2>
-                    <p>Cuando te registras o publicas un aviso, nos estás diciendo que <strong>confías en
-                            nosotros</strong> para manejar tus datos como está escrito aquí.</p>
-                    <p>Si no confías, no te registres. Así de simple. No hay trampa.</p>
-                </div>
-
-                <!-- Botones de acción -->
-                <div class="acciones">
-                    <button class="btn-aceptar" id="btnAceptar">✔️ Acepto el compromiso</button>
-                    <button class="btn-regresar" id="btnRegresar">← Regresar</button>
-                </div>
-
-                <div class="fecha">
-                    Última actualización: [fecha actual] · Plataforma de la Colonia [Nombre]
-                </div>
-            </div>
+      <!-- Contenido -->
+      <div class="confianza-content">
+        <!-- Intro -->
+        <div class="intro">
+          📢 <strong>Esto no es un documento de abogados.</strong> Somos vecinos, no un banco ni una empresa grande. Aquí solo queremos ayudarnos mutuamente.
         </div>
+
+        <!-- Sección 1: Qué somos -->
+        <div class="seccion">
+          <h2><span class="emoji">🏠</span> 1. ¿Qué somos?</h2>
+          <p>Somos una <strong>plataforma vecinal</strong> donde los residentes de la colonia compartimos avisos, servicios y oficios. No vendemos nada, no financiamos nada. Solo ponemos en contacto a los vecinos.</p>
+        </div>
+
+        <!-- Sección 2: Qué datos pedimos -->
+        <div class="seccion">
+          <h2><span class="emoji">📋</span> 2. ¿Qué datos pedimos y por qué?</h2>
+          <div class="datos-box">
+            <div class="datos-grid">
+              <div class="dato-item"><strong>📛 Nombre</strong> → Para que te conozcan</div>
+              <div class="dato-item"><strong>📞 Teléfono/WhatsApp</strong> → Para que te contacten</div>
+              <div class="dato-item"><strong>📍 Dirección general</strong> → Para saber tu ubicación en la colonia</div>
+              <div class="dato-item"><strong>🔧 Oficio o profesión</strong> → Para agruparte en el directorio</div>
+              <div class="dato-item"><strong>📸 Fotos (opcional)</strong> → Para mostrar tu trabajo</div>
+            </div>
+          </div>
+          <p><strong>No pedimos</strong> tu CURP, RFC (a menos que pidas factura), ni datos bancarios. Solo lo necesario para que los vecinos te encuentren.</p>
+        </div>
+
+        <!-- Sección 3: Quién ve tus datos -->
+        <div class="seccion">
+          <h2><span class="emoji">👁️</span> 3. ¿Quién ve tu información?</h2>
+          <p><strong>Todos los vecinos que usan la plataforma</strong> pueden ver tu nombre, teléfono, dirección general y oficio. Así pueden contactarte si necesitan algo.</p>
+          <p>Tu correo electrónico (si lo das) solo lo ve el administrador, por si necesitamos avisarte algo importante.</p>
+        </div>
+
+        <!-- Sección 4: Lo que NO hacemos -->
+        <div class="seccion">
+          <h2><span class="emoji">🚫</span> 4. Lo que NO hacemos con tus datos</h2>
+          <div class="no-hacemos">
+            <div class="no-hacemos-item">
+              <span class="no-icon">❌</span>
+              <span><strong>No los vendemos</strong> — No somos una empresa de publicidad.</span>
+            </div>
+            <div class="no-hacemos-item">
+              <span class="no-icon">❌</span>
+              <span><strong>No los compartimos con bancos</strong> — No te van a llegar ofertas de préstamos.</span>
+            </div>
+            <div class="no-hacemos-item">
+              <span class="no-icon">❌</span>
+              <span><strong>No los damos a proveedores externos</strong> — Nadie te va a molestar para venderte nada.</span>
+            </div>
+            <div class="no-hacemos-item">
+              <span class="no-icon">❌</span>
+              <span><strong>No los usamos fuera de esta plataforma</strong> — Solo sirven aquí, entre vecinos.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección 5: Cómo borrar tus datos -->
+        <div class="seccion">
+          <h2><span class="emoji">🗑️</span> 5. ¿Qué hago si quiero borrar mis datos?</h2>
+          <p>Es muy fácil. Solo mándanos un <strong>WhatsApp</strong> pidiendo que te borremos. Sin trámites, sin formatos, sin explicaciones.</p>
+          <p>En menos de <strong>3 días</strong>, tu información desaparece por completo de la plataforma.</p>
+          <p><strong>WhatsApp:</strong> 📞 <a href="https://wa.me/3222354331" style="color: var(--color-acento); text-decoration: none; font-weight: bold;">+52 322 235 4331</a></p>
+        </div>
+
+        <!-- Sección 6: Regla de oro -->
+        <div class="seccion">
+          <h2><span class="emoji">💛</span> 6. Una regla de oro</h2>
+          <p>La plataforma es para ayudarnos, no para molestar. Si alguien usa tus datos para acosarte, enviarte spam o algo que no te gusta, <strong>avísanos</strong> y esa persona será eliminada de la comunidad.</p>
+        </div>
+
+        <!-- Sección 7: Aceptación -->
+        <div class="seccion">
+          <h2><span class="emoji">✅</span> 7. Aceptación</h2>
+          <p>Cuando te registras o publicas un aviso, nos estás diciendo que <strong>confías en nosotros</strong> para manejar tus datos como está escrito aquí.</p>
+          <p>Si no confías, no te registres. Así de simple. No hay trampa.</p>
+        </div>
+
+        <!-- Botones -->
+        <div class="acciones">
+          <button class="btn-aceptar" id="btnAceptar">✔️ Acepto el compromiso</button>
+          <button class="btn-regresar" id="btnRegresar">← Regresar</button>
+        </div>
+
+        <div class="fecha">
+          Última actualización: Abril 2026 · Avisos Colonia Jardines PVR
+        </div>
+      </div>
     </div>
+  </main>
 
-    <script>
-        // Botón de aceptar: guarda en localStorage que el usuario aceptó y cierra o redirige
-        document.getElementById('btnAceptar').addEventListener('click', () => {
-            // Guardar aceptación (por si lo necesitas en el registro)
-            localStorage.setItem('compromiso_aceptado', 'true');
-            localStorage.setItem('fecha_aceptacion', new Date().toISOString());
+  <div id="footer-container"></div>
 
-            // Mostrar mensaje de confirmación
-            alert('Gracias por tu confianza. Ya puedes continuar con tu registro.');
+  <script src="/avisos-jardines/js/api.js"></script>
+  <script src="/avisos-jardines/js/auth.js"></script>
 
-            // Redirigir al formulario de registro (cambia la URL si es necesario)
-            window.location.href = '/avisos-jardines/registro.html'; // Ajusta a tu página de registro
-        });
+  <script>
+    // Cargar header y footer
+    document.addEventListener('DOMContentLoaded', function() {
+      // Header
+      fetch('/avisos-jardines/common/header.html')
+        .then(res => {
+          if (!res.ok) throw new Error('Header no encontrado');
+          return res.text();
+        })
+        .then(html => {
+          document.getElementById('header-container').innerHTML = html;
+          setTimeout(() => {
+            if (typeof window.inicializarHeaderAuth === 'function') {
+              window.inicializarHeaderAuth();
+            }
+          }, 100);
+        })
+        .catch(err => console.error('Error cargando header:', err));
 
-        // Botón regresar
-        document.getElementById('btnRegresar').addEventListener('click', () => {
-            window.history.back();
-        });
-    </script>
+      // Footer
+      fetch('/avisos-jardines/common/footer.html')
+        .then(response => {
+          if (!response.ok) throw new Error('Footer no encontrado');
+          return response.text();
+        })
+        .then(data => {
+          const footerContainer = document.getElementById('footer-container');
+          if (footerContainer) {
+            footerContainer.innerHTML = data;
+            const anioElement = document.getElementById('anio-actual');
+            if (anioElement) {
+              anioElement.textContent = new Date().getFullYear();
+            }
+          }
+        })
+        .catch(error => console.error('Error cargando footer:', error));
+    });
+
+    // Botón de aceptar
+    document.getElementById('btnAceptar').addEventListener('click', () => {
+      localStorage.setItem('compromiso_aceptado', 'true');
+      localStorage.setItem('fecha_aceptacion', new Date().toISOString());
+      alert('Gracias por tu confianza. Ya puedes continuar con tu registro.');
+      window.location.href = '/avisos-jardines/registro.html';
+    });
+
+    // Botón regresar
+    document.getElementById('btnRegresar').addEventListener('click', () => {
+      window.history.back();
+    });
+  </script>
 </body>
-
 </html>
