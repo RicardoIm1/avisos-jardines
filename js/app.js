@@ -119,29 +119,29 @@ function renderizarAvisos(avisos, pagina, totalPaginas) {
   }
 
   let html = '';
-  
+
   avisos.forEach(aviso => {
-    const fecha = aviso.created_at 
+    const fecha = aviso.created_at
       ? new Date(aviso.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
       : 'Fecha no disponible';
-    
+
     const esUrgente = aviso.destacado === 'TRUE' || aviso.categoria === 'urgente';
     const esPendiente = aviso.status === 'pendiente';
-    
+
     // ========== ESTADÍSTICAS DEL AVISO ==========
     const vistas = aviso.vistas || 0;
     const clicksWhatsApp = aviso.clicks_whatsapp || 0;
     const intereses = aviso.intereses || 0;
-    
+
     // Calcular interacciones totales
     const totalInteracciones = vistas + clicksWhatsApp + intereses;
-    
+
     // ========== VALIDACIÓN SEGURA PARA CONTACTO ==========
     let numeroWhatsApp = '';
     let numeroTelefono = '';
-    
+
     const contactoStr = aviso.contacto ? String(aviso.contacto) : '';
-    
+
     if (contactoStr) {
       const numeros = contactoStr.match(/\d+/g);
       if (numeros && numeros.length > 0) {
@@ -152,26 +152,24 @@ function renderizarAvisos(avisos, pagina, totalPaginas) {
         }
       }
     }
-    
+
     const whatsappText = `Hola, vi tu aviso "${aviso.titulo}" en la plataforma de la colonia. Me interesa más información.`;
-    
-    // Categoría legible
-    const categoriaNombre = {
-      'urgente': '⚠️ URGENTE',
-      'eventos': '🎉 EVENTO',
-      'servicios': '🔧 SERVICIO',
-      'perdidos': '🔍 PERDIDO',
-      'clasificados': '💰 CLASIFICADO'
-    }[aviso.categoria] || aviso.categoria || '📢 AVISO';
-    
-    const categoriaColor = {
-      'urgente': '#dc3545',
-      'eventos': '#28a745',
-      'servicios': '#17a2b8',
-      'perdidos': '#ffc107',
-      'clasificados': '#6c757d'
-    }[aviso.categoria] || '#6c757d';
-    
+
+    // Categoría legible y colores
+    const categoriasMap = {
+      'urgente': { nombre: '🚨 URGENTE', color: '#dc3545' },
+      'escuelas': { nombre: '🏫 ESCUELAS', color: '#2563eb' },
+      'servicios': { nombre: '🛠️ SERVICIOS', color: '#ea580c' },
+      'comercios': { nombre: '🛒 COMERCIOS', color: '#059669' },
+      'eventos': { nombre: '📅 EVENTOS', color: '#7c3aed' },
+      'gobierno': { nombre: '🏛️ GOBIERNO', color: '#4b5563' },
+      'varios': { nombre: '📢 VARIOS', color: '#6b7280' }
+    };
+
+    const categoriaInfo = categoriasMap[aviso.categoria] || { nombre: '📢 AVISO', color: '#6c757d' };
+    const categoriaNombre = categoriaInfo.nombre;
+    const categoriaColor = categoriaInfo.color;
+
     html += `
       <div class="tarjeta aviso-card ${esUrgente ? 'urgente' : ''} ${esPendiente ? 'pendiente' : ''}" onclick="verAviso('${aviso.id}')">
         ${esPendiente ? '<div class="pendiente-badge">⏳ Pendiente</div>' : ''}
@@ -223,7 +221,7 @@ function renderizarAvisos(avisos, pagina, totalPaginas) {
       </div>
     `;
   });
-  
+
   container.innerHTML = html;
   renderizarPaginacion(pagina, totalPaginas);
 }
@@ -233,41 +231,41 @@ function renderizarAvisos(avisos, pagina, totalPaginas) {
 function renderizarPaginacion(paginaActual, totalPaginas) {
   const pagContainer = document.getElementById('paginacion');
   if (!pagContainer) return;
-  
+
   if (totalPaginas <= 1) {
     pagContainer.innerHTML = '';
     return;
   }
-  
+
   let html = '';
-  
+
   if (paginaActual > 1) {
     html += `<button class="pagina" data-pagina="${paginaActual - 1}">« Anterior</button>`;
   }
-  
+
   const inicio = Math.max(1, paginaActual - 2);
   const fin = Math.min(totalPaginas, paginaActual + 2);
-  
+
   if (inicio > 1) {
     html += `<button class="pagina" data-pagina="1">1</button>`;
     if (inicio > 2) html += `<span class="paginacion-puntos">...</span>`;
   }
-  
+
   for (let i = inicio; i <= fin; i++) {
     html += `<button class="pagina ${i === paginaActual ? 'activa' : ''}" data-pagina="${i}">${i}</button>`;
   }
-  
+
   if (fin < totalPaginas) {
     if (fin < totalPaginas - 1) html += `<span class="paginacion-puntos">...</span>`;
     html += `<button class="pagina" data-pagina="${totalPaginas}">${totalPaginas}</button>`;
   }
-  
+
   if (paginaActual < totalPaginas) {
     html += `<button class="pagina" data-pagina="${paginaActual + 1}">Siguiente »</button>`;
   }
-  
+
   pagContainer.innerHTML = html;
-  
+
   pagContainer.querySelectorAll('.pagina[data-pagina]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -283,15 +281,15 @@ function renderizarPaginacion(paginaActual, totalPaginas) {
 
 // ==================== FUNCIONES GLOBALES ====================
 
-window.verAviso = function(id) {
+window.verAviso = function (id) {
   window.location.href = `/avisos-jardines/aviso.html?id=${id}`;
 };
 
-window.registrarClickWhatsApp = async function(id) {
+window.registrarClickWhatsApp = async function (id) {
   await registrarEstadistica('REGISTRAR_CLICK_WHATSAPP', id);
 };
 
-window.registrarInteres = async function(id, btnElement) {
+window.registrarInteres = async function (id, btnElement) {
   const resultado = await registrarEstadistica('REGISTRAR_INTERES', id);
   if (resultado && resultado.success) {
     // Mostrar animación de confirmación
@@ -319,13 +317,13 @@ window.registrarInteres = async function(id, btnElement) {
   }
 };
 
-window.abrirWhatsApp = function(numero, texto, event) {
+window.abrirWhatsApp = function (numero, texto, event) {
   if (event) event.stopPropagation();
   const url = `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
   window.open(url, '_blank');
 };
 
-window.abrirTelefono = function(numero, event) {
+window.abrirTelefono = function (numero, event) {
   if (event) event.stopPropagation();
   window.open(`tel:${numero}`, '_blank');
 };
