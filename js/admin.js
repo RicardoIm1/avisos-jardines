@@ -9,8 +9,9 @@ document.addEventListener('DOMContentLoaded', function () {
   console.log('Admin.js cargado correctamente');
 
   const usuario = Auth.requireAuth();
-// Forzar actualización del header
-window.dispatchEvent(new CustomEvent('auth-change'));
+  // Forzar actualización del header
+  window.dispatchEvent(new CustomEvent('auth-change'));
+  
   function actualizarHeaderManual() {
     const usuario = API.getUsuarioActual();
     const loginLink = document.getElementById('login-link');
@@ -46,7 +47,6 @@ window.dispatchEvent(new CustomEvent('auth-change'));
     }
   }
 
-  // Llamarla después de Auth.requireAuth()
   setTimeout(actualizarHeaderManual, 100);
   if (!usuario) return;
 
@@ -208,7 +208,6 @@ function configurarTabs() {
 // ==================== CONFIGURAR MODAL DE EDICIÓN ====================
 
 function configurarModalEdicion() {
-  // Cerrar modal con botón X
   const cerrarModal = document.getElementById('cerrar-modal');
   if (cerrarModal) {
     cerrarModal.addEventListener('click', () => {
@@ -216,7 +215,6 @@ function configurarModalEdicion() {
     });
   }
 
-  // Cerrar modal con botón Cancelar
   const cancelarEditar = document.getElementById('cancelar-editar');
   if (cancelarEditar) {
     cancelarEditar.addEventListener('click', () => {
@@ -224,7 +222,6 @@ function configurarModalEdicion() {
     });
   }
 
-  // Cerrar modal al hacer click fuera
   const modalEditar = document.getElementById('modal-editar');
   if (modalEditar) {
     modalEditar.addEventListener('click', (e) => {
@@ -234,7 +231,6 @@ function configurarModalEdicion() {
     });
   }
 
-  // Enviar formulario de edición
   const formEditar = document.getElementById('form-editar');
   if (formEditar) {
     formEditar.addEventListener('submit', async (e) => {
@@ -253,8 +249,12 @@ function configurarModalEdicion() {
         imagen_url: document.getElementById('edit-imagen_url').value
       };
 
+      console.log('📝 Enviando edición:', { id, datos });
+
       try {
         const resultado = await API.actualizarAviso(id, datos, apiKey);
+        console.log('📡 Respuesta:', resultado);
+        
         if (resultado && resultado.success) {
           API.mostrarExito('✅ Aviso actualizado correctamente');
           document.getElementById('modal-editar').style.display = 'none';
@@ -273,6 +273,9 @@ function configurarModalEdicion() {
 // ==================== ABRIR MODAL DE EDICIÓN ====================
 
 function abrirEditor(id, titulo, contenido, categoria, ubicacion, contacto, fecha_evento, imagen_url) {
+  console.log('=== ABRIR EDITOR ===');
+  console.log('ID:', id);
+  
   document.getElementById('edit-id').value = id || '';
   document.getElementById('edit-titulo').value = titulo || '';
   document.getElementById('edit-contenido').value = contenido || '';
@@ -296,7 +299,6 @@ async function cargarMisAvisos() {
     const usuarioActual = API.getUsuarioActual();
     const esAdmin = usuarioActual && usuarioActual.rol === 'admin';
 
-    // Crear filtros de categorías y status (solo para admin)
     if (!document.querySelector('.filtros-categorias')) {
       let filtrosHTML = `
         <div class="filtros filtros-categorias" style="margin-bottom: 20px; justify-content: flex-start; flex-wrap: wrap;">
@@ -387,6 +389,13 @@ async function cargarMisAvisos() {
         cardStyle = 'border-left: 4px solid #dc3545; background: #fff5f5;';
       }
 
+      // Escapar datos para el botón Editar
+      const tituloEdit = encodeURIComponent(aviso.titulo || '');
+      const contenidoEdit = encodeURIComponent(aviso.contenido || '');
+      const ubicacionEdit = encodeURIComponent(aviso.ubicacion || '');
+      const contactoEdit = encodeURIComponent(aviso.contacto || '');
+      const imagenEdit = encodeURIComponent(aviso.imagen_url || '');
+
       html += `
         <div class="tarjeta" style="${cardStyle}">
           <div class="tarjeta-titulo">
@@ -406,15 +415,14 @@ async function cargarMisAvisos() {
 
       if (esAdmin && esPendiente) {
         html += `
-            <button class="boton boton-chico" style="background: #28a745; color: white;" onclick="aprobarAviso('${aviso.id}')">✅ Aprobar</button>
-            <button class="boton boton-chico" style="background: #dc3545; color: white;" onclick="rechazarAviso('${aviso.id}')">❌ Rechazar</button>
+            <button class="boton boton-chico boton-exito" onclick="aprobarAviso('${aviso.id}')">✅ Aprobar</button>
+            <button class="boton boton-chico boton-peligro" onclick="rechazarAviso('${aviso.id}')">❌ Rechazar</button>
         `;
       }
 
-      // Botón Editar para todos (usa el modal)
       html += `
-            <button class="boton boton-chico boton-secundario" onclick="abrirEditor('${aviso.id}', '${escapeHTML(aviso.titulo || '')}', '${escapeHTML(aviso.contenido || '')}', '${aviso.categoria || ''}', '${escapeHTML(aviso.ubicacion || '')}', '${escapeHTML(aviso.contacto || '')}', '${aviso.fecha_evento || ''}', '${escapeHTML(aviso.imagen_url || '')}')">✏️ Editar</button>
-            <button class="boton boton-chico boton-secundario" onclick="eliminarAviso('${aviso.id}')">🗑️ Eliminar</button>
+            <button class="boton boton-chico boton-secundario" onclick="abrirEditor('${aviso.id}', decodeURIComponent('${tituloEdit}'), decodeURIComponent('${contenidoEdit}'), '${aviso.categoria || ''}', decodeURIComponent('${ubicacionEdit}'), decodeURIComponent('${contactoEdit}'), '${aviso.fecha_evento || ''}', decodeURIComponent('${imagenEdit}'))">✏️ Editar</button>
+            <button class="boton boton-chico boton-peligro" onclick="eliminarAviso('${aviso.id}')">🗑️ Eliminar</button>
           </div>
         </div>
       `;
@@ -543,7 +551,7 @@ async function cargarUsuarios() {
           <div>📧 ${escapeHTML(user.email)}</div>
           <div>👔 Rol: ${escapeHTML(user.rol)} | 🏷️ Categorías: ${escapeHTML(user.categorias || 'todas')}</div>
           <div class="grupo-botones" style="margin-top: 12px;">
-            <button class="boton boton-chico boton-secundario" onclick="eliminarUsuario('${user.id}')">🗑️ Eliminar</button>
+            <button class="boton boton-chico boton-peligro" onclick="eliminarUsuario('${user.id}')">🗑️ Eliminar</button>
           </div>
         </div>
       `;
