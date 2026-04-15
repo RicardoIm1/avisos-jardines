@@ -120,12 +120,16 @@ function renderizarAvisos(avisos, pagina, totalPaginas) {
     const esUrgente = aviso.destacado === 'TRUE' || aviso.categoria === 'urgente';
     const esPendiente = aviso.status === 'pendiente';
     
-    // Limpiar número de teléfono
+    // ========== VALIDACIÓN SEGURA PARA CONTACTO ==========
     let numeroWhatsApp = '';
     let numeroTelefono = '';
-    if (aviso.contacto) {
-      const numeros = aviso.contacto.match(/\d+/g);
-      if (numeros) {
+    
+    // Asegurar que contacto sea string
+    const contactoStr = aviso.contacto ? String(aviso.contacto) : '';
+    
+    if (contactoStr) {
+      const numeros = contactoStr.match(/\d+/g);
+      if (numeros && numeros.length > 0) {
         const telefonoLimpio = numeros.join('');
         if (telefonoLimpio.length >= 10) {
           numeroWhatsApp = telefonoLimpio;
