@@ -9,7 +9,8 @@ document.addEventListener('DOMContentLoaded', function () {
   console.log('Admin.js cargado correctamente');
 
   const usuario = Auth.requireAuth();
-  // Forzar actualización del header
+// Forzar actualización del header
+window.dispatchEvent(new CustomEvent('auth-change'));
   function actualizarHeaderManual() {
     const usuario = API.getUsuarioActual();
     const loginLink = document.getElementById('login-link');
