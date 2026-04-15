@@ -1,118 +1,67 @@
+<!-- Este código va en politica-cookies.html -->
 <!DOCTYPE html>
 <html lang="es-MX">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ejemplo con banner de cookies</title>
+  <title>Política de Cookies | Plataforma de la Colonia</title>
   <style>
-    /* Banner flotante */
-    #cookieBanner {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #1e4620;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-      z-index: 1000;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      gap: 1rem;
-      font-family: system-ui, sans-serif;
-      box-shadow: 0 -4px 10px rgba(0,0,0,0.1);
-    }
-
-    #cookieBanner span {
-      font-size: 0.9rem;
-    }
-
-    .btn-cookie {
-      background: #fbbf24;
-      border: none;
-      padding: 0.4rem 1.2rem;
-      border-radius: 2rem;
-      font-weight: 600;
-      cursor: pointer;
-      font-size: 0.85rem;
-      transition: all 0.2s;
-    }
-
-    .btn-cookie:hover {
-      background: #f59e0b;
-      transform: scale(1.02);
-    }
-
-    .btn-config {
-      background: transparent;
-      border: 1px solid white;
-      color: white;
-      padding: 0.4rem 1.2rem;
-      border-radius: 2rem;
-      font-weight: 500;
-      cursor: pointer;
-      font-size: 0.85rem;
-      transition: all 0.2s;
-    }
-
-    .btn-config:hover {
-      background: rgba(255,255,255,0.2);
-    }
-
-    /* Contenido de ejemplo */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: system-ui, sans-serif;
       background: #eef2e6;
-      margin: 0;
-      padding: 2rem;
-      min-height: 100vh;
+      padding: 2rem 1rem;
     }
-    .contenido {
-      max-width: 600px;
-      margin: 0 auto;
+    .container { max-width: 700px; margin: 0 auto; }
+    .card {
       background: white;
+      border-radius: 2rem;
       padding: 2rem;
-      border-radius: 1.5rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
     }
+    h1 { color: #1e4620; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .seccion { margin-bottom: 1.5rem; }
+    .seccion h2 { color: #1e4620; font-size: 1.2rem; margin-bottom: 0.5rem; }
+    .btn-regresar {
+      background: #1e4620;
+      color: white;
+      border: none;
+      padding: 0.6rem 1.5rem;
+      border-radius: 2rem;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    .fecha { font-size: 0.7rem; color: #9ca3af; margin-top: 2rem; text-align: center; }
   </style>
 </head>
 <body>
-<div class="contenido">
-  <h1>🍪 Ejemplo de banner de cookies</h1>
-  <p>Este es el contenido de tu página. El banner de abajo no te llevará a otra página cuando aceptes.</p>
-  <p>Solo guarda tu preferencia y desaparece.</p>
-</div>
+<div class="container">
+  <div class="card">
+    <h1>🍪 Política de Cookies</h1>
+    <p><strong>Así de simple:</strong> Usamos cookies para que la página recuerde tus preferencias y funcione bien.</p>
 
-<!-- BANNER DE COOKIES -->
-<div id="cookieBanner">
-  <span>🍪 Usamos cookies para que la plataforma funcione bien y recordar tus preferencias. No vendemos tus datos ni te espiramos.</span>
-  <div>
-    <button id="aceptarBtn" class="btn-cookie">🍪 Aceptar</button>
-    <button id="configurarBtn" class="btn-config">⚙️ Configurar</button>
+    <div class="seccion">
+      <h2>¿Qué cookies usamos?</h2>
+      <p>🔐 <strong>Técnicas:</strong> Para que puedas iniciar sesión y publicar avisos.</p>
+      <p>🎨 <strong>Preferencias:</strong> Para recordar tu colonia y temas favoritos.</p>
+      <p>📊 <strong>Análisis (Google Analytics):</strong> Para saber cuántas personas nos visitan. Nunca sabemos quién eres tú.</p>
+    </div>
+
+    <div class="seccion">
+      <h2>¿Qué NO hacemos?</h2>
+      <p>❌ No vendemos tus datos.<br>❌ No te espiramos.<br>❌ No mostramos publicidad invasiva.</p>
+    </div>
+
+    <div class="seccion">
+      <h2>¿Puedo desactivarlas?</h2>
+      <p>Sí. En la configuración de tu navegador. Pero si lo haces, algunas cosas dejarán de funcionar (como mantener tu sesión iniciada).</p>
+    </div>
+
+    <button class="btn-regresar" onclick="window.history.back()">← Regresar</button>
+
+    <div class="fecha">
+      Última actualización: [fecha] · Colonia [Nombre]
+    </div>
   </div>
 </div>
-
-<script>
-  // Revisar si ya aceptó antes
-  if (localStorage.getItem('cookie_consent') === 'aceptadas') {
-    document.getElementById('cookieBanner').style.display = 'none';
-  }
-
-  // Botón ACEPTAR: solo guarda y cierra el banner
-  document.getElementById('aceptarBtn').addEventListener('click', function() {
-    localStorage.setItem('cookie_consent', 'aceptadas');
-    localStorage.setItem('cookie_fecha', new Date().toISOString());
-    document.getElementById('cookieBanner').style.display = 'none';
-    // No redirige a ninguna parte
-  });
-
-  // Botón CONFIGURAR: sí puede llevar a la página de política completa
-  document.getElementById('configurarBtn').addEventListener('click', function() {
-    // Esto sí puede redirigir a la página donde está la política completa
-    window.location.href = '/politica-cookies.html';  // Cambia por tu URL real
-  });
-</script>
 </body>
 </html>
