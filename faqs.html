@@ -8,13 +8,12 @@
   <link rel="manifest" href="/avisos-jardines/manifest.json">
   <meta name="theme-color" content="#2c3e50">
   <style>
-    /* Estilos específicos para esta página (complementan estilo.css) */
+    /* Estilos específicos para esta página */
     .faqs-container {
       max-width: 1280px;
       margin: 0 auto;
     }
 
-    /* Encabezado específico */
     .faqs-header {
       text-align: center;
       margin-bottom: 2rem;
@@ -36,7 +35,6 @@
       margin: 0 auto;
     }
 
-    /* Sellos de confianza (versión mejorada con tus colores) */
     .trust-badge {
       display: flex;
       flex-wrap: wrap;
@@ -63,7 +61,6 @@
       font-size: 1.3rem;
     }
 
-    /* Grid de paquetes */
     .packages-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -121,6 +118,24 @@
       border-radius: 30px;
       display: inline-block;
       margin-top: 0.5rem;
+    }
+
+    .badge-oferta {
+      background: #e74c3c;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: bold;
+      padding: 0.2rem 0.8rem;
+      border-radius: 30px;
+      display: inline-block;
+      margin-top: 0.5rem;
+    }
+
+    .precio-anterior {
+      text-decoration: line-through;
+      font-size: 1rem;
+      color: #94a3b8;
+      margin-right: 0.5rem;
     }
 
     .card-features {
@@ -207,7 +222,6 @@
       border-radius: 30px 0 0 30px;
     }
 
-    /* Sección Cómo contratar */
     .howto-section {
       background: #eef2e6;
       border-radius: 1rem;
@@ -262,7 +276,6 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
 
-    /* FAQ Acordeón */
     .faq-section {
       background: white;
       border-radius: 1rem;
@@ -319,7 +332,6 @@
       transform: rotate(45deg);
     }
 
-    /* Grid de confianza */
     .confidence-grid {
       display: flex;
       flex-wrap: wrap;
@@ -343,7 +355,6 @@
       margin-bottom: 0.5rem;
     }
 
-    /* Barra de contacto */
     .contact-bar {
       background: var(--color-primario);
       color: white;
@@ -370,13 +381,11 @@
   <main class="contenedor">
     <div class="faqs-container">
 
-      <!-- Encabezado -->
       <div class="faqs-header">
         <h1>Publicidad que conecta con tu colonia</h1>
         <div class="faqs-subhead">Lleva tu negocio a cada vecino · Precios justos · Resultados reales</div>
       </div>
 
-      <!-- Sellos de confianza -->
       <div class="trust-badge">
         <div class="trust-item"><span>✅</span> Más de 50 negocios locales</div>
         <div class="trust-item"><span>📍</span> Solo en tu colonia, público real</div>
@@ -384,12 +393,11 @@
         <div class="trust-item"><span>🛡️</span> Aviso legal y protección de datos</div>
       </div>
 
-      <!-- Paquetes -->
       <h2 style="text-align: center; color: var(--color-primario); margin-bottom: 0.5rem;">🎯 Paquetes diseñados para ti</h2>
       <p style="text-align: center; color: var(--color-texto-claro); margin-bottom: 2rem;">Desde presencia básica hasta exposición total. ¡Elige el que más impulse tu negocio!</p>
 
       <div class="packages-grid">
-        <!-- Tiendita -->
+        <!-- Tiendita $149 -->
         <div class="package-card">
           <div class="card-header">
             <div class="package-name">Tiendita</div>
@@ -409,7 +417,7 @@
           </div>
         </div>
 
-        <!-- Vecino Anunciante -->
+        <!-- Vecino Anunciante $299 -->
         <div class="package-card">
           <div class="card-header">
             <div class="package-name">Vecino Anunciante</div>
@@ -429,7 +437,7 @@
           </div>
         </div>
 
-        <!-- Negocio Destacado -->
+        <!-- Negocio Destacado $599 -->
         <div class="package-card">
           <div class="card-header">
             <div class="package-name">Negocio Destacado</div>
@@ -449,13 +457,16 @@
           </div>
         </div>
 
-        <!-- Socio Comercial (Premium) -->
+        <!-- Socio Comercial $799 (antes $1,299) -->
         <div class="package-card recommended">
           <div class="recommended-ribbon">🌟 Patrocinador oficial</div>
           <div class="card-header">
             <div class="package-name">Socio Comercial</div>
-            <div class="price">$1,299 <small>MXN</small></div>
-            <div style="font-size: 0.75rem;">30 días · Exposición máxima</div>
+            <div class="price">
+              <span class="precio-anterior">$1,299</span> $799 <small>MXN</small>
+            </div>
+            <div class="badge-oferta">🔥 PRECIO DE LANZAMIENTO</div>
+            <div style="font-size: 0.75rem; margin-top: 0.3rem;">30 días · Exposición máxima</div>
           </div>
           <div class="card-features">
             <ul>
@@ -468,7 +479,7 @@
             </ul>
           </div>
           <div class="card-footer">
-            <button class="btn-primary contratar-btn" data-paquete="Socio Comercial - $1,299 (Premium)">Quiero visibilidad total</button>
+            <button class="btn-primary contratar-btn" data-paquete="Socio Comercial - $799 (Oferta de lanzamiento)">Quiero visibilidad total</button>
           </div>
         </div>
       </div>
@@ -570,7 +581,7 @@
         </div>
       </div>
 
-      <!-- Elementos de confianza -->
+      <!-- Confianza -->
       <div class="confidence-grid">
         <div class="confidence-card">
           <div class="emoji-big">📈</div>
@@ -615,8 +626,8 @@
   <script src="/avisos-jardines/js/auth.js"></script>
 
   <script>
-    // Cargar header
     document.addEventListener('DOMContentLoaded', function() {
+      // Header
       fetch('/avisos-jardines/common/header.html')
         .then(res => {
           if (!res.ok) throw new Error('Header no encontrado');
@@ -632,7 +643,7 @@
         })
         .catch(err => console.error('Error cargando header:', err));
 
-      // Cargar footer
+      // Footer
       fetch('/avisos-jardines/common/footer.html')
         .then(response => {
           if (!response.ok) throw new Error('Footer no encontrado');
@@ -650,7 +661,7 @@
         })
         .catch(error => console.error('Error cargando footer:', error));
 
-      // Acordeón FAQ
+      // FAQ acordeón
       const faqItems = document.querySelectorAll('.faq-item');
       faqItems.forEach(item => {
         const questionDiv = item.querySelector('.faq-question');
