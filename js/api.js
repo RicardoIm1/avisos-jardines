@@ -184,10 +184,9 @@ class API {
     }, apiKey);
   }
 
-  // Eliminar aviso
-  static async eliminarAviso(id, apiKey) {
+  static async eliminar(coleccion, id, apiKey) {
     return await API.peticion('ELIMINAR', {
-      coleccion: 'AVISOS',
+      coleccion: coleccion,
       id: id
     }, apiKey);
   }
