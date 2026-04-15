@@ -1,67 +1,287 @@
-<!-- Este código va en politica-cookies.html -->
 <!DOCTYPE html>
-<html lang="es-MX">
+<html lang="es">
+
 <head>
   <meta charset="UTF-8">
-  <title>Política de Cookies | Plataforma de la Colonia</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
+  <title>Política de Cookies | Avisos Colonia Jardines PVR</title>
+  <link rel="stylesheet" href="/avisos-jardines/css/estilo.css">
+  <link rel="manifest" href="/avisos-jardines/manifest.json">
+  <meta name="theme-color" content="#2c3e50">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: system-ui, sans-serif;
-      background: #eef2e6;
-      padding: 2rem 1rem;
+    /* Estilos adicionales solo para esta página */
+    .cookies-content {
+      max-width: 800px;
+      margin: 0 auto;
     }
-    .container { max-width: 700px; margin: 0 auto; }
-    .card {
+
+    .cookies-card {
       background: white;
-      border-radius: 2rem;
-      padding: 2rem;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      border-radius: 4px;
+      padding: 24px;
+      margin-bottom: 24px;
+      border: 1px solid var(--color-borde);
     }
-    h1 { color: #1e4620; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
-    .seccion { margin-bottom: 1.5rem; }
-    .seccion h2 { color: #1e4620; font-size: 1.2rem; margin-bottom: 0.5rem; }
+
+    .cookies-card h2 {
+      font-size: 20px;
+      color: var(--color-primario);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cookies-card p {
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+
+    .cookies-badge {
+      background: #e8f0fe;
+      color: #2c3e50;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      display: inline-block;
+      margin-bottom: 16px;
+    }
+
+    .lista-beneficios {
+      list-style: none;
+      padding: 0;
+    }
+
+    .lista-beneficios li {
+      padding: 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--color-borde);
+    }
+
+    .lista-beneficios li:last-child {
+      border-bottom: none;
+    }
+
+    .lista-beneficios .emoji {
+      font-size: 20px;
+      min-width: 32px;
+    }
+
+    .grid-cookies {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      margin: 16px 0;
+    }
+
+    @media (min-width: 768px) {
+      .grid-cookies {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .cookie-tipo {
+      background: var(--color-fondo);
+      padding: 16px;
+      border-radius: 4px;
+      border-left: 3px solid var(--color-acento);
+    }
+
+    .cookie-tipo strong {
+      color: var(--color-primario);
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .no-hacemos {
+      background: #fef3e8;
+      border-left: 3px solid var(--color-urgente);
+      padding: 16px;
+      border-radius: 4px;
+      margin: 16px 0;
+    }
+
+    .no-hacemos-item {
+      padding: 6px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .btn-regresar {
-      background: #1e4620;
+      background: var(--color-primario);
       color: white;
       border: none;
-      padding: 0.6rem 1.5rem;
-      border-radius: 2rem;
+      padding: 12px 24px;
+      border-radius: 4px;
+      font-size: 16px;
       cursor: pointer;
-      margin-top: 1rem;
+      width: auto;
+      display: inline-block;
     }
-    .fecha { font-size: 0.7rem; color: #9ca3af; margin-top: 2rem; text-align: center; }
+
+    .btn-regresar:hover {
+      background: var(--color-secundario);
+    }
+
+    .fecha-cookies {
+      text-align: center;
+      font-size: 14px;
+      color: var(--color-texto-claro);
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--color-borde);
+    }
   </style>
 </head>
+
 <body>
-<div class="container">
-  <div class="card">
-    <h1>🍪 Política de Cookies</h1>
-    <p><strong>Así de simple:</strong> Usamos cookies para que la página recuerde tus preferencias y funcione bien.</p>
+  <div id="header-container"></div>
 
-    <div class="seccion">
-      <h2>¿Qué cookies usamos?</h2>
-      <p>🔐 <strong>Técnicas:</strong> Para que puedas iniciar sesión y publicar avisos.</p>
-      <p>🎨 <strong>Preferencias:</strong> Para recordar tu colonia y temas favoritos.</p>
-      <p>📊 <strong>Análisis (Google Analytics):</strong> Para saber cuántas personas nos visitan. Nunca sabemos quién eres tú.</p>
+  <main class="contenedor">
+    <div class="cookies-content">
+
+      <!-- Tarjeta principal -->
+      <div class="cookies-card">
+        <div class="cookies-badge">🍪 Así de fácil</div>
+        <h1 style="font-size: 28px; color: var(--color-primario); margin-bottom: 16px;">Política de Cookies</h1>
+        <p style="font-size: 18px; margin-bottom: 16px;">
+          Hablemos claro, como cuando vamos por un café entre vecinos.
+        </p>
+        <p>
+          Las cookies son como <strong>pequeños post-its</strong> que tu navegador guarda cuando visitas esta página.
+          No son virus, no te espían, no te roban información. Solo nos ayudan a <strong>recordar quién eres</strong>
+          para que no tengas que empezar de cero cada vez que entras.
+        </p>
+      </div>
+
+      <!-- ¿Qué cookies usamos? -->
+      <div class="cookies-card">
+        <h2>🍪 ¿Qué cookies usamos y para qué sirven?</h2>
+        <p>Como una buena nutrióloga, te explico cada ingrediente:</p>
+
+        <div class="grid-cookies">
+          <div class="cookie-tipo">
+            <strong>🔐 Técnicas (las necesarias)</strong>
+            <p>Son como la <strong>base de una buena alimentación</strong>. Sin ellas, no funcionamos. Sirven para que puedas iniciar sesión, publicar avisos y que todo esté en orden.</p>
+            <p style="font-size: 14px; color: #6c757d; margin-top: 8px;">No se pueden desactivar (sería como querer cocinar sin fuego).</p>
+          </div>
+
+          <div class="cookie-tipo">
+            <strong>🎨 Preferencias (las que te conocen)</strong>
+            <p>Recuerdan <strong>tus gustos</strong>: qué categorías te interesan, tu colonia favorita, si ya viste un aviso importante. Como cuando tu nutrióloga recuerda que no te gusta el brócoli.</p>
+          </div>
+
+          <div class="cookie-tipo">
+            <strong>📊 Análisis (Google Analytics)</strong>
+            <p>Son como <strong>llevar un diario de comidas</strong>. Nos dicen cuántas personas nos visitan, qué avisos son más populares, y cómo mejorar. <strong>Nunca sabemos quién eres tú</strong>, solo números generales.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lo que NO hacemos (tranquiliza) -->
+      <div class="cookies-card">
+        <h2>🚫 Lo que NO hacemos (y es importante que sepas)</h2>
+        <div class="no-hacemos">
+          <div class="no-hacemos-item">❌ <strong>No vendemos tus datos</strong> — No somos una empresa de publicidad.</div>
+          <div class="no-hacemos-item">❌ <strong>No te espiramos</strong> — Las cookies no ven lo que haces en otras páginas.</div>
+          <div class="no-hacemos-item">❌ <strong>No mostramos publicidad invasiva</strong> — Nada de anuncios que te persiguen.</div>
+          <div class="no-hacemos-item">❌ <strong>No guardamos información sensible</strong> — Nada de contraseñas, cuentas bancarias o datos personales en las cookies.</div>
+        </div>
+      </div>
+
+      <!-- Beneficios para TI -->
+      <div class="cookies-card">
+        <h2>✅ ¿Por qué TE conviene aceptarlas?</h2>
+        <ul class="lista-beneficios">
+          <li><span class="emoji">🚀</span> <strong>Más rápida:</strong> La página carga más rápido porque recuerda cosas de ti.</li>
+          <li><span class="emoji">🔐</span> <strong>No tienes que iniciar sesión cada 5 minutos:</strong> Tu sesión se mantiene activa.</li>
+          <li><span class="emoji">🎯</span> <strong>Ves lo que te interesa:</strong> Los filtros y categorías que más usas aparecen primero.</li>
+          <li><span class="emoji">📈</span> <strong>Nos ayudas a mejorar:</strong> Con los datos de uso (sin saber quién eres) hacemos la plataforma más útil.</li>
+        </ul>
+      </div>
+
+      <!-- Cómo controlarlas -->
+      <div class="cookies-card">
+        <h2>⚙️ ¿Puedo desactivarlas?</h2>
+        <p>Sí, claro. Puedes desactivar las cookies desde la configuración de tu navegador (Chrome, Firefox, Safari, Edge...).</p>
+        <p><strong>Pero ojo:</strong> Es como querer hacer ejercicio sin sudar. Si las desactivas, algunas cosas dejarán de funcionar bien:</p>
+        <ul style="margin: 12px 0 12px 24px;">
+          <li>Tendrás que iniciar sesión cada vez que entres</li>
+          <li>No recordaremos tu colonia ni tus filtros favoritos</li>
+          <li>La página podría sentirse más lenta</li>
+        </ul>
+        <p>Si necesitas ayuda para configurarlas, escríbenos y te orientamos.</p>
+      </div>
+
+      <!-- Resumen tipo nutrióloga -->
+      <div class="cookies-card">
+        <h2>📝 En resumen (como si fuera una receta)</h2>
+        <div style="background: #e8f0fe; padding: 16px; border-radius: 4px; margin: 16px 0;">
+          <p style="margin-bottom: 8px;"><strong>🍪 Ingredientes:</strong> Cookies técnicas + cookies de preferencias + cookies de análisis.</p>
+          <p style="margin-bottom: 8px;"><strong>👩‍🍳 Preparación:</strong> Las activamos cuando entras a la página.</p>
+          <p style="margin-bottom: 8px;"><strong>🍽️ Beneficio:</strong> Una plataforma que te recuerda, que es rápida y que mejora con tu ayuda.</p>
+          <p><strong>⚠️ Efectos secundarios:</strong> Ninguno. No engordan, no causan alergias, no te roban datos.</p>
+        </div>
+        <p style="text-align: center;">🍪 <strong>Si sigues navegando, entendemos que aceptas el uso de cookies.</strong> 🍪</p>
+      </div>
+
+      <!-- Botón para regresar -->
+      <div style="text-align: center; margin-top: 24px;">
+        <button class="btn-regresar" onclick="window.history.back()">← Regresar a la página anterior</button>
+      </div>
+
+      <div class="fecha-cookies">
+        Última actualización: Abril 2026 · Avisos Colonia Jardines PVR
+      </div>
+
     </div>
+  </main>
 
-    <div class="seccion">
-      <h2>¿Qué NO hacemos?</h2>
-      <p>❌ No vendemos tus datos.<br>❌ No te espiramos.<br>❌ No mostramos publicidad invasiva.</p>
-    </div>
+  <div id="footer-container"></div>
 
-    <div class="seccion">
-      <h2>¿Puedo desactivarlas?</h2>
-      <p>Sí. En la configuración de tu navegador. Pero si lo haces, algunas cosas dejarán de funcionar (como mantener tu sesión iniciada).</p>
-    </div>
+  <script src="/avisos-jardines/js/api.js"></script>
+  <script src="/avisos-jardines/js/auth.js"></script>
 
-    <button class="btn-regresar" onclick="window.history.back()">← Regresar</button>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Cargar header
+      fetch('/avisos-jardines/common/header.html')
+        .then(res => {
+          if (!res.ok) throw new Error('Header no encontrado');
+          return res.text();
+        })
+        .then(html => {
+          document.getElementById('header-container').innerHTML = html;
+          setTimeout(() => {
+            if (typeof window.inicializarHeaderAuth === 'function') {
+              window.inicializarHeaderAuth();
+            }
+          }, 100);
+        })
+        .catch(err => console.error('Error cargando header:', err));
 
-    <div class="fecha">
-      Última actualización: [fecha] · Colonia [Nombre]
-    </div>
-  </div>
-</div>
+      // Cargar footer
+      fetch('/avisos-jardines/common/footer.html')
+        .then(response => {
+          if (!response.ok) throw new Error('Footer no encontrado');
+          return response.text();
+        })
+        .then(data => {
+          const footerContainer = document.getElementById('footer-container');
+          if (footerContainer) {
+            footerContainer.innerHTML = data;
+            const anioElement = document.getElementById('anio-actual');
+            if (anioElement) {
+              anioElement.textContent = new Date().getFullYear();
+            }
+          }
+        })
+        .catch(error => console.error('Error cargando footer:', error));
+    });
+  </script>
 </body>
+
 </html>
