@@ -264,7 +264,6 @@
     function actualizarHeaderUI() {
         console.log('🔄 Actualizando header UI...');
 
-        // Verificar si API existe
         if (typeof API === 'undefined' || !API.getUsuarioActual) {
             console.log('⏳ API no disponible, reintentando en 300ms...');
             setTimeout(actualizarHeaderUI, 300);
@@ -284,32 +283,27 @@
         console.log('👤 Usuario detectado:', usuario ? usuario.email : 'No logueado');
 
         if (usuario && usuario.email) {
-            // Usuario logueado - mostrar botones
             loginLink.style.display = 'none';
             cerrarSesion.style.display = 'inline-flex';
 
-            // Mostrar admin solo si tiene rol admin
             if (usuario.rol === 'admin') {
                 adminLink.style.display = 'inline-flex';
-                console.log('✅ Admin detectado, mostrando panel de administración');
+                console.log('✅ Admin detectado');
             } else {
                 adminLink.style.display = 'none';
             }
 
-            // Cargar reputación
             cargarReputacion();
 
-            // Configurar evento de cierre de sesión
             cerrarSesion.onclick = function (e) {
                 e.preventDefault();
                 console.log('🚪 Cerrando sesión...');
-                if (API.cerrarSesion) API.cerrarSesion();
+                if (API.logout) API.logout();
                 localStorage.removeItem('usuario');
                 localStorage.removeItem('api_key');
                 window.location.href = '/avisos-jardines/login.html';
             };
 
-            // Configurar evento de admin
             if (usuario.rol === 'admin') {
                 adminLink.onclick = function (e) {
                     e.preventDefault();
@@ -317,11 +311,11 @@
                 };
             }
         } else {
-            // Usuario no logueado
             loginLink.style.display = 'inline-flex';
             adminLink.style.display = 'none';
             cerrarSesion.style.display = 'none';
-            document.getElementById('reputacion-widget').style.display = 'none';
+            const widget = document.getElementById('reputacion-widget');
+            if (widget) widget.style.display = 'none';
             console.log('👤 Modo invitado');
         }
     }
@@ -335,30 +329,29 @@
         const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
 
         if (!apiKey || !usuario.email) {
-            document.getElementById('reputacion-widget').style.display = 'none';
+            const widget = document.getElementById('reputacion-widget');
+            if (widget) widget.style.display = 'none';
             return;
         }
 
         try {
-            const api = new API();
-            const result = await api.llamar('MI_REPUTACION', {}, apiKey);
+            // ✅ CORREGIDO: usar API.miReputacion directamente
+            const result = await API.miReputacion(apiKey);
 
             if (result && result.success && result.data) {
                 const data = result.data;
                 const widget = document.getElementById('reputacion-widget');
-                widget.style.display = 'flex';
+                if (widget) widget.style.display = 'flex';
 
                 document.getElementById('puntos-valor').textContent = data.puntos || 0;
                 document.getElementById('nivel-valor').textContent = getNivelEmoji(data.nivel) + ' ' + (data.nivel || 'nuevo');
                 document.getElementById('avisos-restantes').textContent = data.disponibles || 0;
                 document.getElementById('avisos-limite').textContent = data.limite || 1;
 
-                // Actualizar barra de progreso (0-100 puntos)
                 const porcentaje = Math.min(100, ((data.puntos || 0) / 100) * 100);
                 const barra = document.getElementById('reputacion-barra');
-                barra.style.width = `${porcentaje}%`;
+                if (barra) barra.style.width = `${porcentaje}%`;
 
-                // Cambiar color según nivel
                 if (data.nivel === 'nuevo') barra.style.background = '#95a5a6';
                 else if (data.nivel === 'verificado') barra.style.background = '#3498db';
                 else if (data.nivel === 'confiable') barra.style.background = '#2ecc71';
@@ -391,18 +384,18 @@
         return niveles[nivel] || niveles['nuevo'];
     }
 
-    // Mostrar modal de reputación
     async function mostrarDetalleReputacion() {
         const modal = document.getElementById('reputacion-modal');
         const detalleDiv = document.getElementById('reputacion-detalle');
         const apiKey = localStorage.getItem('api_key');
 
+        if (!modal) return;
         modal.style.display = 'flex';
-        detalleDiv.innerHTML = '<div style="text-align: center; padding: 40px;">Cargando detalles...</div>';
+        if (detalleDiv) detalleDiv.innerHTML = '<div style="text-align: center; padding: 40px;">Cargando detalles...</div>';
 
         try {
-            const api = new API();
-            const result = await api.llamar('MI_REPUTACION', {}, apiKey);
+            // ✅ CORREGIDO: usar API.miReputacion directamente
+            const result = await API.miReputacion(apiKey);
 
             if (result && result.success && result.data) {
                 const data = result.data;
@@ -415,7 +408,6 @@
                         <div style="font-size: 18px; font-weight: bold; color: ${nivelInfo.color};">${nivelInfo.nombre}</div>
                         <div style="font-size: 13px; color: #666; margin-top: 4px;">${nivelInfo.texto}</div>
                     </div>
-                    
                     <div style="background: ${nivelInfo.bg}; border-radius: 16px; padding: 16px; margin-bottom: 16px;">
                         <h3 style="margin: 0 0 12px 0; font-size: 16px;">📊 Estadísticas</h3>
                         <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
@@ -427,7 +419,6 @@
                             <strong>${data.requiereAprobacion ? 'Sí (pendiente de revisión)' : 'No (publicación directa)'}</strong>
                         </div>
                     </div>
-                    
                     <div style="background: #e8f8f0; border-radius: 16px; padding: 16px; margin-bottom: 16px;">
                         <h3 style="margin: 0 0 12px 0; font-size: 16px;">🎯 Cómo ganar puntos</h3>
                         <div style="font-size: 13px;">
@@ -437,7 +428,6 @@
                             <div>🏆 Reporte útil confirmado: <strong>+3 pts</strong></div>
                         </div>
                     </div>
-                    
                     <div style="background: #fdf0ef; border-radius: 16px; padding: 16px; margin-bottom: 16px;">
                         <h3 style="margin: 0 0 12px 0; font-size: 16px;">⚠️ Cómo perder puntos</h3>
                         <div style="font-size: 13px;">
@@ -447,7 +437,6 @@
                             <div>❌ Reporte falso: <strong>-5 pts</strong></div>
                         </div>
                     </div>
-                    
                     <div style="margin-top: 20px; text-align: center;">
                         <button id="btn-verificar-telefono-modal" style="background: linear-gradient(135deg, #f5b042, #ff8c42); color: white; border: none; border-radius: 30px; padding: 12px 24px; cursor: pointer; font-weight: 600;">
                             📱 Verificar mi teléfono (+20 pts)
@@ -461,11 +450,10 @@
                 });
             }
         } catch (e) {
-            detalleDiv.innerHTML = '<div style="text-align: center; color: #e74c3c;">Error cargando detalles</div>';
+            if (detalleDiv) detalleDiv.innerHTML = '<div style="text-align: center; color: #e74c3c;">Error cargando detalles</div>';
         }
     }
 
-    // Modal de verificación de teléfono
     function abrirModalVerificacionTelefono() {
         const modal = document.getElementById('verif-telefono-modal');
         const telefonoInput = document.getElementById('telefono-input');
@@ -475,7 +463,8 @@
         const btnVerificar = document.getElementById('btn-verificar-codigo');
         const mensajeDiv = document.getElementById('verif-mensaje');
 
-        // Resetear formulario
+        if (!modal) return;
+
         telefonoInput.value = '';
         codigoInput.value = '';
         codigoSection.style.display = 'none';
@@ -485,7 +474,6 @@
 
         modal.style.display = 'flex';
 
-        // Limpiar eventos anteriores
         const newBtnEnviar = btnEnviar.cloneNode(true);
         const newBtnVerificar = btnVerificar.cloneNode(true);
         btnEnviar.parentNode.replaceChild(newBtnEnviar, btnEnviar);
@@ -499,9 +487,9 @@
             }
 
             mensajeDiv.innerHTML = '<span>📤 Enviando código...</span>';
-            const api = new API();
             const apiKey = localStorage.getItem('api_key');
-            const result = await api.llamar('VERIFICAR_TELEFONO_SOLICITAR', { telefono: telefono }, apiKey);
+            // ✅ CORREGIDO: usar API.solicitarVerificacionTelefono
+            const result = await API.solicitarVerificacionTelefono(telefono, apiKey);
 
             if (result && result.success) {
                 mensajeDiv.innerHTML = '<span style="color:#27ae60;">✅ Código enviado. Revisa tu teléfono.</span>';
@@ -521,9 +509,9 @@
             }
 
             mensajeDiv.innerHTML = '<span>🔍 Verificando...</span>';
-            const api = new API();
             const apiKey = localStorage.getItem('api_key');
-            const result = await api.llamar('VERIFICAR_TELEFONO_CONFIRMAR', { codigo: codigo }, apiKey);
+            // ✅ CORREGIDO: usar API.confirmarVerificacionTelefono
+            const result = await API.confirmarVerificacionTelefono(codigo, apiKey);
 
             if (result && result.success) {
                 mensajeDiv.innerHTML = '<span style="color:#27ae60;">✅ Teléfono verificado! +20 puntos</span>';
@@ -537,25 +525,21 @@
         };
     }
 
-    // Iniciar actualización periódica de reputación
     function iniciarActualizacionReputacion() {
         if (reputacionInterval) clearInterval(reputacionInterval);
         cargarReputacion();
         reputacionInterval = setInterval(cargarReputacion, 30000);
     }
 
-    // Función global que puede ser llamada desde fuera
     window.inicializarHeaderAuth = function () {
         console.log('🚀 Inicializando header auth...');
         actualizarHeaderUI();
         iniciarActualizacionReputacion();
     };
 
-    // Configurar eventos después de cargar el DOM
     document.addEventListener('DOMContentLoaded', function () {
         setTimeout(actualizarHeaderUI, 200);
 
-        // Eventos de modales
         document.getElementById('btn-ver-reputacion')?.addEventListener('click', mostrarDetalleReputacion);
         document.getElementById('cerrar-reputacion-modal')?.addEventListener('click', () => {
             document.getElementById('reputacion-modal').style.display = 'none';
@@ -564,7 +548,6 @@
             document.getElementById('verif-telefono-modal').style.display = 'none';
         });
 
-        // Cerrar modales al hacer click fuera
         document.getElementById('reputacion-modal')?.addEventListener('click', (e) => {
             if (e.target === document.getElementById('reputacion-modal')) {
                 document.getElementById('reputacion-modal').style.display = 'none';
@@ -577,30 +560,23 @@
         });
     });
 
-    // Escuchar evento cuando API está lista
     window.addEventListener('api-ready', function () {
-        console.log('📡 Evento api-ready recibido');
         actualizarHeaderUI();
     });
 
-    // Escuchar cambios en localStorage
     window.addEventListener('storage', function (e) {
         if (e.key === 'usuario' || e.key === 'api_key') {
-            console.log('🔄 Cambio detectado en localStorage');
             actualizarHeaderUI();
         }
     });
 
     window.actualizarHeaderSesion = function () {
-        console.log('🔄 Actualizando header manualmente');
         actualizarHeaderUI();
     };
 
-    // Evento para actualizar header desde cualquier página
     window.addEventListener('auth-change', function () {
         actualizarHeaderUI();
     });
 
-    // También exportar la función globalmente
     window.actualizarHeaderUI = actualizarHeaderUI;
 </script>
