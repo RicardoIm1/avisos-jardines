@@ -190,6 +190,84 @@
       min-height: 100px;
       resize: vertical;
     }
+
+    /* ========== ESTILOS MEJORADOS PARA BOTONES ========== */
+
+    .boton {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #f5b042, #ff8c42);
+      color: white;
+      border: none;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .boton:hover {
+      background: linear-gradient(135deg, #e69a2e, #e67300);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .boton:active {
+      transform: translateY(0);
+    }
+
+    /* Botón secundario */
+    .boton-secundario {
+      background: #f0f2f5;
+      color: #2c3e50;
+      border: 1px solid #ddd;
+    }
+
+    .boton-secundario:hover {
+      background: #e0e0e0;
+      transform: translateY(-2px);
+    }
+
+    /* Botón chico para tarjetas */
+    .boton-chico {
+      padding: 6px 14px;
+      font-size: 0.75rem;
+      gap: 4px;
+    }
+
+    /* Botón peligroso (eliminar) */
+    .boton-peligro {
+      background: #dc3545;
+    }
+
+    .boton-peligro:hover {
+      background: #c82333;
+    }
+
+    /* Botón éxito (aprobar) */
+    .boton-exito {
+      background: #28a745;
+    }
+
+    .boton-exito:hover {
+      background: #218838;
+    }
+
+    /* Filtros activos */
+    .filtro.activo {
+      background: linear-gradient(135deg, #f5b042, #ff8c42);
+      color: white;
+      border-color: transparent;
+    }
+
+    .filtro:hover {
+      background: #e0e0e0;
+      transform: translateY(-2px);
+    }
   </style>
 </head>
 
