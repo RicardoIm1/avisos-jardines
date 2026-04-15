@@ -1,37 +1,207 @@
 <!DOCTYPE html>
-<html lang="es">
-
+<html lang="es-MX">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
-  <title>Iniciar sesión - Avisos Colonia Jardines PVR</title>
+  <title>Iniciar sesión | Avisos Colonia Jardines PVR</title>
   <link rel="stylesheet" href="/avisos-jardines/css/estilo.css">
-</head>
+  <link rel="manifest" href="/avisos-jardines/manifest.json">
+  <meta name="theme-color" content="#2c3e50">
+  <style>
+    /* Estilos específicos para esta página */
+    .login-container {
+      max-width: 500px;
+      margin: 0 auto;
+    }
 
+    /* Header con gradiente verde igual que las otras páginas */
+    .login-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding: 2rem 1rem;
+      background: linear-gradient(135deg, #1e4620, #2b7a2b);
+      border-radius: 1rem;
+      color: white;
+    }
+
+    .login-header h1 {
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .login-header p {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    /* Tarjeta de contenido */
+    .login-content {
+      background: white;
+      border-radius: 1rem;
+      padding: 2rem;
+      border: 1px solid var(--color-borde);
+      margin-bottom: 2rem;
+    }
+
+    .login-content h2 {
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+      color: var(--color-primario);
+      text-align: center;
+    }
+
+    .campo {
+      margin-bottom: 1.2rem;
+    }
+
+    .campo label {
+      display: block;
+      font-weight: 600;
+      font-size: 0.85rem;
+      margin-bottom: 0.4rem;
+      color: var(--color-primario);
+    }
+
+    .campo input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border: 1px solid var(--color-borde);
+      border-radius: 0.75rem;
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: white;
+    }
+
+    .campo input:focus {
+      outline: none;
+      border-color: var(--color-acento);
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+
+    .btn-login {
+      background: var(--color-primario);
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 0.9rem;
+      border-radius: 0.75rem;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-login:hover {
+      background: var(--color-secundario);
+    }
+
+    .btn-login:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    .registro-link {
+      text-align: center;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--color-borde);
+      font-size: 0.85rem;
+    }
+
+    .registro-link a {
+      color: var(--color-acento);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .registro-link a:hover {
+      text-decoration: underline;
+    }
+
+    .mensaje-error {
+      background: #fee2e2;
+      color: #b91c1c;
+      padding: 0.8rem;
+      border-radius: 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      border: 1px solid #fecaca;
+    }
+
+    .mensaje-exito {
+      background: #d1fae5;
+      color: #065f46;
+      padding: 0.8rem;
+      border-radius: 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      border: 1px solid #a7f3d0;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid white;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin-right: 0.5rem;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .login-content {
+        padding: 1.5rem;
+      }
+      .login-header h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
 <body>
   <div id="header-container"></div>
 
   <main class="contenedor-chico">
-    <div id="mensaje-container"></div>
+    <div class="login-container">
 
-    <form id="form-login" class="formulario">
-      <h2 style="margin-bottom: 24px; font-weight: 500;">Iniciar sesión</h2>
-
-      <div class="campo">
-        <label for="email">Correo electrónico</label>
-        <input type="email" id="email" name="email" required placeholder="ejemplo@correo.com">
+      <!-- Header -->
+      <div class="login-header">
+        <h1>🔐 Iniciar sesión</h1>
+        <p>Accede a tu cuenta de la colonia</p>
       </div>
 
-      <div class="campo">
-        <label for="password">Contraseña</label>
-        <input type="password" id="password" name="password" required placeholder="Tu contraseña">
-      </div>
+      <!-- Formulario -->
+      <div class="login-content">
+        <div id="mensaje-container"></div>
 
-      <button type="submit" class="boton">Entrar</button>
-    </form>
+        <form id="form-login">
+          <div class="campo">
+            <label for="email">Correo electrónico</label>
+            <input type="email" id="email" name="email" required placeholder="ejemplo@correo.com">
+          </div>
+
+          <div class="campo">
+            <label for="password">Contraseña</label>
+            <input type="password" id="password" name="password" required placeholder="Tu contraseña">
+          </div>
+
+          <button type="submit" class="btn-login" id="btnLogin">Entrar</button>
+
+          <div class="registro-link">
+            ¿No tienes cuenta? <a href="/avisos-jardines/registro.html">Regístrate aquí</a>
+          </div>
+        </form>
+      </div>
+    </div>
   </main>
 
-  <!-- Footer -->
   <div id="footer-container"></div>
 
   <script src="/avisos-jardines/js/api.js"></script>
@@ -39,25 +209,48 @@
   <script src="/avisos-jardines/js/auth.js"></script>
 
   <script>
-    document.addEventListener('DOMContentLoaded', async function () {
-      await UI.cargarHeader();
-    });
-  </script>
+    // Función para mostrar mensajes
+    function mostrarMensaje(mensaje, esError = true) {
+      const container = document.getElementById('mensaje-container');
+      if (container) {
+        container.innerHTML = `<div class="${esError ? 'mensaje-error' : 'mensaje-exito'}">${mensaje}</div>`;
+        setTimeout(() => {
+          if (container.innerHTML.includes(mensaje)) {
+            container.innerHTML = '';
+          }
+        }, 5000);
+      } else {
+        alert(mensaje);
+      }
+    }
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-    });
-  </script>
+    // Cargar header y footer
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Cargar header
+      if (typeof UI !== 'undefined' && UI.cargarHeader) {
+        await UI.cargarHeader();
+      } else {
+        try {
+          const res = await fetch('/avisos-jardines/common/header.html');
+          if (res.ok) {
+            const html = await res.text();
+            document.getElementById('header-container').innerHTML = html;
+            setTimeout(() => {
+              if (typeof window.inicializarHeaderAuth === 'function') {
+                window.inicializarHeaderAuth();
+              }
+            }, 100);
+          }
+        } catch (err) {
+          console.error('Error cargando header:', err);
+        }
+      }
 
-  <script>
-    // Cargar footer dinámico
-    document.addEventListener('DOMContentLoaded', function () {
-      fetch('/avisos-jardines/common/footer.html')
-        .then(response => {
-          if (!response.ok) throw new Error('Footer no encontrado');
-          return response.text();
-        })
-        .then(data => {
+      // Cargar footer
+      try {
+        const response = await fetch('/avisos-jardines/common/footer.html');
+        if (response.ok) {
+          const data = await response.text();
           const footerContainer = document.getElementById('footer-container');
           if (footerContainer) {
             footerContainer.innerHTML = data;
@@ -66,52 +259,59 @@
               anioElement.textContent = new Date().getFullYear();
             }
           }
-        })
-        .catch(error => console.error('Error cargando el footer:', error));
+        }
+      } catch (error) {
+        console.error('Error cargando footer:', error);
+      }
     });
-  </script>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-
+    // Lógica de login
+    document.addEventListener('DOMContentLoaded', function() {
       const form = document.getElementById('form-login');
+      const btn = document.getElementById('btnLogin');
 
       if (!form) {
         console.error('Formulario login no encontrado');
         return;
       }
 
-      form.addEventListener('submit', async function (e) {
+      form.addEventListener('submit', async function(e) {
         e.preventDefault();
 
         const email = document.getElementById('email')?.value.trim();
         const password = document.getElementById('password')?.value;
 
         if (!email || !password) {
-          alert('Completa todos los campos');
+          mostrarMensaje('Completa todos los campos');
           return;
         }
+
+        // Deshabilitar botón mientras se procesa
+        btn.disabled = true;
+        const btnOriginalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner"></span> Iniciando sesión...';
 
         try {
           const res = await Auth.login(email, password);
           console.log('Login correcto:', res);
 
-          // ✅ SOLO AGREGA ESTAS 2 LÍNEAS:
           // Forzar actualización del header
           if (typeof window.actualizarHeaderSesion === 'function') {
             window.actualizarHeaderSesion();
           }
 
+          // Redirigir al panel de administración
           window.location.href = '/avisos-jardines/admin.html';
 
         } catch (error) {
           console.error('Error login:', error);
-          alert('Credenciales incorrectas');
+          mostrarMensaje('Credenciales incorrectas. Por favor verifica tu correo y contraseña.');
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = btnOriginalText;
         }
       });
-
     });
   </script>
 </body>
-
 </html>
