@@ -9,11 +9,6 @@ function normalizarTelefono(input) {
   return null;
 }
 
-function generarLinkWhatsApp(numero, aviso) {
-  const mensaje = `Hola, vi tu anuncio "${aviso.titulo}" en Jardines Vallarta. ¿Me puedes dar más información?`;
-  return `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
-}
-
 function escapeHTML(str) {
   if (!str) return '';
   return String(str)
@@ -69,7 +64,6 @@ async function cargarAvisos() {
     });
 
     if (resultado && resultado.datos) {
-      // Solo mostrar avisos activos (no pendientes para usuarios normales)
       todosLosAvisos = resultado.datos.filter(a => a.status === 'activo' || a.status === undefined);
       filtrarYAplicarPaginacion();
     } else {
@@ -98,7 +92,21 @@ function filtrarYAplicarPaginacion() {
   renderizarAvisos(avisosPaginados, paginaActual, totalPaginas);
 }
 
-// ==================== RENDERIZADO DE AVISOS (VERSIÓN PREMIUM) ====================
+// ==================== REGISTRO DE ESTADÍSTICAS ====================
+
+async function registrarEstadistica(accion, id) {
+  try {
+    const apiKey = localStorage.getItem('api_key');
+    const resultado = await API.peticion(accion, { id: id }, apiKey);
+    console.log(`✅ ${accion} registrado para aviso ${id}`);
+    return resultado;
+  } catch (error) {
+    console.warn(`No se pudo registrar ${accion}:`, error);
+    return null;
+  }
+}
+
+// ==================== RENDERIZADO DE AVISOS ====================
 
 function renderizarAvisos(avisos, pagina, totalPaginas) {
   const container = document.getElementById('avisos-container');
@@ -120,11 +128,18 @@ function renderizarAvisos(avisos, pagina, totalPaginas) {
     const esUrgente = aviso.destacado === 'TRUE' || aviso.categoria === 'urgente';
     const esPendiente = aviso.status === 'pendiente';
     
+    // ========== ESTADÍSTICAS DEL AVISO ==========
+    const vistas = aviso.vistas || 0;
+    const clicksWhatsApp = aviso.clicks_whatsapp || 0;
+    const intereses = aviso.intereses || 0;
+    
+    // Calcular interacciones totales
+    const totalInteracciones = vistas + clicksWhatsApp + intereses;
+    
     // ========== VALIDACIÓN SEGURA PARA CONTACTO ==========
     let numeroWhatsApp = '';
     let numeroTelefono = '';
     
-    // Asegurar que contacto sea string
     const contactoStr = aviso.contacto ? String(aviso.contacto) : '';
     
     if (contactoStr) {
@@ -138,7 +153,6 @@ function renderizarAvisos(avisos, pagina, totalPaginas) {
       }
     }
     
-    // Texto para WhatsApp
     const whatsappText = `Hola, vi tu aviso "${aviso.titulo}" en la plataforma de la colonia. Me interesa más información.`;
     
     // Categoría legible
@@ -181,23 +195,29 @@ function renderizarAvisos(avisos, pagina, totalPaginas) {
           <div class="aviso-footer">
             <span>📍 ${escapeHTML(aviso.ubicacion || 'Colonia Jardines')}</span>
           </div>
+          
+          <!-- ESTADÍSTICAS DEL AVISO -->
+          <div style="display: flex; gap: 1rem; margin-top: 0.8rem; font-size: 0.7rem; color: var(--color-texto-claro); border-top: 1px solid var(--color-borde); padding-top: 0.6rem;">
+            <span title="Veces que se ha visto este aviso">👁️ ${vistas}</span>
+            <span title="Personas que contactaron por WhatsApp">💬 ${clicksWhatsApp}</span>
+            <span title="Personas que marcaron 'Me interesa'">❤️ ${intereses}</span>
+            ${totalInteracciones > 0 ? `<span title="Interacciones totales">📊 ${totalInteracciones}</span>` : ''}
+          </div>
         </div>
+        
+        <!-- Botón "Me interesa" -->
+        <button class="interes-btn" 
+                onclick="event.stopPropagation(); registrarInteres('${aviso.id}', this)"
+                title="Me interesa este aviso">
+          ❤️
+        </button>
         
         ${numeroWhatsApp ? `
           <a href="https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(whatsappText)}" 
              class="whatsapp-btn" 
-             onclick="event.stopPropagation(); abrirWhatsApp('${numeroWhatsApp}', '${whatsappText}', event)"
+             onclick="event.stopPropagation(); registrarClickWhatsApp('${aviso.id}'); abrirWhatsApp('${numeroWhatsApp}', '${whatsappText}', event)"
              title="Contactar por WhatsApp">
             💬
-          </a>
-        ` : ''}
-        
-        ${numeroTelefono && !numeroWhatsApp ? `
-          <a href="tel:${numeroTelefono}" 
-             class="phone-btn" 
-             onclick="event.stopPropagation(); abrirTelefono('${numeroTelefono}', event)"
-             title="Llamar">
-            📞
           </a>
         ` : ''}
       </div>
@@ -221,12 +241,10 @@ function renderizarPaginacion(paginaActual, totalPaginas) {
   
   let html = '';
   
-  // Anterior
   if (paginaActual > 1) {
     html += `<button class="pagina" data-pagina="${paginaActual - 1}">« Anterior</button>`;
   }
   
-  // Números de página
   const inicio = Math.max(1, paginaActual - 2);
   const fin = Math.min(totalPaginas, paginaActual + 2);
   
@@ -244,14 +262,12 @@ function renderizarPaginacion(paginaActual, totalPaginas) {
     html += `<button class="pagina" data-pagina="${totalPaginas}">${totalPaginas}</button>`;
   }
   
-  // Siguiente
   if (paginaActual < totalPaginas) {
     html += `<button class="pagina" data-pagina="${paginaActual + 1}">Siguiente »</button>`;
   }
   
   pagContainer.innerHTML = html;
   
-  // Eventos de paginación
   pagContainer.querySelectorAll('.pagina[data-pagina]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -265,50 +281,51 @@ function renderizarPaginacion(paginaActual, totalPaginas) {
   });
 }
 
-// ==================== FUNCIONES GLOBALES PARA EL INDEX ====================
+// ==================== FUNCIONES GLOBALES ====================
 
 window.verAviso = function(id) {
   window.location.href = `/avisos-jardines/aviso.html?id=${id}`;
+};
+
+window.registrarClickWhatsApp = async function(id) {
+  await registrarEstadistica('REGISTRAR_CLICK_WHATSAPP', id);
+};
+
+window.registrarInteres = async function(id, btnElement) {
+  const resultado = await registrarEstadistica('REGISTRAR_INTERES', id);
+  if (resultado && resultado.success) {
+    // Mostrar animación de confirmación
+    if (btnElement) {
+      btnElement.style.transform = 'scale(1.2)';
+      setTimeout(() => {
+        btnElement.style.transform = 'scale(1)';
+      }, 300);
+    }
+    // Opcional: mostrar mensaje flotante
+    const toast = document.createElement('div');
+    toast.textContent = '❤️ ¡Gracias por tu interés!';
+    toast.style.position = 'fixed';
+    toast.style.bottom = '20px';
+    toast.style.left = '50%';
+    toast.style.transform = 'translateX(-50%)';
+    toast.style.background = '#1e4620';
+    toast.style.color = 'white';
+    toast.style.padding = '0.5rem 1rem';
+    toast.style.borderRadius = '2rem';
+    toast.style.zIndex = '1000';
+    toast.style.fontSize = '0.8rem';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2000);
+  }
 };
 
 window.abrirWhatsApp = function(numero, texto, event) {
   if (event) event.stopPropagation();
   const url = `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
   window.open(url, '_blank');
-  
-  // Registrar el click (opcional)
-  try {
-    fetch("https://script.google.com/macros/s/AKfycbxs5MreHswFIgRkQhDtCQ_uTqkj1qNd3NT4wYBA-6XhcChEZg4o22ufPJ_YxyOiymc/exec", {
-      method: "POST",
-      body: JSON.stringify({
-        accion: "CLICK_WHATSAPP",
-        id: id,
-        timestamp: new Date().toISOString()
-      })
-    });
-  } catch (e) {
-    console.error("Error registrando click", e);
-  }
 };
 
 window.abrirTelefono = function(numero, event) {
   if (event) event.stopPropagation();
   window.open(`tel:${numero}`, '_blank');
 };
-
-// ==================== TRACKING (opcional) ====================
-
-function registrarClickWhatsApp(idAviso) {
-  try {
-    fetch("https://script.google.com/macros/s/AKfycbxs5MreHswFIgRkQhDtCQ_uTqkj1qNd3NT4wYBA-6XhcChEZg4o22ufPJ_YxyOiymc/exec", {
-      method: "POST",
-      body: JSON.stringify({
-        accion: "CLICK_WHATSAPP",
-        id: idAviso,
-        timestamp: new Date().toISOString()
-      })
-    });
-  } catch (e) {
-    console.error("Error registrando click", e);
-  }
-}

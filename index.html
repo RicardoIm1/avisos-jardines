@@ -10,7 +10,7 @@
   <meta name="theme-color" content="#2c3e50">
   <style>
     /* ========== ESTILOS PREMIUM PARA EL INDEX ========== */
-    
+
     /* Tarjetas cliqueables */
     .aviso-card {
       cursor: pointer;
@@ -18,12 +18,12 @@
       position: relative;
       overflow: hidden;
     }
-    
+
     .aviso-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
     }
-    
+
     /* Badge de categoría más elegante */
     .categoria-badge {
       position: absolute;
@@ -37,7 +37,7 @@
       letter-spacing: 0.5px;
       backdrop-filter: blur(4px);
     }
-    
+
     /* Botón de WhatsApp sutil */
     .whatsapp-btn {
       position: absolute;
@@ -57,12 +57,12 @@
       font-size: 1.1rem;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     }
-    
+
     .whatsapp-btn:hover {
       transform: scale(1.1);
       background: #128C7E;
     }
-    
+
     /* Botón de teléfono sutil */
     .phone-btn {
       position: absolute;
@@ -82,12 +82,12 @@
       font-size: 1rem;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     }
-    
+
     .phone-btn:hover {
       transform: scale(1.1);
       background: var(--color-secundario);
     }
-    
+
     /* Fecha más elegante */
     .aviso-fecha {
       font-size: 0.7rem;
@@ -97,7 +97,7 @@
       gap: 0.3rem;
       margin-bottom: 0.5rem;
     }
-    
+
     /* Contenido con límite de líneas */
     .aviso-contenido-preview {
       display: -webkit-box;
@@ -108,7 +108,7 @@
       line-height: 1.5;
       color: var(--color-texto);
     }
-    
+
     /* Pie de tarjeta con metadatos */
     .aviso-footer {
       margin-top: 0.8rem;
@@ -120,13 +120,13 @@
       font-size: 0.7rem;
       color: var(--color-texto-claro);
     }
-    
+
     /* Urgente: borde rojo y fondo suave */
     .aviso-card.urgente {
       border-left: 4px solid #dc3545;
       background: linear-gradient(135deg, #fff5f5 0%, white 100%);
     }
-    
+
     /* Imagen en la tarjeta (si tiene) */
     .aviso-imagen {
       width: 100%;
@@ -136,14 +136,14 @@
       margin-bottom: 0.8rem;
       background: var(--color-fondo);
     }
-    
+
     /* Estado pendiente */
     .aviso-card.pendiente {
       opacity: 0.85;
       filter: grayscale(0.1);
       border-left: 4px solid #f39c12;
     }
-    
+
     .pendiente-badge {
       position: absolute;
       top: 12px;
@@ -156,7 +156,7 @@
       font-weight: 600;
       z-index: 2;
     }
-    
+
     /* Mejora en los filtros */
     .filtros {
       display: flex;
@@ -165,7 +165,7 @@
       flex-wrap: wrap;
       justify-content: center;
     }
-    
+
     .filtro {
       padding: 0.5rem 1.2rem;
       border-radius: 40px;
@@ -173,18 +173,18 @@
       font-weight: 500;
       transition: all 0.2s;
     }
-    
+
     .filtro:hover {
       transform: translateY(-2px);
     }
-    
+
     /* Grid responsivo mejorado */
     .grid-avisos {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
       gap: 1.5rem;
     }
-    
+
     /* Paginación mejorada */
     .paginacion {
       margin-top: 2rem;
@@ -193,34 +193,61 @@
       gap: 0.5rem;
       flex-wrap: wrap;
     }
-    
+
     .pagina {
       padding: 0.5rem 1rem;
       border-radius: 40px;
       transition: all 0.2s;
       cursor: pointer;
     }
-    
+
     .pagina:hover {
       transform: translateY(-2px);
     }
-    
+
     /* Mensaje de carga */
     .cargando {
       text-align: center;
       padding: 3rem;
       color: var(--color-texto-claro);
     }
-    
+
     /* Responsive */
     @media (max-width: 768px) {
       .grid-avisos {
         grid-template-columns: 1fr;
       }
+
       .filtro {
         padding: 0.4rem 1rem;
         font-size: 0.75rem;
       }
+    }
+
+    /* Botón Me interesa */
+    .interes-btn {
+      position: absolute;
+      bottom: 12px;
+      right: 100px;
+      background: #ff4757;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      z-index: 3;
+      font-size: 1rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .interes-btn:hover {
+      transform: scale(1.1);
+      background: #e84118;
     }
   </style>
 </head>
@@ -260,27 +287,27 @@
 
   <script>
     // ========== FUNCIONES GLOBALES PARA INTERACCIÓN ==========
-    
+
     // Redirigir al detalle del aviso
-    window.verAviso = function(id) {
+    window.verAviso = function (id) {
       window.location.href = `/avisos-jardines/aviso.html?id=${id}`;
     };
-    
+
     // Abrir WhatsApp (evita propagación para no abrir también el aviso)
-    window.abrirWhatsApp = function(numero, texto, event) {
+    window.abrirWhatsApp = function (numero, texto, event) {
       if (event) event.stopPropagation();
       const url = `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
       window.open(url, '_blank');
     };
-    
+
     // Abrir teléfono
-    window.abrirTelefono = function(numero, event) {
+    window.abrirTelefono = function (numero, event) {
       if (event) event.stopPropagation();
       window.open(`tel:${numero}`, '_blank');
     };
-    
+
     // ========== CARGA DE HEADER Y FOOTER ==========
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       // Cargar header
       fetch('/avisos-jardines/common/header.html')
         .then(res => {

@@ -1,6 +1,6 @@
 // ==================== API CLIENT CON JSONP CORREGIDO ====================
 const API = {
-  baseUrl: 'https://script.google.com/macros/s/AKfycbxs5MreHswFIgRkQhDtCQ_uTqkj1qNd3NT4wYBA-6XhcChEZg4o22ufPJ_YxyOiymc/exec',
+  baseUrl: 'https://script.google.com/macros/s/AKfycbzC6qA_PC4fh-MOBzgjJjov1YXOiNkRI0XovgZ1krjTq-FIEeVQGotpDs7F46I2aiE/exec',
 
   get apiKey() {
     return localStorage.getItem('api_key');

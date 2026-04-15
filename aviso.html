@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es-MX">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
@@ -203,7 +204,8 @@
       display: flex;
     }
 
-    .lightbox img, .lightbox video {
+    .lightbox img,
+    .lightbox video {
       max-width: 90%;
       max-height: 90%;
       object-fit: contain;
@@ -289,23 +291,28 @@
       .aviso-paper {
         margin: 1rem;
       }
+
       .article-title {
         font-size: 1.8rem;
       }
+
       .article-header,
       .article-body {
         padding: 1.2rem;
       }
+
       .article-meta {
         gap: 1rem;
         font-size: 0.7rem;
       }
+
       .gallery {
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
       }
     }
   </style>
 </head>
+
 <body>
 
   <div id="header-container"></div>
@@ -332,6 +339,20 @@
   <script src="/avisos-jardines/js/multimedia.js"></script>
 
   <script>
+    // Registrar vista al cargar el aviso
+    async function registrarVista() {
+      try {
+        const apiKey = localStorage.getItem('api_key');
+        await API.peticion('REGISTRAR_VISTA', { id: AVISO_ID }, apiKey);
+        console.log('Vista registrada');
+      } catch (e) {
+        console.warn('No se pudo registrar vista:', e);
+      }
+    }
+
+    // Llamar a registrarVista después de cargar el aviso
+    // En la función cargarAviso(), después de renderizar:
+    registrarVista();
     // ========== FUNCIONES DE UTILIDAD ==========
     function escapeHTML(str) {
       if (str === null || str === undefined) return '';
@@ -357,13 +378,13 @@
     function abrirLightbox(url, tipo) {
       const lightbox = document.getElementById('lightbox');
       const content = document.getElementById('lightbox-content');
-      
+
       if (tipo === 'video') {
         content.innerHTML = `<video controls autoplay style="max-width:90%; max-height:90%;"><source src="${escapeHTML(url)}" type="video/mp4"></video>`;
       } else {
         content.innerHTML = `<img src="${escapeHTML(url)}" alt="Imagen ampliada">`;
       }
-      
+
       lightbox.classList.add('active');
     }
 
@@ -453,10 +474,10 @@
       let fechaTexto = 'Fecha no disponible';
       if (avisoActual.created_at) {
         try {
-          fechaTexto = new Date(avisoActual.created_at).toLocaleDateString('es-MX', { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
+          fechaTexto = new Date(avisoActual.created_at).toLocaleDateString('es-MX', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
           });
         } catch (e) {
           fechaTexto = String(avisoActual.created_at);
@@ -490,14 +511,14 @@
       // Determinar imagen destacada
       let imagenDestacada = null;
       let imagenesGaleria = [];
-      
+
       // Si hay imagen_url en el aviso (sistema viejo)
       if (avisoActual.imagen_url && avisoActual.imagen_url.trim() !== '') {
         imagenDestacada = avisoActual.imagen_url;
         if (multimediaItems && multimediaItems.length > 0) {
           imagenesGaleria = multimediaItems.filter(m => m.tipo === 'image/jpeg' || m.tipo === 'image/png' || m.tipo === 'image/jpg');
         }
-      } 
+      }
       // Si no hay imagen_url, usar multimedia (sistema nuevo)
       else if (multimediaItems && multimediaItems.length > 0) {
         const imagenes = multimediaItems.filter(m => m.tipo === 'image/jpeg' || m.tipo === 'image/png' || m.tipo === 'image/jpg');
@@ -505,13 +526,13 @@
           imagenDestacada = imagenes[0].url;
           imagenesGaleria = imagenes.slice(1);
         }
-        
+
         const videos = multimediaItems.filter(m => m.tipo === 'video/mp4' || m.tipo === 'video/webm');
         imagenesGaleria.push(...videos);
       }
 
       const container = document.getElementById('aviso-container');
-      
+
       let html = `
         <div class="article-header">
           <div class="article-category ${categoriaClase}">${categoriaTexto}</div>
@@ -563,7 +584,7 @@
             <div class="gallery-title">📸 Galería multimedia</div>
             <div class="gallery" id="gallery-container">
         `;
-        
+
         imagenesGaleria.forEach(item => {
           const esVideo = item.tipo === 'video/mp4' || item.tipo === 'video/webm';
           if (esVideo) {
@@ -581,7 +602,7 @@
             `;
           }
         });
-        
+
         html += `</div></div>`;
       }
 
@@ -594,18 +615,18 @@
       } else {
         html += `<a href="/avisos-jardines/index.html" class="btn-action back">← Volver al inicio</a>`;
       }
-      
+
       html += `</div></div></div>`;
 
       container.innerHTML = html;
     }
 
     // Funciones globales
-    window.irAEditar = function(id) {
+    window.irAEditar = function (id) {
       window.location.href = `/avisos-jardines/admin.html?editar=${id}`;
     };
 
-    window.eliminarAviso = async function(id) {
+    window.eliminarAviso = async function (id) {
       if (!confirm('¿Estás seguro de que quieres eliminar este aviso? Esta acción no se puede deshacer.')) return;
 
       try {
@@ -626,7 +647,7 @@
     window.cerrarLightbox = cerrarLightbox;
 
     // Cargar header, footer y el aviso
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       // Header
       fetch('/avisos-jardines/common/header.html')
         .then(res => {
@@ -664,4 +685,5 @@
     });
   </script>
 </body>
+
 </html>
