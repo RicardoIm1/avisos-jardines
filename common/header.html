@@ -38,40 +38,64 @@
 </style>
 
 <script>
-    // Solo la lógica para mostrar/ocultar botones según sesión
     (function() {
-        function actualizarHeader() {
-            const usuario = localStorage.getItem('usuario');
+        function cerrarSesion() {
+            localStorage.removeItem('usuario');
+            localStorage.removeItem('api_key');
+            window.location.href = '/avisos-jardines/login.html';
+        }
+        
+        function actualizarBotones() {
+            const usuarioStr = localStorage.getItem('usuario');
             const apiKey = localStorage.getItem('api_key');
+            
             const loginLink = document.getElementById('login-link');
             const adminLink = document.getElementById('admin-link');
-            const cerrarSesion = document.getElementById('cerrar-sesion');
+            let cerrarBtn = document.getElementById('cerrar-sesion');
             
-            if (usuario && apiKey) {
-                const user = JSON.parse(usuario);
-                loginLink.style.display = 'none';
-                cerrarSesion.style.display = 'inline-flex';
-                if (user.rol === 'admin') {
-                    adminLink.style.display = 'inline-flex';
-                    adminLink.onclick = (e) => { e.preventDefault(); window.location.href = '/avisos-jardines/admin.html'; };
-                }
-                cerrarSesion.onclick = (e) => {
-                    e.preventDefault();
-                    localStorage.removeItem('usuario');
-                    localStorage.removeItem('api_key');
-                    window.location.href = '/avisos-jardines/login.html';
-                };
+            if (!loginLink) return;
+            
+            if (usuarioStr && apiKey) {
+                try {
+                    const usuario = JSON.parse(usuarioStr);
+                    loginLink.style.display = 'none';
+                    
+                    if (cerrarBtn) {
+                        cerrarBtn.style.display = 'inline-flex';
+                        // Clonar para eliminar eventos anteriores
+                        const newBtn = cerrarBtn.cloneNode(true);
+                        cerrarBtn.parentNode.replaceChild(newBtn, cerrarBtn);
+                        cerrarBtn = newBtn;
+                        cerrarBtn.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            cerrarSesion();
+                        });
+                    }
+                    
+                    if (usuario.rol === 'admin') {
+                        adminLink.style.display = 'inline-flex';
+                        adminLink.onclick = function(e) {
+                            e.preventDefault();
+                            window.location.href = '/avisos-jardines/admin.html';
+                        };
+                    } else {
+                        adminLink.style.display = 'none';
+                    }
+                } catch(e) {}
             } else {
                 loginLink.style.display = 'inline-flex';
                 adminLink.style.display = 'none';
-                cerrarSesion.style.display = 'none';
+                if (cerrarBtn) cerrarBtn.style.display = 'none';
             }
         }
         
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', actualizarHeader);
+            document.addEventListener('DOMContentLoaded', actualizarBotones);
         } else {
-            actualizarHeader();
+            actualizarBotones();
         }
+        
+        window.addEventListener('storage', actualizarBotones);
     })();
 </script>
