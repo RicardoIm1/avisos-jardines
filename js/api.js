@@ -1,139 +1,313 @@
-// ==================== API CLIENT CON JSONP CORREGIDO ====================
-const API = {
-  baseUrl: 'https://script.google.com/macros/s/AKfycbzC6qA_PC4fh-MOBzgjJjov1YXOiNkRI0XovgZ1krjTq-FIEeVQGotpDs7F46I2aiE/exec',
+// ==================== API CLIENT - Jardines PVR ====================
 
-  get apiKey() {
-    return localStorage.getItem('api_key');
-  },
+const API_BASE_URL = 'https://script.google.com/macros/s/AKfycbz3eGCWH3tNFuJGsV4B0mqEf3vwAh7z26mO4J2hwNZtXwtizYQr458sQ7GyxkgziNXs/exec';
 
-  set apiKey(valor) {
-    if (valor) {
-      localStorage.setItem('api_key', valor);
-    } else {
-      localStorage.removeItem('api_key');
+// ==================== CLASE PRINCIPAL ====================
+
+class API {
+    constructor() {
+        this.baseUrl = API_BASE_URL;
     }
-  },
 
-  getUsuarioActual() {
-    const usuario = localStorage.getItem('usuario');
-    return usuario ? JSON.parse(usuario) : null;
-  },
+    // ==================== MÉTODOS ESTÁTICOS PRINCIPALES ====================
 
-  peticionJSONP(accion, datos = {}) {
-    return new Promise((resolve, reject) => {
-      const callbackName = 'callback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+    // Método principal para hacer peticiones JSONP
+    static async peticion(accion, datos = {}, apiKey = null) {
+        return new Promise((resolve, reject) => {
+            const params = new URLSearchParams();
+            params.append('accion', accion);
+            
+            if (apiKey) params.append('api_key', apiKey);
+            
+            // Para datos complejos, los enviamos como JSON string
+            if (datos && Object.keys(datos).length > 0) {
+                params.append('jsonp', JSON.stringify(datos));
+            }
+            
+            const callbackName = 'callback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+            const url = `${API_BASE_URL}?callback=${callbackName}&${params.toString()}`;
+            
+            // Timeout por si falla
+            const timeout = setTimeout(() => {
+                if (window[callbackName]) {
+                    delete window[callbackName];
+                    reject(new Error('Timeout de conexión'));
+                }
+            }, 30000);
+            
+            window[callbackName] = function(response) {
+                clearTimeout(timeout);
+                delete window[callbackName];
+                resolve(response);
+            };
+            
+            const script = document.createElement('script');
+            script.src = url;
+            script.onerror = () => {
+                clearTimeout(timeout);
+                delete window[callbackName];
+                reject(new Error('Error de conexión con el servidor'));
+            };
+            document.body.appendChild(script);
+        });
+    }
 
-      const payload = {
-        accion: accion,
-        ...datos,
-        api_key: this.apiKey
-      };
+    // ==================== MÉTODOS DE AUTENTICACIÓN ====================
 
-      const url = this.baseUrl + '?callback=' + callbackName + '&jsonp=' + encodeURIComponent(JSON.stringify(payload));
-
-      window[callbackName] = function (respuesta) {
-        console.log('📥 RESPUESTA COMPLETA DEL SERVIDOR:', JSON.stringify(respuesta, null, 2));
-        console.log('📥 Tipo de respuesta:', typeof respuesta);
-        console.log('📥 success?:', respuesta?.success);
-        console.log('📥 error?:', respuesta?.error);
-
-        delete window[callbackName];
-        if (document.body.contains(script)) document.body.removeChild(script);
-
-        if (respuesta && respuesta.success === true) {
-          resolve(respuesta.data || respuesta);
-        } else {
-          reject(new Error(respuesta?.error || 'Error en la petición'));
+    // Login
+    static async login(email, password) {
+        try {
+            const resultado = await API.peticion('LOGIN', { email: email, password: password });
+            
+            if (resultado && resultado.success && resultado.data && resultado.data.api_key) {
+                // Guardar en localStorage
+                localStorage.setItem('api_key', resultado.data.api_key);
+                localStorage.setItem('usuario', JSON.stringify(resultado.data.usuario));
+                
+                // Disparar evento para actualizar UI
+                window.dispatchEvent(new CustomEvent('auth-change', { detail: { usuario: resultado.data.usuario } }));
+                window.dispatchEvent(new Event('storage'));
+                
+                return resultado.data;
+            } else {
+                throw new Error(resultado?.error || 'Credenciales inválidas');
+            }
+        } catch (error) {
+            console.error('Error en login API:', error);
+            throw error;
         }
-      };
-
-      const script = document.createElement('script');
-      script.src = url;
-      script.onerror = () => {
-        delete window[callbackName];
-        reject(new Error('Error de conexión'));
-      };
-      document.body.appendChild(script);
-    });
-  },
-
-  async login(email, password) {
-    try {
-      const resultado = await this.peticionJSONP('LOGIN', { email, password });
-      console.log('Login exitoso:', resultado);
-
-      if (resultado && resultado.api_key) {
-        this.apiKey = resultado.api_key;
-        localStorage.setItem('api_key', resultado.api_key);
-      }
-      if (resultado && resultado.usuario) {
-        localStorage.setItem('usuario', JSON.stringify(resultado.usuario));
-      }
-
-      // Disparar evento de actualización
-      window.dispatchEvent(new CustomEvent('login-status-changed'));
-
-      return resultado;
-    } catch (error) {
-      console.error('Error login:', error);
-      throw error;
     }
-  },
 
-  async listar(coleccion) {
-    const resultado = await this.peticionJSONP('LISTAR', { coleccion });
-    return resultado;
-  },
-
-  async crear(coleccion, datos) {
-    return this.peticionJSONP('CREAR', { coleccion, datos });
-  },
-
-  async actualizar(coleccion, id, datos) {
-    return this.peticionJSONP('ACTUALIZAR', { coleccion, id, datos });
-  },
-
-  async eliminar(coleccion, id) {
-    return this.peticionJSONP('ELIMINAR', { coleccion, id });
-  },
-
-  cerrarSesion() {
-    this.apiKey = null;
-    localStorage.removeItem('usuario');
-    localStorage.removeItem('api_key');
-    window.dispatchEvent(new CustomEvent('login-status-changed'));
-    window.location.href = '/avisos-jardines/login.html';
-  },
-
-  mostrarError(mensaje) {
-    const contenedor = document.getElementById('mensaje-container');
-    if (contenedor) {
-      contenedor.innerHTML = `<div class="mensaje mensaje-error">${mensaje}</div>`;
-      setTimeout(() => {
-        if (contenedor.innerHTML.includes(mensaje)) {
-          contenedor.innerHTML = '';
+    // Registro
+    static async registro(datos) {
+        try {
+            const resultado = await API.peticion('REGISTRO', { datos: datos });
+            
+            if (resultado && resultado.success && resultado.data && resultado.data.api_key) {
+                // Guardar en localStorage
+                localStorage.setItem('api_key', resultado.data.api_key);
+                localStorage.setItem('usuario', JSON.stringify(resultado.data.usuario));
+                
+                // Disparar evento
+                window.dispatchEvent(new CustomEvent('auth-change', { detail: { usuario: resultado.data.usuario } }));
+                window.dispatchEvent(new Event('storage'));
+                
+                return resultado.data;
+            } else {
+                throw new Error(resultado?.error || 'Error en registro');
+            }
+        } catch (error) {
+            console.error('Error en registro API:', error);
+            throw error;
         }
-      }, 5000);
-    } else {
-      console.error(mensaje);
     }
-  },
 
-  mostrarExito(mensaje) {
-    const contenedor = document.getElementById('mensaje-container');
-    if (contenedor) {
-      contenedor.innerHTML = `<div class="mensaje mensaje-exito">${mensaje}</div>`;
-      setTimeout(() => {
-        if (contenedor.innerHTML.includes(mensaje)) {
-          contenedor.innerHTML = '';
+    // Cerrar sesión
+    static logout() {
+        const apiKey = localStorage.getItem('api_key');
+        if (apiKey) {
+            // Notificar al servidor (opcional, no crítico)
+            API.peticion('LOGOUT', {}, apiKey).catch(() => {});
         }
-      }, 5000);
-    } else {
-      console.log(mensaje);
+        
+        localStorage.removeItem('api_key');
+        localStorage.removeItem('usuario');
+        
+        // Disparar evento
+        window.dispatchEvent(new CustomEvent('auth-change', { detail: { usuario: null } }));
+        window.dispatchEvent(new Event('storage'));
+        
+        console.log('🔓 Sesión cerrada');
     }
-  }
+
+    // Obtener usuario actual
+    static getUsuarioActual() {
+        try {
+            const usuario = localStorage.getItem('usuario');
+            return usuario ? JSON.parse(usuario) : null;
+        } catch (e) {
+            console.error('Error parsing usuario:', e);
+            return null;
+        }
+    }
+
+    // Verificar si hay sesión
+    static isLoggedIn() {
+        return !!API.getUsuarioActual();
+    }
+
+    // ==================== MÉTODOS DE AVISOS ====================
+
+    // Listar avisos
+    static async listar(coleccion, filtros = {}, paginacion = {}) {
+        const datos = {
+            coleccion: coleccion,
+            ...filtros,
+            ...paginacion
+        };
+        const resultado = await API.peticion('LISTAR', datos);
+        
+        // Normalizar respuesta
+        if (resultado && resultado.success) {
+            return resultado.data || { datos: [], total: 0 };
+        }
+        return { datos: [], total: 0 };
+    }
+
+    // Obtener un aviso específico
+    static async obtenerAviso(id) {
+        const resultado = await API.listar('AVISOS', { id: id });
+        if (resultado && resultado.datos && resultado.datos.length > 0) {
+            return resultado.datos[0];
+        }
+        return null;
+    }
+
+    // Crear aviso
+    static async crearAviso(datos, apiKey) {
+        return await API.peticion('CREAR', {
+            coleccion: 'AVISOS',
+            datos: datos
+        }, apiKey);
+    }
+
+    // Actualizar aviso
+    static async actualizarAviso(id, datos, apiKey) {
+        return await API.peticion('ACTUALIZAR', {
+            coleccion: 'AVISOS',
+            id: id,
+            datos: datos
+        }, apiKey);
+    }
+
+    // Eliminar aviso
+    static async eliminarAviso(id, apiKey) {
+        return await API.peticion('ELIMINAR', {
+            coleccion: 'AVISOS',
+            id: id
+        }, apiKey);
+    }
+
+    // Aprobar aviso (admin)
+    static async aprobarAviso(id, apiKey) {
+        return await API.peticion('APROBAR_AVISO', { id: id }, apiKey);
+    }
+
+    // Rechazar aviso (admin)
+    static async rechazarAviso(id, apiKey) {
+        return await API.peticion('RECHAZAR_AVISO', { id: id }, apiKey);
+    }
+
+    // ==================== MÉTODOS DE ESTADÍSTICAS ====================
+
+    static async registrarVista(id) {
+        return await API.peticion('REGISTRAR_VISTA', { id: id });
+    }
+
+    static async registrarClickWhatsApp(id) {
+        return await API.peticion('REGISTRAR_CLICK_WHATSAPP', { id: id });
+    }
+
+    static async registrarInteres(id) {
+        return await API.peticion('REGISTRAR_INTERES', { id: id });
+    }
+
+    // ==================== MÉTODOS DE COMENTARIOS ====================
+
+    static async listarComentarios(avisoId) {
+        const resultado = await API.peticion('LISTAR_COMENTARIOS', { avisoId: avisoId });
+        if (resultado && resultado.success) {
+            return resultado.data || [];
+        }
+        return [];
+    }
+
+    static async agregarComentario(avisoId, texto, autor) {
+        return await API.peticion('AGREGAR_COMENTARIO', {
+            avisoId: avisoId,
+            texto: texto,
+            autor: autor
+        });
+    }
+
+    // ==================== MÉTODOS DE REPUTACIÓN ====================
+
+    static async miReputacion(apiKey) {
+        return await API.peticion('MI_REPUTACION', {}, apiKey);
+    }
+
+    static async solicitarVerificacionTelefono(telefono, apiKey) {
+        return await API.peticion('VERIFICAR_TELEFONO_SOLICITAR', { telefono: telefono }, apiKey);
+    }
+
+    static async confirmarVerificacionTelefono(codigo, apiKey) {
+        return await API.peticion('VERIFICAR_TELEFONO_CONFIRMAR', { codigo: codigo }, apiKey);
+    }
+
+    static async votarAviso(avisoId, tipo, apiKey) {
+        return await API.peticion('VOTAR_AVISO', { aviso_id: avisoId, tipo: tipo }, apiKey);
+    }
+
+    static async reportarAviso(avisoId, motivo, apiKey) {
+        return await API.peticion('REPORTAR_AVISO', { aviso_id: avisoId, motivo: motivo }, apiKey);
+    }
+
+    // ==================== MÉTODOS DE USUARIOS (ADMIN) ====================
+
+    static async listarUsuarios(apiKey) {
+        const resultado = await API.peticion('LISTAR', { coleccion: 'USUARIOS' }, apiKey);
+        if (resultado && resultado.success) {
+            return resultado.data || { datos: [] };
+        }
+        return { datos: [] };
+    }
+
+    static async actualizarUsuario(id, datos, apiKey) {
+        return await API.peticion('ACTUALIZAR', {
+            coleccion: 'USUARIOS',
+            id: id,
+            datos: datos
+        }, apiKey);
+    }
+}
+
+// ==================== FUNCIÓN DE RESPALDO ====================
+
+// Esta función permite llamadas directas sin usar la clase
+window.llamarAPI = async function(accion, datos = {}, apiKey = null) {
+    return await API.peticion(accion, datos, apiKey);
 };
 
-// Evento de API lista
-window.dispatchEvent(new CustomEvent('api-ready'));
-console.log('✅ API lista');
+// ==================== INICIALIZACIÓN ====================
+
+// Disparar evento cuando API está lista
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('api-ready'));
+            console.log('✅ API Client inicializado correctamente');
+        }, 100);
+    });
+} else {
+    setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('api-ready'));
+        console.log('✅ API Client inicializado correctamente');
+    }, 100);
+}
+
+// Hacer disponible globalmente
+window.API = API;
+
+// Escuchar cambios en localStorage para sincronizar entre pestañas
+window.addEventListener('storage', (e) => {
+    if (e.key === 'api_key' || e.key === 'usuario') {
+        console.log('🔄 Cambio de sesión detectado en otra pestaña');
+        window.dispatchEvent(new CustomEvent('auth-change', {
+            detail: { usuario: API.getUsuarioActual() }
+        }));
+    }
+});
+
+// ==================== DEPURACIÓN ====================
+
+console.log('📡 API Client cargado. API_BASE_URL:', API_BASE_URL);
