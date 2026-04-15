@@ -9,6 +9,23 @@
             </div>
         </a>
 
+        <!-- Reputación Widget (solo visible cuando hay sesión) -->
+        <div id="reputacion-widget" style="display: none; align-items: center; gap: 12px; background: rgba(255,255,255,0.1); padding: 6px 15px; border-radius: 40px; margin-right: 15px;">
+            <div style="display: flex; align-items: center; gap: 4px;">
+                ⭐ <span id="puntos-valor">0</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+                🏆 <span id="nivel-valor">cargando</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 4px;">
+                📊 <span id="avisos-restantes">-</span>/<span id="avisos-limite">-</span>
+            </div>
+            <div style="width: 60px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden;">
+                <div id="reputacion-barra" style="width: 0%; height: 100%; background: #fbbf24; border-radius: 2px; transition: width 0.3s;"></div>
+            </div>
+            <button id="btn-ver-reputacion" style="background: none; border: none; color: white; cursor: pointer; font-size: 1rem; padding: 4px 8px; border-radius: 20px;" title="Ver mi reputación">📊</button>
+        </div>
+
         <!-- Acciones del usuario -->
         <div class="header-acciones" id="header-acciones">
             <a href="/avisos-jardines/login.html" id="login-link" class="btn-login">
@@ -27,27 +44,40 @@
     </div>
 </header>
 
-<div id="reputacion-widget" style="display: flex; align-items: center; gap: 8px;">
-  <span>⭐ <span id="puntos-confianza">0</span> pts</span>
-  <span>🏆 <span id="nivel-usuario">cargando...</span></span>
-  <span>📊 <span id="avisos-restantes">-</span> avisos/semana</span>
+<!-- Modal de reputación (inicialmente oculto) -->
+<div id="reputacion-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 10000; justify-content: center; align-items: center;">
+    <div style="background: white; max-width: 500px; width: 90%; border-radius: 24px; padding: 24px; max-height: 80vh; overflow-y: auto; position: relative;">
+        <button id="cerrar-reputacion-modal" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">✕</button>
+        
+        <div id="reputacion-detalle">
+            <div style="text-align: center; padding: 40px;">
+                <div class="cargando">Cargando...</div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<script>
-async function cargarReputacion() {
-  const apiKey = localStorage.getItem('api_key');
-  if (!apiKey) return;
-  
-  const api = new API();
-  const result = await api.llamar('MI_REPUTACION', {}, apiKey);
-  if (result && result.success) {
-    document.getElementById('puntos-confianza').textContent = result.data.puntos;
-    document.getElementById('nivel-usuario').textContent = result.data.nivel;
-    document.getElementById('avisos-restantes').textContent = result.data.disponibles || 0;
-  }
-}
-cargarReputacion();
-</script>
+<!-- Modal de verificación de teléfono -->
+<div id="verif-telefono-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 10001; justify-content: center; align-items: center;">
+    <div style="background: white; max-width: 400px; width: 90%; border-radius: 24px; padding: 24px;">
+        <h3 style="margin: 0 0 8px 0;">📱 Verificar teléfono</h3>
+        <p style="margin: 0 0 16px 0; color: #666; font-size: 14px;">Gana <strong style="color: #27ae60;">+20 puntos</strong> de confianza al verificar tu número.</p>
+        
+        <input type="tel" id="telefono-input" placeholder="Ej: 3221234567" style="width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 12px; font-size: 16px;">
+        
+        <div id="codigo-section" style="display: none;">
+            <input type="text" id="codigo-input" placeholder="Código de 6 dígitos" style="width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 12px; font-size: 16px;">
+        </div>
+        
+        <div id="verif-mensaje" style="font-size: 13px; margin: 8px 0; min-height: 40px;"></div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 16px;">
+            <button id="btn-enviar-codigo" class="btn-login" style="flex: 1; justify-content: center;">📤 Enviar código</button>
+            <button id="btn-verificar-codigo" style="display: none; flex: 1; background: #27ae60; color: white; border: none; border-radius: 30px; padding: 10px; cursor: pointer;">✅ Verificar</button>
+            <button id="cerrar-verif-modal" style="background: #e74c3c; color: white; border: none; border-radius: 30px; padding: 10px 20px; cursor: pointer;">Cancelar</button>
+        </div>
+    </div>
+</div>
 
 <style>
     /* Header - logo y h1 uno al lado del otro */
@@ -177,6 +207,13 @@ cargarReputacion();
         align-items: center;
     }
 
+    /* Reputación widget responsive */
+    @media (max-width: 900px) {
+        #reputacion-widget {
+            display: none !important;
+        }
+    }
+
     @media (max-width: 768px) {
         .logo-texto h1 {
             font-size: 1.2rem;
@@ -242,6 +279,9 @@ cargarReputacion();
                 adminLink.style.display = 'none';
             }
 
+            // Cargar reputación
+            cargarReputacion();
+
             // Configurar evento de cierre de sesión
             cerrarSesion.onclick = function (e) {
                 e.preventDefault();
@@ -264,15 +304,261 @@ cargarReputacion();
             loginLink.style.display = 'inline-flex';
             adminLink.style.display = 'none';
             cerrarSesion.style.display = 'none';
+            document.getElementById('reputacion-widget').style.display = 'none';
             console.log('👤 Modo invitado');
         }
+    }
+
+    // ==================== SISTEMA DE REPUTACIÓN ====================
+
+    let reputacionInterval = null;
+
+    async function cargarReputacion() {
+        const apiKey = localStorage.getItem('api_key');
+        const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+        
+        if (!apiKey || !usuario.email) {
+            document.getElementById('reputacion-widget').style.display = 'none';
+            return;
+        }
+        
+        try {
+            const api = new API();
+            const result = await api.llamar('MI_REPUTACION', {}, apiKey);
+            
+            if (result && result.success && result.data) {
+                const data = result.data;
+                const widget = document.getElementById('reputacion-widget');
+                widget.style.display = 'flex';
+                
+                document.getElementById('puntos-valor').textContent = data.puntos || 0;
+                document.getElementById('nivel-valor').textContent = getNivelEmoji(data.nivel) + ' ' + (data.nivel || 'nuevo');
+                document.getElementById('avisos-restantes').textContent = data.disponibles || 0;
+                document.getElementById('avisos-limite').textContent = data.limite || 1;
+                
+                // Actualizar barra de progreso (0-100 puntos)
+                const porcentaje = Math.min(100, ((data.puntos || 0) / 100) * 100);
+                const barra = document.getElementById('reputacion-barra');
+                barra.style.width = `${porcentaje}%`;
+                
+                // Cambiar color según nivel
+                if (data.nivel === 'nuevo') barra.style.background = '#95a5a6';
+                else if (data.nivel === 'verificado') barra.style.background = '#3498db';
+                else if (data.nivel === 'confiable') barra.style.background = '#2ecc71';
+                else if (data.nivel === 'premium') barra.style.background = '#9b59b6';
+                
+                window.reputacionActual = data;
+            }
+        } catch(e) {
+            console.error('Error cargando reputación:', e);
+        }
+    }
+
+    function getNivelEmoji(nivel) {
+        const emojis = {
+            'nuevo': '🟢',
+            'verificado': '🔵',
+            'confiable': '🟡',
+            'premium': '🟣'
+        };
+        return emojis[nivel] || '🟢';
+    }
+
+    function getNivelInfo(nivel) {
+        const niveles = {
+            'nuevo': { nombre: 'Nuevo Vecino', icono: '🟢', color: '#6c757d', bg: '#f0f2f5', texto: '1 aviso/semana, requiere aprobación' },
+            'verificado': { nombre: 'Verificado', icono: '🔵', color: '#3498db', bg: '#e8f4fd', texto: '5 avisos/semana, publicación directa' },
+            'confiable': { nombre: 'Confiable', icono: '🟡', color: '#2ecc71', bg: '#e8f8f0', texto: '15 avisos/semana, publicación directa' },
+            'premium': { nombre: 'Premium', icono: '🟣', color: '#9b59b6', bg: '#f4e8f8', texto: 'Avisos ilimitados, publicación directa' }
+        };
+        return niveles[nivel] || niveles['nuevo'];
+    }
+
+    // Mostrar modal de reputación
+    async function mostrarDetalleReputacion() {
+        const modal = document.getElementById('reputacion-modal');
+        const detalleDiv = document.getElementById('reputacion-detalle');
+        const apiKey = localStorage.getItem('api_key');
+        
+        modal.style.display = 'flex';
+        detalleDiv.innerHTML = '<div style="text-align: center; padding: 40px;">Cargando detalles...</div>';
+        
+        try {
+            const api = new API();
+            const result = await api.llamar('MI_REPUTACION', {}, apiKey);
+            
+            if (result && result.success && result.data) {
+                const data = result.data;
+                const nivelInfo = getNivelInfo(data.nivel);
+                
+                detalleDiv.innerHTML = `
+                    <div style="text-align: center; margin-bottom: 24px;">
+                        <div style="font-size: 48px;">${nivelInfo.icono}</div>
+                        <div style="font-size: 32px; font-weight: bold; margin: 8px 0;">${data.puntos || 0}</div>
+                        <div style="font-size: 18px; font-weight: bold; color: ${nivelInfo.color};">${nivelInfo.nombre}</div>
+                        <div style="font-size: 13px; color: #666; margin-top: 4px;">${nivelInfo.texto}</div>
+                    </div>
+                    
+                    <div style="background: ${nivelInfo.bg}; border-radius: 16px; padding: 16px; margin-bottom: 16px;">
+                        <h3 style="margin: 0 0 12px 0; font-size: 16px;">📊 Estadísticas</h3>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span>📝 Avisos esta semana:</span>
+                            <strong>${data.publicados || 0} / ${data.limite || 1}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span>✅ Aprobación requerida:</span>
+                            <strong>${data.requiereAprobacion ? 'Sí (pendiente de revisión)' : 'No (publicación directa)'}</strong>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #e8f8f0; border-radius: 16px; padding: 16px; margin-bottom: 16px;">
+                        <h3 style="margin: 0 0 12px 0; font-size: 16px;">🎯 Cómo ganar puntos</h3>
+                        <div style="font-size: 13px;">
+                            <div>✅ Verificar teléfono: <strong>+20 pts</strong></div>
+                            <div>📝 Publicar aviso útil: <strong>+5 pts</strong></div>
+                            <div>👍 Recibir voto positivo: <strong>+1 pt</strong></div>
+                            <div>🏆 Reporte útil confirmado: <strong>+3 pts</strong></div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #fdf0ef; border-radius: 16px; padding: 16px; margin-bottom: 16px;">
+                        <h3 style="margin: 0 0 12px 0; font-size: 16px;">⚠️ Cómo perder puntos</h3>
+                        <div style="font-size: 13px;">
+                            <div>🚫 Spam confirmado: <strong>-25 pts</strong></div>
+                            <div>📢 Reporte válido recibido: <strong>-10 pts</strong></div>
+                            <div>👎 Voto negativo recibido: <strong>-1 pt</strong></div>
+                            <div>❌ Reporte falso: <strong>-5 pts</strong></div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button id="btn-verificar-telefono-modal" style="background: linear-gradient(135deg, #f5b042, #ff8c42); color: white; border: none; border-radius: 30px; padding: 12px 24px; cursor: pointer; font-weight: 600;">
+                            📱 Verificar mi teléfono (+20 pts)
+                        </button>
+                    </div>
+                `;
+                
+                document.getElementById('btn-verificar-telefono-modal')?.addEventListener('click', () => {
+                    modal.style.display = 'none';
+                    abrirModalVerificacionTelefono();
+                });
+            }
+        } catch(e) {
+            detalleDiv.innerHTML = '<div style="text-align: center; color: #e74c3c;">Error cargando detalles</div>';
+        }
+    }
+
+    // Modal de verificación de teléfono
+    function abrirModalVerificacionTelefono() {
+        const modal = document.getElementById('verif-telefono-modal');
+        const telefonoInput = document.getElementById('telefono-input');
+        const codigoSection = document.getElementById('codigo-section');
+        const codigoInput = document.getElementById('codigo-input');
+        const btnEnviar = document.getElementById('btn-enviar-codigo');
+        const btnVerificar = document.getElementById('btn-verificar-codigo');
+        const mensajeDiv = document.getElementById('verif-mensaje');
+        
+        // Resetear formulario
+        telefonoInput.value = '';
+        codigoInput.value = '';
+        codigoSection.style.display = 'none';
+        btnEnviar.style.display = 'block';
+        btnVerificar.style.display = 'none';
+        mensajeDiv.innerHTML = '';
+        
+        modal.style.display = 'flex';
+        
+        // Limpiar eventos anteriores
+        const newBtnEnviar = btnEnviar.cloneNode(true);
+        const newBtnVerificar = btnVerificar.cloneNode(true);
+        btnEnviar.parentNode.replaceChild(newBtnEnviar, btnEnviar);
+        btnVerificar.parentNode.replaceChild(newBtnVerificar, btnVerificar);
+        
+        newBtnEnviar.onclick = async () => {
+            const telefono = telefonoInput.value.trim();
+            if (!telefono || telefono.length < 10) {
+                mensajeDiv.innerHTML = '<span style="color:#e74c3c;">📱 Ingresa un número válido (10 dígitos)</span>';
+                return;
+            }
+            
+            mensajeDiv.innerHTML = '<span>📤 Enviando código...</span>';
+            const api = new API();
+            const apiKey = localStorage.getItem('api_key');
+            const result = await api.llamar('VERIFICAR_TELEFONO_SOLICITAR', { telefono: telefono }, apiKey);
+            
+            if (result && result.success) {
+                mensajeDiv.innerHTML = '<span style="color:#27ae60;">✅ Código enviado. Revisa tu teléfono.</span>';
+                codigoSection.style.display = 'block';
+                newBtnEnviar.style.display = 'none';
+                newBtnVerificar.style.display = 'block';
+            } else {
+                mensajeDiv.innerHTML = `<span style="color:#e74c3c;">❌ ${result.error || 'Error al enviar'}</span>`;
+            }
+        };
+        
+        newBtnVerificar.onclick = async () => {
+            const codigo = codigoInput.value.trim();
+            if (!codigo) {
+                mensajeDiv.innerHTML = '<span style="color:#e74c3c;">Ingresa el código recibido</span>';
+                return;
+            }
+            
+            mensajeDiv.innerHTML = '<span>🔍 Verificando...</span>';
+            const api = new API();
+            const apiKey = localStorage.getItem('api_key');
+            const result = await api.llamar('VERIFICAR_TELEFONO_CONFIRMAR', { codigo: codigo }, apiKey);
+            
+            if (result && result.success) {
+                mensajeDiv.innerHTML = '<span style="color:#27ae60;">✅ Teléfono verificado! +20 puntos</span>';
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    cargarReputacion();
+                }, 2000);
+            } else {
+                mensajeDiv.innerHTML = `<span style="color:#e74c3c;">❌ ${result.error || 'Código incorrecto'}</span>`;
+            }
+        };
+    }
+
+    // Iniciar actualización periódica de reputación
+    function iniciarActualizacionReputacion() {
+        if (reputacionInterval) clearInterval(reputacionInterval);
+        cargarReputacion();
+        reputacionInterval = setInterval(cargarReputacion, 30000);
     }
 
     // Función global que puede ser llamada desde fuera
     window.inicializarHeaderAuth = function () {
         console.log('🚀 Inicializando header auth...');
         actualizarHeaderUI();
+        iniciarActualizacionReputacion();
     };
+
+    // Configurar eventos después de cargar el DOM
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(actualizarHeaderUI, 200);
+        
+        // Eventos de modales
+        document.getElementById('btn-ver-reputacion')?.addEventListener('click', mostrarDetalleReputacion);
+        document.getElementById('cerrar-reputacion-modal')?.addEventListener('click', () => {
+            document.getElementById('reputacion-modal').style.display = 'none';
+        });
+        document.getElementById('cerrar-verif-modal')?.addEventListener('click', () => {
+            document.getElementById('verif-telefono-modal').style.display = 'none';
+        });
+        
+        // Cerrar modales al hacer click fuera
+        document.getElementById('reputacion-modal')?.addEventListener('click', (e) => {
+            if (e.target === document.getElementById('reputacion-modal')) {
+                document.getElementById('reputacion-modal').style.display = 'none';
+            }
+        });
+        document.getElementById('verif-telefono-modal')?.addEventListener('click', (e) => {
+            if (e.target === document.getElementById('verif-telefono-modal')) {
+                document.getElementById('verif-telefono-modal').style.display = 'none';
+            }
+        });
+    });
 
     // Escuchar evento cuando API está lista
     window.addEventListener('api-ready', function () {
@@ -280,7 +566,7 @@ cargarReputacion();
         actualizarHeaderUI();
     });
 
-    // También escuchar cambios en localStorage (para cuando se hace login desde otra pestaña)
+    // Escuchar cambios en localStorage
     window.addEventListener('storage', function (e) {
         if (e.key === 'usuario' || e.key === 'api_key') {
             console.log('🔄 Cambio detectado en localStorage');
@@ -288,22 +574,8 @@ cargarReputacion();
         }
     });
 
-    // Inicializar cuando el DOM esté listo
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function () {
-            setTimeout(actualizarHeaderUI, 200);
-        });
-    } else {
-        setTimeout(actualizarHeaderUI, 200);
-    }
-
-    // Agrega esta función al final del script del header
     window.actualizarHeaderSesion = function () {
         console.log('🔄 Actualizando header manualmente');
-        if (typeof actualizarEstadoSesion === 'function') {
-            actualizarEstadoSesion();
-        } else if (typeof window.inicializarHeaderAuth === 'function') {
-            window.inicializarHeaderAuth();
-        }
+        actualizarHeaderUI();
     };
 </script>
