@@ -3,243 +3,291 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
-  <title>Aviso - Avisos Colonia Jardines PVR</title>
-
-  <!-- Estilos base -->
+  <title>Administración | Avisos Colonia Jardines PVR</title>
   <link rel="stylesheet" href="/avisos-jardines/css/estilo.css">
   <link rel="manifest" href="/avisos-jardines/manifest.json">
   <meta name="theme-color" content="#2c3e50">
-
-  <!-- Estilos específicos para la vista de aviso individual (estilo periódico digital) -->
   <style>
-    /* ========== ESTILO PERIÓDICO DIGITAL ========== */
-    body {
-      background: #f5f5f0;
+    /* Estilos adicionales para asegurar que los tabs funcionen */
+    .tab {
+      display: none;
     }
-
-    /* Contenedor principal estilo artículo */
-    .aviso-contenedor {
-      max-width: 880px;
-      margin: 2rem auto;
-      background: white;
-      border-radius: 1rem;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-      overflow: hidden;
-      border: 1px solid var(--color-borde);
+    .tab.activo {
+      display: block;
     }
-
-    /* Contenido del aviso */
-    #aviso-detalle {
-      padding: 2rem 2rem 2.5rem;
-    }
-
-    /* Categoría - etiqueta de sección */
-    .aviso-categoria {
-      display: inline-block;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      font-weight: 700;
-      padding: 0.3rem 0.8rem;
-      background: var(--color-primario);
-      color: #f5b042;
-      border-radius: 2rem;
-      margin-bottom: 1.2rem;
-    }
-
-    /* Título principal del aviso */
-    .aviso-titulo {
-      font-size: 2.2rem;
-      font-weight: 800;
-      line-height: 1.2;
-      margin: 0.5rem 0 1rem;
-      color: var(--color-primario);
-      letter-spacing: -0.5px;
-    }
-
-    /* Barra de metadatos */
-    .aviso-meta {
-      display: flex;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-      padding: 0.8rem 0;
-      margin: 1rem 0 1.5rem;
-      border-top: 1px solid var(--color-borde);
-      border-bottom: 1px solid var(--color-borde);
-      color: var(--color-texto-claro);
-      font-size: 0.85rem;
-    }
-
-    .aviso-meta span {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    /* Contenido del artículo */
-    .aviso-contenido {
-      font-size: 1.1rem;
-      line-height: 1.7;
-      color: var(--color-texto);
-      margin: 1.8rem 0;
-    }
-
-    .aviso-contenido p {
-      margin-bottom: 1.2rem;
-    }
-
-    /* Recuadro de información adicional */
-    .aviso-info-adicional {
-      background: #faf8f2;
-      border-left: 4px solid #f5b042;
-      padding: 1rem 1.5rem;
-      margin: 1.8rem 0;
-      border-radius: 0.75rem;
-    }
-
-    .aviso-info-adicional p {
-      margin: 0.6rem 0;
-      font-size: 0.95rem;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-
-    /* Botón volver */
-    .boton-volver {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: var(--color-fondo);
-      color: var(--color-primario);
-      text-decoration: none;
-      padding: 0.6rem 1.2rem;
-      font-weight: 600;
-      font-size: 0.85rem;
-      border-radius: 2rem;
-      transition: all 0.2s ease;
-      border: 1px solid var(--color-borde);
-      margin-top: 1.5rem;
-    }
-
-    .boton-volver:hover {
+    .filtro.activo {
       background: var(--color-primario);
       color: white;
       border-color: var(--color-primario);
     }
-
-    /* Estado de carga */
-    .cargando {
-      text-align: center;
-      padding: 3rem 1rem;
-      color: var(--color-texto-claro);
-      font-size: 1rem;
+    #admin-tabs {
+      margin-bottom: 30px;
+      border-bottom: 2px solid var(--color-borde);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding-bottom: 0.5rem;
     }
-
-    /* Galería multimedia */
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1rem;
-      margin: 1.8rem 0;
-    }
-
-    .media-item {
+    .filtro {
+      cursor: pointer;
+      background: transparent;
       border: 1px solid var(--color-borde);
-      border-radius: 0.75rem;
-      padding: 0.8rem;
-      text-align: center;
+      padding: 0.6rem 1.2rem;
+      border-radius: 2rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .filtro:hover {
       background: var(--color-fondo);
     }
-
-    .media-item img,
-    .media-item video {
-      max-width: 100%;
-      max-height: 150px;
-      object-fit: cover;
-      border-radius: 0.5rem;
-    }
-
-    .btn-eliminar-media {
-      margin-top: 0.5rem;
-      background: #dc3545;
+    .filtro.activo {
+      background: var(--color-primario);
       color: white;
-      border: none;
-      padding: 0.3rem 0.8rem;
-      border-radius: 1.5rem;
-      cursor: pointer;
-      font-size: 0.7rem;
+      border-color: var(--color-primario);
     }
-
-    .btn-eliminar-media:hover {
-      background: #c82333;
-    }
-
-    /* Subida de archivos */
-    .upload-area {
-      border: 2px dashed #4CAF50;
-      padding: 1rem;
-      text-align: center;
-      margin: 1rem 0;
-      cursor: pointer;
+    /* Tarjeta de avisos en admin */
+    .tarjeta {
+      background: white;
+      border: 1px solid var(--color-borde);
       border-radius: 0.75rem;
-      transition: all 0.3s;
+      padding: 1rem;
+      margin-bottom: 1rem;
     }
-
-    .upload-area:hover {
-      background: #f0f8f0;
+    .tarjeta-titulo {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
     }
-
-    .upload-area.drag-over {
-      background: #e8f5e9;
-      border-color: #45a049;
+    .tarjeta-fecha {
+      font-size: 0.7rem;
+      color: var(--color-texto-claro);
+      margin-bottom: 0.5rem;
     }
-
-    @media (max-width: 768px) {
-      .aviso-contenedor {
-        margin: 1rem;
-      }
-      .aviso-titulo {
-        font-size: 1.6rem;
-      }
-      #aviso-detalle {
-        padding: 1.2rem;
-      }
-      .aviso-contenido {
-        font-size: 1rem;
-      }
-      .aviso-meta {
-        gap: 1rem;
-      }
-      .gallery {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      }
+    .tarjeta-contenido {
+      font-size: 0.9rem;
+      color: var(--color-texto);
+      margin-bottom: 0.8rem;
+    }
+    .tarjeta-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+    }
+    .grupo-botones {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .boton-chico {
+      padding: 0.3rem 0.8rem;
+      font-size: 0.75rem;
+      width: auto;
+    }
+    .boton-secundario {
+      background: var(--color-fondo);
+      color: var(--color-primario);
+      border: 1px solid var(--color-borde);
+    }
+    .boton-secundario:hover {
+      background: var(--color-borde);
+    }
+    /* Paginación */
+    .paginacion {
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+    .paginacion-botones {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .pagina {
+      padding: 0.3rem 0.8rem;
+      border: 1px solid var(--color-borde);
+      background: white;
+      border-radius: 0.5rem;
+      cursor: pointer;
+    }
+    .pagina.activa {
+      background: var(--color-primario);
+      color: white;
+      border-color: var(--color-primario);
+    }
+    /* Header decorativo */
+    .admin-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding: 1.5rem 1rem;
+      background: linear-gradient(135deg, #1e4620, #2b7a2b);
+      border-radius: 1rem;
+      color: white;
+    }
+    .admin-header h1 {
+      font-size: 1.6rem;
+      margin-bottom: 0.3rem;
+    }
+    .admin-header p {
+      font-size: 0.85rem;
+      opacity: 0.9;
     }
   </style>
 </head>
-
 <body>
-  <!-- Header -->
   <div id="header-container"></div>
 
-  <!-- Contenido principal -->
-  <main>
-    <div class="aviso-contenedor">
-      <div id="mensaje-container"></div>
-      <div id="aviso-detalle" class="cargando">
-        📰 Cargando aviso...
+  <main class="contenedor">
+    <!-- Header decorativo -->
+    <div class="admin-header">
+      <h1>👋 Panel de Administración</h1>
+      <p>Gestiona tus avisos, tu perfil y la comunidad</p>
+    </div>
+
+    <div id="mensaje-container"></div>
+
+    <!-- Tabs - Usando la estructura que espera admin.js -->
+    <div class="filtros" id="admin-tabs">
+      <button class="filtro activo" data-tab="nuevo">📝 Nuevo aviso</button>
+      <button class="filtro" data-tab="lista">📋 Mis avisos</button>
+      <button class="filtro" data-tab="perfil">👤 Mi perfil</button>
+      <button class="filtro" data-tab="usuarios" id="tab-usuarios-btn" style="display: none;">👥 Usuarios</button>
+    </div>
+
+    <!-- Pestaña: Nuevo aviso -->
+    <div id="tab-nuevo" class="tab activo">
+      <form id="form-aviso" class="formulario" style="max-width: 100%;">
+        <h2 style="margin-bottom: 24px; font-weight: 500;">Publicar aviso</h2>
+
+        <div class="campo">
+          <label for="categoria">Categoría</label>
+          <select id="categoria" name="categoria" required>
+            <option value="">Seleccionar</option>
+            <option value="urgente">Urgente</option>
+            <option value="eventos">Eventos</option>
+            <option value="servicios">Servicios</option>
+            <option value="perdidos">Perdidos y encontrados</option>
+            <option value="clasificados">Clasificados</option>
+          </select>
+        </div>
+
+        <div class="campo">
+          <label for="titulo">Título</label>
+          <input type="text" id="titulo" name="titulo" required placeholder="Ej: Kermés vecinal">
+        </div>
+
+        <div class="campo">
+          <label for="contenido">Descripción</label>
+          <textarea id="contenido" name="contenido" required placeholder="Escribe los detalles del aviso..."></textarea>
+        </div>
+
+        <div class="campo">
+          <label for="ubicacion">Ubicación (opcional)</label>
+          <input type="text" id="ubicacion" name="ubicacion" placeholder="Ej: Calle Principal #123">
+        </div>
+
+        <div class="campo">
+          <label for="contacto">Contacto (opcional)</label>
+          <input type="text" id="contacto" name="contacto" placeholder="Ej: Teléfono o email">
+        </div>
+
+        <div class="campo">
+          <label for="fecha_evento">Fecha del evento (opcional)</label>
+          <input type="date" id="fecha_evento" name="fecha_evento">
+        </div>
+
+        <div class="campo" style="display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="urgente" name="urgente" style="width: auto;">
+          <label for="urgente" style="margin-bottom: 0;">Marcar como urgente</label>
+        </div>
+
+        <div class="grupo-botones">
+          <button type="submit" class="boton">Publicar aviso</button>
+          <button type="button" class="boton boton-secundario" id="cancelar">Cancelar</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Pestaña: Lista de avisos (los filtros se generan dinámicamente desde admin.js) -->
+    <div id="tab-lista" class="tab">
+      <div id="mis-avisos-container"></div>
+      <div id="paginacion-admin" class="paginacion"></div>
+    </div>
+
+    <!-- Pestaña: Perfil -->
+    <div id="tab-perfil" class="tab">
+      <div class="formulario" style="max-width: 100%;">
+        <h2 style="margin-bottom: 24px; font-weight: 500;">Mi perfil</h2>
+        <div id="perfil-info"></div>
+        <div style="margin-top: 32px;">
+          <h3 style="margin-bottom: 16px; font-weight: 500;">Notificaciones</h3>
+          <button class="boton boton-secundario" id="activar-notificaciones" style="width: auto;">
+            🔔 Activar notificaciones
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pestaña: Usuarios (solo admin) -->
+    <div id="tab-usuarios" class="tab">
+      <div class="formulario" style="max-width: 100%;">
+        <h2 style="margin-bottom: 24px; font-weight: 500;">Administrar usuarios</h2>
+
+        <form id="form-usuario">
+          <div class="campo">
+            <label for="user-email">Email</label>
+            <input type="email" id="user-email" required placeholder="ejemplo@correo.com">
+          </div>
+
+          <div class="campo">
+            <label for="user-nombre">Nombre completo</label>
+            <input type="text" id="user-nombre" required placeholder="Nombre del usuario">
+          </div>
+
+          <div class="campo">
+            <label for="user-rol">Rol</label>
+            <select id="user-rol" required>
+              <option value="usuario">Usuario</option>
+              <option value="admin">Administrador</option>
+            </select>
+          </div>
+
+          <div class="campo">
+            <label for="user-password">Contraseña</label>
+            <input type="password" id="user-password" required placeholder="Contraseña temporal">
+          </div>
+
+          <div class="campo">
+            <label for="user-categorias">Categorías permitidas</label>
+            <select id="user-categorias">
+              <option value="todas">Todas las categorías</option>
+              <option value="urgente">Solo urgentes</option>
+              <option value="eventos">Solo eventos</option>
+              <option value="servicios">Solo servicios</option>
+              <option value="perdidos">Solo perdidos</option>
+              <option value="clasificados">Solo clasificados</option>
+            </select>
+          </div>
+
+          <div class="grupo-botones">
+            <button type="submit" class="boton">Crear usuario</button>
+          </div>
+        </form>
+
+        <h3 style="margin: 32px 0 16px;">Usuarios registrados</h3>
+        <div id="lista-usuarios-container"></div>
       </div>
     </div>
   </main>
 
-  <!-- Footer -->
   <div id="footer-container"></div>
 
-  <!-- Scripts -->
   <script src="/avisos-jardines/js/api.js"></script>
   <script src="/avisos-jardines/js/ui.js"></script>
-  <script src="/avisos-jardines/js/multimedia.js"></script>
-  <script src="/avisos-jardines/js/aviso.js"></script>
+  <script src="/avisos-jardines/js/auth.js"></script>
+  <script src="/avisos-jardines/js/admin.js"></script>
 
   <script>
     // Cargar header y footer
@@ -255,14 +303,8 @@
           setTimeout(() => {
             if (typeof window.inicializarHeaderAuth === 'function') {
               window.inicializarHeaderAuth();
-            } else {
-              setTimeout(() => {
-                if (typeof window.inicializarHeaderAuth === 'function') {
-                  window.inicializarHeaderAuth();
-                }
-              }, 500);
             }
-          }, 200);
+          }, 100);
         })
         .catch(err => console.error('Error cargando header:', err));
 
