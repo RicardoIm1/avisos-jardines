@@ -253,7 +253,12 @@ function configurarModalEdicion() {
       console.log('📝 Enviando edición:', { id, datos });
 
       try {
-        const resultado = await API.actualizarAviso(id, datos, apiKey);
+        const resultado = await API.peticion('ACTUALIZAR', {
+          coleccion: 'AVISOS',
+          id: id,
+          datos: datos
+        }, apiKey);
+
         console.log('📡 Respuesta:', resultado);
 
         if (resultado && resultado.success) {
@@ -265,10 +270,49 @@ function configurarModalEdicion() {
         }
       } catch (error) {
         console.error('Error al actualizar:', error);
-        API.mostrarError('❌ Error al actualizar el aviso');
+        API.mostrarError('❌ Error al actualizar el aviso: ' + error.message);
       }
     });
   }
+}
+
+const formEditar = document.getElementById('form-editar');
+if (formEditar) {
+  formEditar.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const id = document.getElementById('edit-id').value;
+    const apiKey = localStorage.getItem('api_key');
+
+    const datos = {
+      titulo: document.getElementById('edit-titulo').value,
+      contenido: document.getElementById('edit-contenido').value,
+      categoria: document.getElementById('edit-categoria').value,
+      ubicacion: document.getElementById('edit-ubicacion').value,
+      contacto: document.getElementById('edit-contacto').value,
+      fecha_evento: document.getElementById('edit-fecha_evento').value,
+      imagen_url: document.getElementById('edit-imagen_url').value
+    };
+
+    console.log('📝 Enviando edición:', { id, datos });
+
+    try {
+      const resultado = await API.actualizarAviso(id, datos, apiKey);
+      console.log('📡 Respuesta:', resultado);
+
+      if (resultado && resultado.success) {
+        API.mostrarExito('✅ Aviso actualizado correctamente');
+        document.getElementById('modal-editar').style.display = 'none';
+        cargarMisAvisos();
+      } else {
+        API.mostrarError('❌ Error: ' + (resultado?.error || 'No se pudo actualizar'));
+      }
+    } catch (error) {
+      console.error('Error al actualizar:', error);
+      API.mostrarError('❌ Error al actualizar el aviso');
+    }
+  });
+}
 }
 
 // ==================== ABRIR MODAL DE EDICIÓN ====================
@@ -571,10 +615,20 @@ async function eliminarAviso(id) {
   if (!confirm('¿Eliminar este aviso permanentemente?')) return;
 
   try {
-    const resultado = await API.eliminar('AVISOS', id);
+    const apiKey = localStorage.getItem('api_key');
+    const resultado = await API.peticion('ELIMINAR', {
+      coleccion: 'AVISOS',
+      id: id
+    }, apiKey);
+
     console.log('Resultado eliminar:', resultado);
-    API.mostrarExito('✅ Aviso eliminado correctamente');
-    cargarMisAvisos();
+
+    if (resultado && resultado.success) {
+      API.mostrarExito('✅ Aviso eliminado correctamente');
+      cargarMisAvisos();
+    } else {
+      API.mostrarError('❌ Error: ' + (resultado?.error || 'No se pudo eliminar'));
+    }
   } catch (error) {
     console.error('Error al eliminar:', error);
     API.mostrarError('Error al eliminar: ' + error.message);
@@ -585,9 +639,18 @@ async function eliminarUsuario(id) {
   if (!confirm('¿Eliminar este usuario permanentemente?')) return;
 
   try {
-    await API.eliminar('USUARIOS', id);
-    API.mostrarExito('✅ Usuario eliminado correctamente');
-    cargarUsuarios();
+    const apiKey = localStorage.getItem('api_key');
+    const resultado = await API.peticion('ELIMINAR', {
+      coleccion: 'USUARIOS',
+      id: id
+    }, apiKey);
+
+    if (resultado && resultado.success) {
+      API.mostrarExito('✅ Usuario eliminado correctamente');
+      cargarUsuarios();
+    } else {
+      API.mostrarError('❌ Error: ' + (resultado?.error || 'No se pudo eliminar'));
+    }
   } catch (error) {
     API.mostrarError('Error al eliminar: ' + error.message);
   }
