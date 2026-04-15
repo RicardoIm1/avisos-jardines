@@ -305,3 +305,37 @@ window.addEventListener('storage', (e) => {
 });
 
 console.log('📡 API Client cargado. API_BASE_URL:', API_BASE_URL);
+
+// ==================== FUNCIONES DE UI ====================
+
+API.mostrarExito = function(mensaje) {
+  console.log('✅ Éxito:', mensaje);
+  // Mostrar en la UI si existe el contenedor
+  const container = document.getElementById('mensaje-container');
+  if (container) {
+    container.innerHTML = `<div class="mensaje mensaje-exito" style="background: #d4edda; color: #155724; padding: 12px; border-radius: 8px; margin-bottom: 16px;">✅ ${mensaje}</div>`;
+    setTimeout(() => {
+      if (container.innerHTML.includes(mensaje)) {
+        container.innerHTML = '';
+      }
+    }, 4000);
+  } else {
+    alert(mensaje);
+  }
+};
+
+API.mostrarError = function(mensaje) {
+  console.error('❌ Error:', mensaje);
+  // Mostrar en la UI si existe el contenedor
+  const container = document.getElementById('mensaje-container');
+  if (container) {
+    container.innerHTML = `<div class="mensaje mensaje-error" style="background: #f8d7da; color: #721c24; padding: 12px; border-radius: 8px; margin-bottom: 16px;">❌ ${mensaje}</div>`;
+    setTimeout(() => {
+      if (container.innerHTML.includes(mensaje)) {
+        container.innerHTML = '';
+      }
+    }, 4000);
+  } else {
+    alert('Error: ' + mensaje);
+  }
+};
