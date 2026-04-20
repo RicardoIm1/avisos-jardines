@@ -23,18 +23,6 @@
             <a href="#" id="admin-link" class="btn-admin" style="display:none;">⚙️ Administrador</a>
             <a href="#" id="cerrar-sesion" class="btn-logout" style="display:none;">🚪 Cerrar sesión</a>
         </div>
-
-        <!-- Botón login visible en móvil - más estilizado -->
-        <a href="/avisos-jardines/login.html" id="mobile-login-link" class="btn-login mobile-login-btn">
-            <span>🔐</span>
-            <span>Ingresar</span>
-        </a>
-        
-        <button class="hamburger" id="hamburgerBtn" aria-label="Menú">
-            <span></span>
-            <span></span>
-            <span></span>
-        </button>
     </div>
 </header>
 
@@ -131,16 +119,16 @@
         align-items: center;
     }
 
-    .btn-login, .btn-admin, .btn-logout, .btn-registro {
+    .btn-login, .btn-admin, .btn-logout {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        padding: 0.5rem 1rem;
+        gap: 8px;
+        padding: 0.5rem 1.2rem;
         border-radius: 40px;
         font-size: 0.85rem;
-        font-weight: 500;
+        font-weight: 600;
         text-decoration: none;
-        transition: 0.2s;
+        transition: all 0.2s ease;
         white-space: nowrap;
         cursor: pointer;
         border: none;
@@ -149,11 +137,16 @@
     .btn-login {
         background: linear-gradient(135deg, #f5b042, #ff8c42);
         color: white;
+        box-shadow: 0 2px 8px rgba(245, 176, 66, 0.3);
     }
-
-    .btn-registro {
-        background: linear-gradient(135deg, #2b7a2b, #1e4620);
-        color: white;
+    
+    .btn-login:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(245, 176, 66, 0.4);
+    }
+    
+    .btn-login:active {
+        transform: translateY(0);
     }
 
     .btn-admin {
@@ -165,50 +158,6 @@
         border: 2px solid #d4a043;
         color: #d4a043;
         background: transparent;
-    }
-
-    /* Botón específico para móvil - más estilizado */
-    .mobile-login-btn {
-        display: none;
-        background: linear-gradient(135deg, #f5b042, #ff8c42);
-        color: white;
-        padding: 0.5rem 1.2rem;
-        border-radius: 40px;
-        font-weight: 600;
-        font-size: 0.85rem;
-        box-shadow: 0 2px 8px rgba(245, 176, 66, 0.3);
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    
-    .mobile-login-btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(245, 176, 66, 0.4);
-    }
-    
-    .mobile-login-btn:active {
-        transform: translateY(0);
-    }
-
-    .hamburger {
-        display: none;
-        flex-direction: column;
-        justify-content: space-between;
-        width: 30px;
-        height: 24px;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        padding: 0;
-        z-index: 1001;
-        flex-shrink: 0;
-    }
-
-    .hamburger span {
-        width: 100%;
-        height: 3px;
-        background: #2d3748;
-        border-radius: 10px;
-        transition: all 0.25s ease;
     }
 
     @media (max-width: 768px) {
@@ -224,55 +173,24 @@
         }
 
         .logo-texto h1 {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             white-space: normal;
         }
 
         .header-slogan {
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             white-space: normal;
         }
 
-        /* Ocultar acciones de escritorio */
-        .header-acciones {
-            display: none;
-        }
-
-        /* Mostrar botón login móvil estilizado */
-        .mobile-login-btn {
-            display: inline-flex;
-            padding: 0.4rem 1rem;
-            font-size: 0.75rem;
-            gap: 6px;
-        }
-
-        .hamburger {
-            display: flex;
+        .btn-login, .btn-admin, .btn-logout {
+            padding: 0.35rem 0.9rem;
+            font-size: 0.7rem;
+            gap: 5px;
         }
 
         #reputacion-widget {
             display: none !important;
         }
-    }
-
-    @media (min-width: 769px) {
-        .mobile-login-btn {
-            display: none !important;
-        }
-        
-        .hamburger {
-            display: none;
-        }
-    }
-
-    .hamburger.active span:nth-child(1) {
-        transform: translateY(10px) rotate(45deg);
-    }
-    .hamburger.active span:nth-child(2) {
-        opacity: 0;
-    }
-    .hamburger.active span:nth-child(3) {
-        transform: translateY(-10px) rotate(-45deg);
     }
 </style>
 
@@ -289,7 +207,6 @@
             const apiKey = localStorage.getItem('api_key');
             
             const loginLink = document.getElementById('login-link');
-            const mobileLoginLink = document.querySelector('.mobile-login-btn');
             const adminLink = document.getElementById('admin-link');
             let cerrarBtn = document.getElementById('cerrar-sesion');
             
@@ -299,7 +216,6 @@
                 try {
                     const usuario = JSON.parse(usuarioStr);
                     loginLink.style.display = 'none';
-                    if (mobileLoginLink) mobileLoginLink.style.display = 'none';
                     
                     if (cerrarBtn) {
                         cerrarBtn.style.display = 'inline-flex';
@@ -325,80 +241,15 @@
                 } catch(e) {}
             } else {
                 loginLink.style.display = 'inline-flex';
-                if (mobileLoginLink) mobileLoginLink.style.display = 'inline-flex';
                 adminLink.style.display = 'none';
                 if (cerrarBtn) cerrarBtn.style.display = 'none';
             }
         }
         
-        // Control del menú hamburguesa
-        const hamburger = document.getElementById('hamburgerBtn');
-        const mobileMenu = document.getElementById('mobileMenu');
-        
-        if (hamburger && !mobileMenu) {
-            // Crear menú móvil si no existe
-            const mobileMenuHTML = `
-                <div class="menu-overlay" id="menuOverlay"></div>
-                <div class="mobile-menu" id="mobileMenu">
-                    <button class="close-menu-btn" id="closeMenuBtn">✕</button>
-                    <div id="mobile-menu-links">
-                        <a href="/avisos-jardines/login.html" id="mobile-login-menu">🔐 Iniciar sesión</a>
-                        <a href="#" id="mobile-admin-menu" style="display:none;">⚙️ Administrador</a>
-                        <a href="#" id="mobile-cerrar-menu" style="display:none;">🚪 Cerrar sesión</a>
-                    </div>
-                    <div class="usuario-info" id="mobile-user-info"></div>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', mobileMenuHTML);
-        }
-        
-        function initMobileMenu() {
-            const hamburgerBtn = document.getElementById('hamburgerBtn');
-            const mobileMenuDiv = document.getElementById('mobileMenu');
-            const overlay = document.getElementById('menuOverlay');
-            const closeBtn = document.getElementById('closeMenuBtn');
-            
-            if (!hamburgerBtn || !mobileMenuDiv) return;
-            
-            function openMenu() {
-                mobileMenuDiv.classList.add('open');
-                if (overlay) overlay.classList.add('active');
-                hamburgerBtn.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
-            
-            function closeMenu() {
-                mobileMenuDiv.classList.remove('open');
-                if (overlay) overlay.classList.remove('active');
-                hamburgerBtn.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-            
-            hamburgerBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                if (mobileMenuDiv.classList.contains('open')) {
-                    closeMenu();
-                } else {
-                    openMenu();
-                }
-            });
-            
-            if (closeBtn) closeBtn.addEventListener('click', closeMenu);
-            if (overlay) overlay.addEventListener('click', closeMenu);
-            
-            document.querySelectorAll('.mobile-menu a, .mobile-menu button').forEach(link => {
-                link.addEventListener('click', closeMenu);
-            });
-        }
-        
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
-                actualizarBotones();
-                initMobileMenu();
-            });
+            document.addEventListener('DOMContentLoaded', actualizarBotones);
         } else {
             actualizarBotones();
-            initMobileMenu();
         }
         
         window.addEventListener('storage', actualizarBotones);
