@@ -19,9 +19,9 @@
         </div>
 
         <div class="header-acciones" id="header-acciones">
-            <a href="/avisos-jardines/login.html" id="login-link" class="btn-login">🔐 Iniciar sesión</a>
-            <a href="#" id="admin-link" class="btn-admin" style="display:none;">⚙️ Administrador</a>
-            <a href="#" id="cerrar-sesion" class="btn-logout" style="display:none;">🚪 Cerrar sesión</a>
+            <a href="/avisos-jardines/login.html" id="login-link" class="btn-login">🔐 <span class="btn-text">Iniciar sesión</span></a>
+            <a href="#" id="admin-link" class="btn-admin" style="display:none;">⚙️ <span class="btn-text">Administrador</span></a>
+            <a href="#" id="cerrar-sesion" class="btn-logout" style="display:none;">🚪 <span class="btn-text">Cerrar sesión</span></a>
         </div>
     </div>
 </header>
@@ -179,7 +179,7 @@
 
     /* iPhone 8 y similares (375px) - botón compacto */
     @media (max-width: 400px) {
-        .btn-login {
+        .btn-login, .btn-admin, .btn-logout {
             padding: 0.25rem 0.6rem;
             font-size: 0.65rem;
             gap: 3px;
@@ -205,12 +205,12 @@
     }
 
     /* Pantallas muy pequeñas (320px) - solo ícono */
-    @media (max-width: 340px) {
-        .btn-login .texto-login {
+    @media (max-width: 360px) {
+        .btn-text {
             display: none;
         }
         
-        .btn-login {
+        .btn-login, .btn-admin, .btn-logout {
             padding: 0.25rem 0.5rem;
             font-size: 0.9rem;
         }
