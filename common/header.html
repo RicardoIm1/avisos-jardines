@@ -1,3 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Header Super Responsivo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fb;
+            min-height: 200vh; /* Para probar scroll y sticky */
+        }
+
+        /* Header principal - sticky */
+        .header {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            z-index: 1000;
+            transition: all 0.2s ease;
+        }
+
+        .contenedor {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Contenedor flexible del header - en móvil altura reducida */
+        .header-contenido {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            min-height: 4rem; /* altura base escritorio */
+            transition: min-height 0.2s;
+        }
+
+        /* ========== LOGO ========== */
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #2b7a2b, #1e4620);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .logo-texto h1 {
+            margin: 0;
+            font-size: 1.2rem;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #2b7a2b, #d4a043);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            white-space: nowrap;
+        }
+
+        .header-slogan {
+            font-size: 0.7rem;
+            color: #6b7280;
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        /* ========== WIDGET REPUTACIÓN (se oculta en móvil muy pequeño, opcional) ========== */
+        #reputacion-widget {
+            display: none; /* por defecto JS lo mostrará si es necesario */
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,0,0,0.05);
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        /* ========== BOTONES escritorio (se convertirán en menú hamburguesa) ========== */
+        .header-acciones {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-login, .btn-admin, .btn-logout {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0.5rem 1rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #f5b042, #ff8c42);
+            color: white;
+            border: none;
+        }
+
+        .btn-admin {
+            background: linear-gradient(135deg, #d4a043, #b8860b);
+            color: white;
+        }
+
+        .btn-logout {
+            border: 2px solid #d4a043;
+            color: #d4a043;
+            background: transparent;
+        }
+
+        /* ========== HAMBURGUESA (botón móvil) ========== */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 24px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            z-index: 1001;
+            flex-shrink: 0;
+        }
+
+        .hamburger span {
+            width: 100%;
+            height: 3px;
+            background: #2d3748;
+            border-radius: 10px;
+            transition: all 0.25s ease;
+        }
+
+        /* Menú móvil (offcanvas lateral) */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 80%;
+            max-width: 320px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.15);
+            z-index: 1050;
+            padding: 5rem 1.5rem 2rem;
+            transition: right 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .mobile-menu.open {
+            right: 0;
+        }
+
+        /* overlay oscuro */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1040;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.25s;
+        }
+
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: #f8fafc;
+            border-radius: 60px;
+            text-decoration: none;
+            font-weight: 500;
+            color: #1f2937;
+            transition: 0.2s;
+            font-size: 1rem;
+        }
+
+        .mobile-menu a:active {
+            background: #e2e8f0;
+        }
+
+        /* Botón cerrar menú */
+        .close-menu-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1.2rem;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #4b5563;
+        }
+
+        /* Versión móvil: header más bajo y hamburguesa visible */
+        @media (max-width: 768px) {
+            .header-contenido {
+                min-height: 2rem;  /* Altura reducida: 2rem aprox + padding */
+                padding: 0.4rem 0;
+            }
+
+            .logo-icon {
+                width: 34px;
+                height: 34px;
+                font-size: 1.5rem;
+            }
+
+            .logo-texto h1 {
+                font-size: 0.9rem;
+                white-space: normal;
+                line-height: 1.1;
+            }
+
+            .header-slogan {
+                font-size: 0.6rem;
+                white-space: normal;
+            }
+
+            /* Ocultar botones de acciones en escritorio, mostrar hamburguesa */
+            .header-acciones {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            /* Widget reputación se puede esconder o compactar aún más */
+            #reputacion-widget {
+                display: none !important; /* para limpieza, JS podría mostrarlo, pero en móvil lo ocultamos para altura mínima */
+            }
+
+            /* Ajuste general padding contenedor */
+            .contenedor {
+                padding: 0 1rem;
+            }
+        }
+
+        /* Para tablets medianas, si queremos seguir mostrando widget reducido pero manteniendo hamburguesa? igual ocultamos widget si es necesario */
+        @media (max-width: 900px) and (min-width: 769px) {
+            #reputacion-widget {
+                display: none !important;
+            }
+        }
+
+        /* Para escritorio, hamburguesa invisible y widget puede aparecer si JS lo activa */
+        @media (min-width: 769px) {
+            .hamburger {
+                display: none;
+            }
+            .mobile-menu, .menu-overlay {
+                display: none;
+            }
+            /* Mostrar widget si tiene contenido (JS puede setear display flex) */
+            #reputacion-widget[style*="display: flex"] {
+                display: flex !important;
+            }
+        }
+
+        /* Botones dentro del menú móvil tienen estilo coherente */
+        .mobile-menu .btn-mobile-logout {
+            border: 2px solid #d4a043;
+            background: transparent;
+            color: #b8860b;
+        }
+
+        /* Animaciones */
+        .hamburger.active span:nth-child(1) {
+            transform: translateY(10px) rotate(45deg);
+        }
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .hamburger.active span:nth-child(3) {
+            transform: translateY(-10px) rotate(-45deg);
+        }
+    </style>
+</head>
+<body>
+
 <header class="header">
     <div class="contenedor header-contenido">
         <a href="/avisos-jardines/index.html" class="header-logo">
@@ -8,94 +324,317 @@
             </div>
         </a>
 
-        <div id="reputacion-widget" style="display: none; align-items: center; gap: 12px; background: rgba(255,255,255,0.1); padding: 6px 15px; border-radius: 40px; margin-right: 15px;">
+        <!-- Widget reputación (se puede mostrar solo si hay data) -->
+        <div id="reputacion-widget" style="display: none; align-items: center; gap: 12px; background: rgba(0,0,0,0.05); padding: 6px 15px; border-radius: 40px; margin-right: 15px;">
             <div>⭐ <span id="puntos-valor">0</span></div>
             <div>🏆 <span id="nivel-valor">cargando</span></div>
             <div>📊 <span id="avisos-restantes">-</span>/<span id="avisos-limite">-</span></div>
-            <div style="width: 60px; height: 4px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden;">
+            <div style="width: 60px; height: 4px; background: rgba(0,0,0,0.2); border-radius: 2px; overflow: hidden;">
                 <div id="reputacion-barra" style="width:0%; height:100%; background:#fbbf24;"></div>
             </div>
-            <button id="btn-ver-reputacion" style="background:none; border:none; color:white; cursor:pointer;">📊</button>
+            <button id="btn-ver-reputacion" style="background:none; border:none; color:#2c3e66; cursor:pointer;">📊</button>
         </div>
 
+        <!-- Botones escritorio (se ocultan en móvil) -->
         <div class="header-acciones" id="header-acciones">
             <a href="/avisos-jardines/login.html" id="login-link" class="btn-login">🔐 Iniciar sesión</a>
             <a href="#" id="admin-link" class="btn-admin" style="display:none;">⚙️ Administrador</a>
             <a href="#" id="cerrar-sesion" class="btn-logout" style="display:none;">🚪 Cerrar sesión</a>
         </div>
+
+        <!-- Botón hamburguesa (solo móvil) -->
+        <button class="hamburger" id="hamburgerBtn" aria-label="Menú">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
     </div>
 </header>
 
-<style>
-    /* Tus estilos aquí */
-    .header-logo { display: flex; align-items: center; gap: 15px; text-decoration: none; }
-    .logo-icon { font-size: 3rem; background: linear-gradient(135deg, #2b7a2b, #1e4620); border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; }
-    .logo-texto h1 { margin: 0; font-size: 1.8rem; background: linear-gradient(135deg, #2b7a2b, #d4a043); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .btn-login { background: linear-gradient(135deg, #f5b042, #ff8c42); color: white; padding: 10px 20px; border-radius: 30px; text-decoration: none; }
-    .btn-admin { background: linear-gradient(135deg, #d4a043, #b8860b); color: white; padding: 10px 20px; border-radius: 30px; text-decoration: none; }
-    .btn-logout { border: 2px solid #d4a043; color: #d4a043; padding: 10px 20px; border-radius: 30px; text-decoration: none; background: transparent; }
-    .header-acciones { display: flex; gap: 12px; align-items: center; }
-</style>
+<!-- Menú móvil offcanvas -->
+<div class="menu-overlay" id="menuOverlay"></div>
+<div class="mobile-menu" id="mobileMenu">
+    <button class="close-menu-btn" id="closeMenuBtn" aria-label="Cerrar menú">✕</button>
+    <div id="mobile-menu-links">
+        <!-- Aquí se clonarán dinámicamente los botones de acción según estado de sesión -->
+        <a href="/avisos-jardines/login.html" id="mobile-login-link" class="mobile-link">🔐 Iniciar sesión</a>
+        <a href="#" id="mobile-admin-link" style="display:none;" class="mobile-link">⚙️ Administrador</a>
+        <a href="#" id="mobile-cerrar-sesion" style="display:none;" class="mobile-link btn-mobile-logout">🚪 Cerrar sesión</a>
+    </div>
+    <!-- opcional: widget compacto dentro del menú si deseas -->
+    <div style="margin-top: 1rem; font-size: 0.8rem; color: #6c757d; border-top: 1px solid #eee; padding-top: 1rem;">
+        <small>🏡 Comunidad Jardines</small>
+    </div>
+</div>
 
 <script>
     (function() {
+        // ---------- FUNCIONES DE SESIÓN ----------
         function cerrarSesion() {
             localStorage.removeItem('usuario');
             localStorage.removeItem('api_key');
             window.location.href = '/avisos-jardines/login.html';
         }
-        
-        function actualizarBotones() {
+
+        // Función para actualizar tanto botones desktop como móvil
+        function actualizarBotonesYMenu() {
             const usuarioStr = localStorage.getItem('usuario');
             const apiKey = localStorage.getItem('api_key');
             
+            // Elementos escritorio
             const loginLink = document.getElementById('login-link');
             const adminLink = document.getElementById('admin-link');
-            let cerrarBtn = document.getElementById('cerrar-sesion');
+            const cerrarBtn = document.getElementById('cerrar-sesion');
+            
+            // Elementos móvil
+            const mobileLogin = document.getElementById('mobile-login-link');
+            const mobileAdmin = document.getElementById('mobile-admin-link');
+            const mobileCerrar = document.getElementById('mobile-cerrar-sesion');
             
             if (!loginLink) return;
+            
+            // Helper para remover eventos duplicados y asignar nuevo
+            function safeAddEvent(element, event, handler) {
+                if (!element) return;
+                const newEl = element.cloneNode(true);
+                element.parentNode?.replaceChild(newEl, element);
+                newEl.addEventListener(event, handler);
+                return newEl;
+            }
             
             if (usuarioStr && apiKey) {
                 try {
                     const usuario = JSON.parse(usuarioStr);
+                    // Desktop
                     loginLink.style.display = 'none';
-                    
                     if (cerrarBtn) {
                         cerrarBtn.style.display = 'inline-flex';
-                        // Clonar para eliminar eventos anteriores
-                        const newBtn = cerrarBtn.cloneNode(true);
-                        cerrarBtn.parentNode.replaceChild(newBtn, cerrarBtn);
-                        cerrarBtn = newBtn;
-                        cerrarBtn.addEventListener('click', function(e) {
+                        const newCerrar = safeAddEvent(cerrarBtn, 'click', (e) => {
                             e.preventDefault();
-                            e.stopPropagation();
                             cerrarSesion();
                         });
+                        if (newCerrar) document.getElementById('cerrar-sesion')?.setAttribute('id', 'cerrar-sesion');
+                    }
+                    
+                    // móvil: ocultar login, mostrar cerrar sesión
+                    if (mobileLogin) mobileLogin.style.display = 'none';
+                    if (mobileCerrar) {
+                        mobileCerrar.style.display = 'flex';
+                        const newMobileCerrar = safeAddEvent(mobileCerrar, 'click', (e) => {
+                            e.preventDefault();
+                            cerrarSesion();
+                        });
+                        if (newMobileCerrar) newMobileCerrar.id = 'mobile-cerrar-sesion';
                     }
                     
                     if (usuario.rol === 'admin') {
-                        adminLink.style.display = 'inline-flex';
-                        adminLink.onclick = function(e) {
-                            e.preventDefault();
-                            window.location.href = '/avisos-jardines/admin.html';
-                        };
+                        if (adminLink) {
+                            adminLink.style.display = 'inline-flex';
+                            const newAdmin = safeAddEvent(adminLink, 'click', (e) => {
+                                e.preventDefault();
+                                window.location.href = '/avisos-jardines/admin.html';
+                            });
+                            if (newAdmin) newAdmin.id = 'admin-link';
+                        }
+                        if (mobileAdmin) {
+                            mobileAdmin.style.display = 'flex';
+                            const newMobileAdmin = safeAddEvent(mobileAdmin, 'click', (e) => {
+                                e.preventDefault();
+                                window.location.href = '/avisos-jardines/admin.html';
+                            });
+                            if (newMobileAdmin) newMobileAdmin.id = 'mobile-admin-link';
+                        }
                     } else {
-                        adminLink.style.display = 'none';
+                        if (adminLink) adminLink.style.display = 'none';
+                        if (mobileAdmin) mobileAdmin.style.display = 'none';
                     }
-                } catch(e) {}
+                } catch(e) { console.warn(e); }
             } else {
+                // No logueado
                 loginLink.style.display = 'inline-flex';
-                adminLink.style.display = 'none';
+                if (adminLink) adminLink.style.display = 'none';
                 if (cerrarBtn) cerrarBtn.style.display = 'none';
+                
+                // móvil
+                if (mobileLogin) mobileLogin.style.display = 'flex';
+                if (mobileAdmin) mobileAdmin.style.display = 'none';
+                if (mobileCerrar) mobileCerrar.style.display = 'none';
             }
         }
         
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', actualizarBotones);
-        } else {
-            actualizarBotones();
+        // ---------- CONTROL DEL MENÚ HAMBURGUESA ----------
+        const hamburger = document.getElementById('hamburgerBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const overlay = document.getElementById('menuOverlay');
+        const closeBtn = document.getElementById('closeMenuBtn');
+        
+        function openMenu() {
+            if (mobileMenu) mobileMenu.classList.add('open');
+            if (overlay) overlay.classList.add('active');
+            if (hamburger) hamburger.classList.add('active');
+            document.body.style.overflow = 'hidden';
         }
         
-        window.addEventListener('storage', actualizarBotones);
+        function closeMenu() {
+            if (mobileMenu) mobileMenu.classList.remove('open');
+            if (overlay) overlay.classList.remove('active');
+            if (hamburger) hamburger.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        if (hamburger) {
+            hamburger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (mobileMenu?.classList.contains('open')) {
+                    closeMenu();
+                } else {
+                    openMenu();
+                }
+            });
+        }
+        
+        if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+        if (overlay) overlay.addEventListener('click', closeMenu);
+        
+        // Cerrar menú al hacer clic en enlaces (navegación fluida)
+        const allMobileLinks = () => document.querySelectorAll('.mobile-menu a');
+        function bindCloseOnLinks() {
+            document.querySelectorAll('.mobile-menu a').forEach(link => {
+                link.removeEventListener('click', closeMenu);
+                link.addEventListener('click', closeMenu);
+            });
+        }
+        
+        // ---------- SIMULACIÓN REPUTACIÓN WIDGET (opcional demo) ----------
+        // Puedes conectar con tu API real, esto es solo ejemplo para mostrar widget funcional
+        function initReputacionWidget() {
+            const widget = document.getElementById('reputacion-widget');
+            if (!widget) return;
+            // Simular datos de reputación si existe usuario o simplemente mostrar demo
+            const usuarioLog = localStorage.getItem('usuario');
+            if (usuarioLog) {
+                try {
+                    const user = JSON.parse(usuarioLog);
+                    // Ejemplo de lógica de puntos (puedes cambiarlo)
+                    let puntos = user.puntos || 124;
+                    let limite = 200;
+                    let nivel = puntos > 150 ? "Oro" : (puntos > 70 ? "Plata" : "Bronce");
+                    let avisosRest = Math.max(0, limite - puntos);
+                    document.getElementById('puntos-valor').innerText = puntos;
+                    document.getElementById('nivel-valor').innerText = nivel;
+                    document.getElementById('avisos-restantes').innerText = avisosRest;
+                    document.getElementById('avisos-limite').innerText = limite;
+                    let porcentaje = (puntos / limite) * 100;
+                    const barra = document.getElementById('reputacion-barra');
+                    if (barra) barra.style.width = Math.min(100, porcentaje) + '%';
+                    widget.style.display = 'flex';
+                } catch(e) { widget.style.display = 'none'; }
+            } else {
+                // Si no hay usuario y deseas mostrar widget demo? Mejor oculto
+                widget.style.display = 'none';
+            }
+            
+            // Botón ver reputación
+            const btnVer = document.getElementById('btn-ver-reputacion');
+            if (btnVer) {
+                btnVer.addEventListener('click', (e) => {
+                    alert('📊 Tu reputación: más avisos = más puntos. ¡Participa!');
+                });
+            }
+        }
+        
+        // ---------- ACTUALIZAR TODO AL INICIO Y AL CAMBIO DE STORAGE ----------
+        function refreshAll() {
+            actualizarBotonesYMenu();
+            initReputacionWidget();
+            bindCloseOnLinks();   // Para que los enlaces dentro del menú cierren al hacer click
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', refreshAll);
+        } else {
+            refreshAll();
+        }
+        
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'usuario' || e.key === 'api_key') {
+                refreshAll();
+            }
+        });
+        
+        // Observador de cambios en el DOM para enlaces móviles después de actualizar botones (por si safeAddEvent regenera)
+        const observer = new MutationObserver(() => {
+            bindCloseOnLinks();
+        });
+        const mobileMenuDiv = document.getElementById('mobileMenu');
+        if (mobileMenuDiv) observer.observe(mobileMenuDiv, { childList: true, subtree: true });
+        
+        // Ajuste extra: Si la ventana cambia de tamaño y está abierto el menú en modo escritorio > móvil?
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768 && mobileMenu?.classList.contains('open')) {
+                closeMenu();
+            }
+        });
+        
+        // También asegurar que al hacer click en el botón del header logo no interfiera
+        // Evitar propagación en botón hamburguesa
+        if (hamburger) hamburger.addEventListener('click', (e) => e.stopPropagation());
     })();
 </script>
+
+<!-- Contenido de ejemplo para demostrar scroll -->
+<main style="padding: 2rem; max-width: 1200px; margin: 0 auto;">
+    <div style="background: white; border-radius: 24px; padding: 2rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+        <h2>✨ Header super responsivo + menú hamburguesa</h2>
+        <p>✅ Altura en móviles: <strong>~2rem (más padding)</strong> – sticky funcionando.</p>
+        <p>✅ Botón hamburguesa visible solo en pantallas pequeñas (max-width: 768px).</p>
+        <p>✅ El menú lateral muestra las mismas opciones de sesión (login, admin, cerrar sesión) sincronizadas con localStorage.</p>
+        <p>✅ Widget de reputación se muestra solo si hay usuario logueado (simulado con datos de ejemplo).</p>
+        <p>✅ Todos los enlaces respetan tus rutas originales: <code>/avisos-jardines/...</code></p>
+        <p>✅ Cierra el menú al hacer clic en overlay, botón X o en cualquier enlace interno.</p>
+        <hr style="margin: 1.5rem 0">
+        <p>📱 <strong>Prueba:</strong> Redimensiona tu navegador por debajo de 768px para ver la franja reducida y el ícono de hamburguesa. El header se mantiene pegado arriba (sticky).</p>
+        <div style="background: #fef9e6; padding: 1rem; border-radius: 16px; margin-top: 1rem;">
+            <p>🔑 Simula inicio de sesión para ver cambios en botones y widget:</p>
+            <button id="simularLogin" style="background: #2b7a2b; border: none; color: white; padding: 8px 16px; border-radius: 40px; cursor: pointer;">🧪 Simular usuario normal</button>
+            <button id="simularAdmin" style="background: #d4a043; border: none; color: white; padding: 8px 16px; border-radius: 40px; margin-left: 8px; cursor: pointer;">👑 Simular Admin</button>
+            <button id="simularLogout" style="background: #ccc; border: none; color: #333; padding: 8px 16px; border-radius: 40px; margin-left: 8px; cursor: pointer;">🚪 Cerrar sesión (demo)</button>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Botones de demostración para probar el comportamiento sin backend real
+    const simularLogin = document.getElementById('simularLogin');
+    const simularAdmin = document.getElementById('simularAdmin');
+    const simularLogout = document.getElementById('simularLogout');
+    
+    if (simularLogin) {
+        simularLogin.addEventListener('click', () => {
+            const usuarioDemo = { nombre: "Vecino", rol: "user", puntos: 85 };
+            localStorage.setItem('usuario', JSON.stringify(usuarioDemo));
+            localStorage.setItem('api_key', 'demo_key_user');
+            window.dispatchEvent(new Event('storage'));
+            location.reload(); // recargar para ver cambios limpios en widget
+        });
+    }
+    if (simularAdmin) {
+        simularAdmin.addEventListener('click', () => {
+            const adminDemo = { nombre: "Admin", rol: "admin", puntos: 245 };
+            localStorage.setItem('usuario', JSON.stringify(adminDemo));
+            localStorage.setItem('api_key', 'demo_key_admin');
+            window.dispatchEvent(new Event('storage'));
+            location.reload();
+        });
+    }
+    if (simularLogout) {
+        simularLogout.addEventListener('click', () => {
+            localStorage.removeItem('usuario');
+            localStorage.removeItem('api_key');
+            window.dispatchEvent(new Event('storage'));
+            location.reload();
+        });
+    }
+</script>
+</body>
+</html>
