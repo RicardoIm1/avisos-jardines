@@ -13,15 +13,23 @@ const UI = {
       const html = await res.text();
       container.innerHTML = html;
 
-      // Esperar a que el DOM se actualice y ejecutar la función del header
-      setTimeout(() => {
+      // Forzar la ejecución del script del header
+      // El header tiene su propia función actualizarBotones
+      const ejecutarHeader = () => {
         if (typeof window._headerActualizarBotones === 'function') {
+          console.log('UI: Ejecutando _headerActualizarBotones');
           window._headerActualizarBotones();
         }
         if (typeof window.actualizarHeaderSesion === 'function') {
+          console.log('UI: Ejecutando actualizarHeaderSesion');
           window.actualizarHeaderSesion();
         }
-      }, 100);
+      };
+
+      // Ejecutar múltiples veces para asegurar
+      setTimeout(ejecutarHeader, 50);
+      setTimeout(ejecutarHeader, 150);
+      setTimeout(ejecutarHeader, 300);
 
     } catch (error) {
       console.error('Error cargando header:', error);

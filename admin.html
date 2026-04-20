@@ -558,6 +558,78 @@
     });
   </script>
 
+  <script>
+    // Respaldo: Forzar actualización del header después de todo
+    (function () {
+      function forzarActualizarHeader() {
+        const usuarioStr = localStorage.getItem('usuario');
+        const apiKey = localStorage.getItem('api_key');
+
+        const loginLink = document.getElementById('login-link');
+        const userArea = document.getElementById('user-area');
+        const userNameSpan = document.getElementById('user-name');
+        const perfilLink = document.getElementById('perfil-link');
+        const cerrarBtn = document.getElementById('cerrar-sesion');
+
+        if (!loginLink) {
+          console.log('Admin: Header no encontrado, reintentando...');
+          setTimeout(forzarActualizarHeader, 200);
+          return;
+        }
+
+        console.log('Admin: Forzando actualización header');
+        console.log('Usuario:', usuarioStr ? 'Sesión activa' : 'Sin sesión');
+
+        if (usuarioStr && apiKey) {
+          try {
+            const usuario = JSON.parse(usuarioStr);
+            loginLink.style.display = 'none';
+            userArea.style.display = 'flex';
+
+            if (userNameSpan) {
+              userNameSpan.textContent = `👋 ${usuario.nombre || usuario.email || 'Usuario'}`;
+            }
+
+            if (perfilLink) {
+              perfilLink.onclick = function (e) {
+                e.preventDefault();
+                window.location.href = '/avisos-jardines/perfil.html';
+              };
+            }
+
+            if (cerrarBtn) {
+              const nuevoCerrar = cerrarBtn.cloneNode(true);
+              cerrarBtn.parentNode.replaceChild(nuevoCerrar, cerrarBtn);
+              nuevoCerrar.addEventListener('click', function (e) {
+                e.preventDefault();
+                localStorage.removeItem('usuario');
+                localStorage.removeItem('api_key');
+                window.location.href = '/avisos-jardines/index.html';
+              });
+            }
+            console.log('Admin: Header actualizado - modo logueado');
+          } catch (e) {
+            console.error('Admin: Error al actualizar header', e);
+          }
+        } else {
+          loginLink.style.display = 'inline-flex';
+          userArea.style.display = 'none';
+          console.log('Admin: Header actualizado - modo no logueado');
+        }
+      }
+
+      // Ejecutar cuando el DOM esté listo
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', forzarActualizarHeader);
+      } else {
+        setTimeout(forzarActualizarHeader, 100);
+      }
+
+      // También ejecutar después de que el header se cargue
+      setTimeout(forzarActualizarHeader, 500);
+    })();
+  </script>
+
 </body>
 
 </html>
