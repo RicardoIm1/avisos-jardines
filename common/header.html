@@ -24,14 +24,17 @@
             <a href="#" id="cerrar-sesion" class="btn-logout" style="display:none;">🚪 Cerrar sesión</a>
         </div>
 
-        <!-- Botón login visible en móvil -->
-        <a href="/avisos-jardines/login.html" id="mobile-login-link" class="btn-login mobile-login-btn">🔐 Iniciar</a>
+        <!-- Botón login visible en móvil - más estilizado -->
+        <a href="/avisos-jardines/login.html" id="mobile-login-link" class="btn-login mobile-login-btn">
+            <span>🔐</span>
+            <span>Ingresar</span>
+        </a>
         
-        <!-- <button class="hamburger" id="hamburgerBtn" aria-label="Menú">
+        <button class="hamburger" id="hamburgerBtn" aria-label="Menú">
             <span></span>
             <span></span>
             <span></span>
-        </button> -->
+        </button>
     </div>
 </header>
 
@@ -164,9 +167,26 @@
         background: transparent;
     }
 
-    /* Botón específico para móvil */
+    /* Botón específico para móvil - más estilizado */
     .mobile-login-btn {
         display: none;
+        background: linear-gradient(135deg, #f5b042, #ff8c42);
+        color: white;
+        padding: 0.5rem 1.2rem;
+        border-radius: 40px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        box-shadow: 0 2px 8px rgba(245, 176, 66, 0.3);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .mobile-login-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(245, 176, 66, 0.4);
+    }
+    
+    .mobile-login-btn:active {
+        transform: translateY(0);
     }
 
     .hamburger {
@@ -218,11 +238,12 @@
             display: none;
         }
 
-        /* Mostrar botón login móvil */
+        /* Mostrar botón login móvil estilizado */
         .mobile-login-btn {
             display: inline-flex;
-            padding: 0.4rem 0.8rem;
+            padding: 0.4rem 1rem;
             font-size: 0.75rem;
+            gap: 6px;
         }
 
         .hamburger {
