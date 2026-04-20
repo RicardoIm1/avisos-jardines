@@ -52,33 +52,32 @@
     .contenedor {
         max-width: 1400px;
         margin: 0 auto;
-        padding: 0 1.5rem;
+        padding: 0 1rem;
     }
 
     .header-contenido {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 0.75rem;
-        min-height: 4rem;
-        transition: min-height 0.2s;
+        gap: 0.5rem;
+        min-height: 3rem;
     }
 
     .header-logo {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.5rem;
         text-decoration: none;
         flex-shrink: 1;
         min-width: 0;
     }
 
     .logo-icon {
-        font-size: 2rem;
+        font-size: 1.8rem;
         background: linear-gradient(135deg, #2b7a2b, #1e4620);
         border-radius: 50%;
-        width: 44px;
-        height: 44px;
+        width: 38px;
+        height: 38px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -87,8 +86,8 @@
 
     .logo-texto h1 {
         margin: 0;
-        font-size: 1.2rem;
-        line-height: 1.2;
+        font-size: 1rem;
+        line-height: 1.1;
         background: linear-gradient(135deg, #2b7a2b, #d4a043);
         background-clip: text;
         -webkit-background-clip: text;
@@ -97,7 +96,7 @@
     }
 
     .header-slogan {
-        font-size: 0.7rem;
+        font-size: 0.6rem;
         color: #6b7280;
         margin: 0;
         white-space: nowrap;
@@ -115,17 +114,18 @@
 
     .header-acciones {
         display: flex;
-        gap: 0.75rem;
+        gap: 0.5rem;
         align-items: center;
+        flex-shrink: 0;
     }
 
     .btn-login, .btn-admin, .btn-logout {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 0.5rem 1.2rem;
+        gap: 6px;
+        padding: 0.4rem 0.9rem;
         border-radius: 40px;
-        font-size: 0.85rem;
+        font-size: 0.75rem;
         font-weight: 600;
         text-decoration: none;
         transition: all 0.2s ease;
@@ -137,12 +137,12 @@
     .btn-login {
         background: linear-gradient(135deg, #f5b042, #ff8c42);
         color: white;
-        box-shadow: 0 2px 8px rgba(245, 176, 66, 0.3);
+        box-shadow: 0 2px 6px rgba(245, 176, 66, 0.3);
     }
     
     .btn-login:hover {
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(245, 176, 66, 0.4);
+        box-shadow: 0 4px 10px rgba(245, 176, 66, 0.4);
     }
     
     .btn-login:active {
@@ -160,36 +160,74 @@
         background: transparent;
     }
 
-    @media (max-width: 768px) {
+    /* Móviles muy pequeños - todo en una línea */
+    @media (max-width: 480px) {
+        .contenedor {
+            padding: 0 0.75rem;
+        }
+        
         .header-contenido {
-            min-height: 2rem;
-            padding: 0.4rem 0;
+            gap: 0.4rem;
+            min-height: 2.5rem;
         }
-
+        
+        .header-logo {
+            gap: 0.4rem;
+        }
+        
         .logo-icon {
-            width: 34px;
-            height: 34px;
-            font-size: 1.5rem;
+            width: 32px;
+            height: 32px;
+            font-size: 1.4rem;
         }
-
+        
         .logo-texto h1 {
-            font-size: 0.85rem;
-            white-space: normal;
+            font-size: 0.8rem;
         }
-
+        
         .header-slogan {
-            font-size: 0.55rem;
-            white-space: normal;
+            font-size: 0.5rem;
         }
-
+        
         .btn-login, .btn-admin, .btn-logout {
-            padding: 0.35rem 0.9rem;
-            font-size: 0.7rem;
-            gap: 5px;
+            padding: 0.3rem 0.7rem;
+            font-size: 0.65rem;
+            gap: 4px;
         }
-
+        
         #reputacion-widget {
             display: none !important;
+        }
+    }
+
+    @media (max-width: 380px) {
+        .logo-texto h1 {
+            font-size: 0.7rem;
+        }
+        
+        .header-slogan {
+            font-size: 0.45rem;
+        }
+        
+        .btn-login, .btn-admin, .btn-logout {
+            padding: 0.25rem 0.6rem;
+            font-size: 0.6rem;
+        }
+        
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            font-size: 1.2rem;
+        }
+    }
+
+    @media (max-width: 320px) {
+        .btn-login span:not(.emoji) {
+            display: none;
+        }
+        
+        .btn-login {
+            padding: 0.3rem 0.5rem;
         }
     }
 </style>
