@@ -519,12 +519,12 @@
         const cerrarBtn = document.getElementById('cerrar-sesion');
 
         if (!loginLink) {
-          console.log('login.html: Header no encontrado, reintentando...');
+          console.log('registro.html: Header no encontrado, reintentando...');
           setTimeout(forzarActualizarHeader, 200);
           return;
         }
 
-        console.log('login.html: Forzando actualización header');
+        console.log('registro.html: Forzando actualización header');
         console.log('Usuario:', usuarioStr ? 'Sesión activa' : 'Sin sesión');
 
         if (usuarioStr && apiKey) {
@@ -554,14 +554,14 @@
                 window.location.href = '/avisos-jardines/index.html';
               });
             }
-            console.log('login.html: Header actualizado - modo logueado');
+            console.log('registro.html: Header actualizado - modo logueado');
           } catch (e) {
-            console.error('login.html: Error al actualizar header', e);
+            console.error('registro.html: Error al actualizar header', e);
           }
         } else {
           loginLink.style.display = 'inline-flex';
           userArea.style.display = 'none';
-          console.log('login.html: Header actualizado - modo no logueado');
+          console.log('registro.html: Header actualizado - modo no logueado');
         }
       }
 
@@ -576,7 +576,8 @@
       setTimeout(forzarActualizarHeader, 500);
       setTimeout(forzarActualizarHeader, 1000);
     })();
-  </script>
+</script>
+
 </body>
 
 </html>
