@@ -9,49 +9,12 @@ document.addEventListener('DOMContentLoaded', function () {
   console.log('Admin.js cargado correctamente');
 
   const usuario = Auth.requireAuth();
-  // Forzar actualización del header
-  window.dispatchEvent(new CustomEvent('auth-change'));
-
-  function actualizarHeaderManual() {
-    const usuario = API.getUsuarioActual();
-    const loginLink = document.getElementById('login-link');
-    const adminLink = document.getElementById('admin-link');
-    const cerrarSesion = document.getElementById('cerrar-sesion');
-
-    if (!loginLink) return;
-
-    if (usuario && usuario.email) {
-      loginLink.style.display = 'none';
-      cerrarSesion.style.display = 'inline-flex';
-
-      if (usuario.rol === 'admin') {
-        adminLink.style.display = 'inline-flex';
-        adminLink.onclick = (e) => {
-          e.preventDefault();
-          window.location.href = '/avisos-jardines/admin.html';
-        };
-      } else {
-        adminLink.style.display = 'none';
-      }
-
-      cerrarSesion.onclick = (e) => {
-        e.preventDefault();
-        localStorage.removeItem('usuario');
-        localStorage.removeItem('api_key');
-        window.location.href = '/avisos-jardines/login.html';
-      };
-    } else {
-      loginLink.style.display = 'inline-flex';
-      adminLink.style.display = 'none';
-      cerrarSesion.style.display = 'none';
-    }
-  }
-
-  setTimeout(actualizarHeaderManual, 100);
+  
   if (!usuario) return;
 
   console.log('Usuario logueado:', usuario);
 
+  // Mostrar tab de usuarios solo si es admin
   if (usuario.rol === 'admin') {
     const tabUsuarios = document.getElementById('tab-usuarios-btn');
     if (tabUsuarios) {
@@ -60,17 +23,6 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   configurarTabs();
-
-  // Cierre de sesión
-  const cerrarSesionBtn = document.getElementById('cerrar-sesion');
-  if (cerrarSesionBtn) {
-    cerrarSesionBtn.addEventListener('click', function (e) {
-      e.preventDefault();
-      localStorage.removeItem('usuario');
-      localStorage.removeItem('api_key');
-      window.location.href = '/avisos-jardines/login.html';
-    });
-  }
 
   // FORMULARIO NUEVO AVISO
   const formAviso = document.getElementById('form-aviso');
@@ -206,8 +158,6 @@ function configurarTabs() {
   });
 }
 
-// ==================== CONFIGURAR MODAL DE EDICIÓN ====================
-
 function configurarModalEdicion() {
   const cerrarModal = document.getElementById('cerrar-modal');
   if (cerrarModal) {
@@ -276,47 +226,6 @@ function configurarModalEdicion() {
   }
 }
 
-const formEditar = document.getElementById('form-editar');
-if (formEditar) {
-  formEditar.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const id = document.getElementById('edit-id').value;
-    const apiKey = localStorage.getItem('api_key');
-
-    const datos = {
-      titulo: document.getElementById('edit-titulo').value,
-      contenido: document.getElementById('edit-contenido').value,
-      categoria: document.getElementById('edit-categoria').value,
-      ubicacion: document.getElementById('edit-ubicacion').value,
-      contacto: document.getElementById('edit-contacto').value,
-      fecha_evento: document.getElementById('edit-fecha_evento').value,
-      imagen_url: document.getElementById('edit-imagen_url').value
-    };
-
-    console.log('📝 Enviando edición:', { id, datos });
-
-    try {
-      const resultado = await API.actualizarAviso(id, datos, apiKey);
-      console.log('📡 Respuesta:', resultado);
-
-      if (resultado && resultado.success) {
-        API.mostrarExito('✅ Aviso actualizado correctamente');
-        document.getElementById('modal-editar').style.display = 'none';
-        cargarMisAvisos();
-      } else {
-        API.mostrarError('❌ Error: ' + (resultado?.error || 'No se pudo actualizar'));
-      }
-    } catch (error) {
-      console.error('Error al actualizar:', error);
-      API.mostrarError('❌ Error al actualizar el aviso');
-    }
-  });
-}
-}
-
-// ==================== ABRIR MODAL DE EDICIÓN ====================
-
 function abrirEditor(id, titulo, contenido, categoria, ubicacion, contacto, fecha_evento, imagen_url) {
   console.log('=== ABRIR EDITOR ===');
   console.log('ID:', id);
@@ -332,8 +241,6 @@ function abrirEditor(id, titulo, contenido, categoria, ubicacion, contacto, fech
   document.getElementById('modal-editar').style.display = 'flex';
 }
 
-// ==================== CARGAR MIS AVISOS ====================
-
 async function cargarMisAvisos() {
   const contenedor = document.getElementById('mis-avisos-container');
   if (!contenedor) return;
@@ -344,52 +251,57 @@ async function cargarMisAvisos() {
     const usuarioActual = API.getUsuarioActual();
     const esAdmin = usuarioActual && usuarioActual.rol === 'admin';
 
-    if (!document.querySelector('.filtros-categorias')) {
-      let filtrosHTML = `
-        <div class="filtros filtros-categorias" style="margin-bottom: 20px; justify-content: flex-start; flex-wrap: wrap;">
-          <button class="filtro ${filtroCategoriaAdmin === 'todos' ? 'activo' : ''}" data-filtro-cat="todos">📋 Todos</button>
-          <button class="filtro ${filtroCategoriaAdmin === 'urgente' ? 'activo' : ''}" data-filtro-cat="urgente">⚠️ Urgentes</button>
-          <button class="filtro ${filtroCategoriaAdmin === 'eventos' ? 'activo' : ''}" data-filtro-cat="eventos">🎉 Eventos</button>
-          <button class="filtro ${filtroCategoriaAdmin === 'servicios' ? 'activo' : ''}" data-filtro-cat="servicios">🔧 Servicios</button>
-          <button class="filtro ${filtroCategoriaAdmin === 'perdidos' ? 'activo' : ''}" data-filtro-cat="perdidos">🔍 Perdidos</button>
-          <button class="filtro ${filtroCategoriaAdmin === 'clasificados' ? 'activo' : ''}" data-filtro-cat="clasificados">💰 Clasificados</button>
+    // Eliminar filtros anteriores para evitar duplicados
+    const filtrosCatExistentes = document.querySelector('.filtros-categorias');
+    if (filtrosCatExistentes) filtrosCatExistentes.remove();
+    
+    const filtrosStatusExistentes = document.querySelector('.filtros-status');
+    if (filtrosStatusExistentes) filtrosStatusExistentes.remove();
+
+    let filtrosHTML = `
+      <div class="filtros filtros-categorias" style="margin-bottom: 20px; justify-content: flex-start; flex-wrap: wrap;">
+        <button class="filtro ${filtroCategoriaAdmin === 'todos' ? 'activo' : ''}" data-filtro-cat="todos">📋 Todos</button>
+        <button class="filtro ${filtroCategoriaAdmin === 'urgente' ? 'activo' : ''}" data-filtro-cat="urgente">⚠️ Urgentes</button>
+        <button class="filtro ${filtroCategoriaAdmin === 'eventos' ? 'activo' : ''}" data-filtro-cat="eventos">🎉 Eventos</button>
+        <button class="filtro ${filtroCategoriaAdmin === 'servicios' ? 'activo' : ''}" data-filtro-cat="servicios">🔧 Servicios</button>
+        <button class="filtro ${filtroCategoriaAdmin === 'perdidos' ? 'activo' : ''}" data-filtro-cat="perdidos">🔍 Perdidos</button>
+        <button class="filtro ${filtroCategoriaAdmin === 'clasificados' ? 'activo' : ''}" data-filtro-cat="clasificados">💰 Clasificados</button>
+      </div>
+    `;
+
+    if (esAdmin) {
+      filtrosHTML += `
+        <div class="filtros filtros-status" style="margin-bottom: 20px; justify-content: flex-start; flex-wrap: wrap; border-top: 1px solid #ddd; padding-top: 10px;">
+          <span style="margin-right: 10px; font-weight: bold;">📌 Estado:</span>
+          <button class="filtro ${filtroStatusAdmin === 'todos' ? 'activo' : ''}" data-filtro-status="todos">📋 Todos</button>
+          <button class="filtro ${filtroStatusAdmin === 'pendiente' ? 'activo' : ''}" data-filtro-status="pendiente">⏳ Pendientes</button>
+          <button class="filtro ${filtroStatusAdmin === 'activo' ? 'activo' : ''}" data-filtro-status="activo">✅ Publicados</button>
         </div>
       `;
+    }
 
-      if (esAdmin) {
-        filtrosHTML += `
-          <div class="filtros filtros-status" style="margin-bottom: 20px; justify-content: flex-start; flex-wrap: wrap; border-top: 1px solid #ddd; padding-top: 10px;">
-            <span style="margin-right: 10px; font-weight: bold;">📌 Estado:</span>
-            <button class="filtro ${filtroStatusAdmin === 'todos' ? 'activo' : ''}" data-filtro-status="todos">📋 Todos</button>
-            <button class="filtro ${filtroStatusAdmin === 'pendiente' ? 'activo' : ''}" data-filtro-status="pendiente">⏳ Pendientes</button>
-            <button class="filtro ${filtroStatusAdmin === 'activo' ? 'activo' : ''}" data-filtro-status="activo">✅ Publicados</button>
-          </div>
-        `;
-      }
+    contenedor.insertAdjacentHTML('beforebegin', filtrosHTML);
 
-      contenedor.insertAdjacentHTML('beforebegin', filtrosHTML);
+    document.querySelectorAll('[data-filtro-cat]').forEach(btn => {
+      btn.addEventListener('click', function () {
+        document.querySelectorAll('[data-filtro-cat]').forEach(b => b.classList.remove('activo'));
+        this.classList.add('activo');
+        filtroCategoriaAdmin = this.dataset.filtroCat;
+        paginaAdmin = 1;
+        cargarMisAvisos();
+      });
+    });
 
-      document.querySelectorAll('[data-filtro-cat]').forEach(btn => {
+    if (esAdmin) {
+      document.querySelectorAll('[data-filtro-status]').forEach(btn => {
         btn.addEventListener('click', function () {
-          document.querySelectorAll('[data-filtro-cat]').forEach(b => b.classList.remove('activo'));
+          document.querySelectorAll('[data-filtro-status]').forEach(b => b.classList.remove('activo'));
           this.classList.add('activo');
-          filtroCategoriaAdmin = this.dataset.filtroCat;
+          filtroStatusAdmin = this.dataset.filtroStatus;
           paginaAdmin = 1;
           cargarMisAvisos();
         });
       });
-
-      if (esAdmin) {
-        document.querySelectorAll('[data-filtro-status]').forEach(btn => {
-          btn.addEventListener('click', function () {
-            document.querySelectorAll('[data-filtro-status]').forEach(b => b.classList.remove('activo'));
-            this.classList.add('activo');
-            filtroStatusAdmin = this.dataset.filtroStatus;
-            paginaAdmin = 1;
-            cargarMisAvisos();
-          });
-        });
-      }
     }
 
     let consulta = {};
@@ -434,7 +346,6 @@ async function cargarMisAvisos() {
         cardStyle = 'border-left: 4px solid #dc3545; background: #fff5f5;';
       }
 
-      // Escapar datos para el botón Editar
       const tituloEdit = encodeURIComponent(aviso.titulo || '');
       const contenidoEdit = encodeURIComponent(aviso.contenido || '');
       const ubicacionEdit = encodeURIComponent(aviso.ubicacion || '');
@@ -510,8 +421,6 @@ async function cargarMisAvisos() {
     contenedor.innerHTML = '<div class="mensaje mensaje-error">❌ Error al cargar avisos: ' + error.message + '</div>';
   }
 }
-
-// ==================== FUNCIONES AUXILIARES ====================
 
 async function aprobarAviso(id) {
   if (!confirm('¿Aprobar este aviso? Se publicará automáticamente en la página principal.')) return;

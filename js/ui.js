@@ -13,9 +13,11 @@ const UI = {
       const html = await res.text();
       container.innerHTML = html;
 
-      // Esperar a que el DOM se actualice
+      // El header maneja su propia lógica de autenticación
       setTimeout(() => {
-        this.sincronizarAuth();
+        if (typeof window._headerActualizarBotones === 'function') {
+          window._headerActualizarBotones();
+        }
       }, 50);
 
     } catch (error) {
@@ -23,95 +25,34 @@ const UI = {
     }
   },
 
-  sincronizarAuth() {
-    const usuario = API.getUsuarioActual();
-    const apiKey = localStorage.getItem('api_key');
+  mostrarMensaje(mensaje, tipo = 'info') {
+    const container = document.getElementById('mensaje-container');
+    if (!container) return;
 
-    // Elementos nuevos
-    const loginLink = document.getElementById('login-link');
-    const userArea = document.getElementById('user-area');
-    const userNameSpan = document.getElementById('user-name');
-    const perfilLink = document.getElementById('perfil-link');
-    const cerrarSesion = document.getElementById('cerrar-sesion');
-
-    // Elementos antiguos (para compatibilidad)
-    const adminLink = document.getElementById('admin-link');
-
-    console.log('UI.sincronizarAuth - Usuario:', usuario);
-    console.log('UI.sincronizarAuth - Elementos encontrados:', {
-      loginLink: !!loginLink,
-      userArea: !!userArea,
-      cerrarSesion: !!cerrarSesion
-    });
-
-    if (usuario && apiKey) {
-      // ========== USUARIO LOGUEADO ==========
-      
-      // Ocultar botón de login
-      if (loginLink) loginLink.style.display = 'none';
-      
-      // Mostrar área de usuario
-      if (userArea) userArea.style.display = 'flex';
-      
-      // Mostrar nombre del usuario
-      if (userNameSpan) {
-        const nombreMostrar = usuario.nombre || usuario.email || 'Usuario';
-        userNameSpan.textContent = `👋 ${nombreMostrar}`;
+    const clase = tipo === 'error' ? 'mensaje-error' : (tipo === 'exito' ? 'mensaje-exito' : 'mensaje-info');
+    container.innerHTML = `<div class="mensaje ${clase}">${mensaje}</div>`;
+    
+    setTimeout(() => {
+      if (container.innerHTML.includes(mensaje)) {
+        container.innerHTML = '';
       }
-      
-      // Configurar enlace a perfil
-      if (perfilLink) {
-        perfilLink.onclick = function(e) {
-          e.preventDefault();
-          window.location.href = '/avisos-jardines/perfil.html';
-        };
-      }
-      
-      // Configurar botón cerrar sesión
-      if (cerrarSesion) {
-        // Remover eventos anteriores clonando
-        const nuevoCerrar = cerrarSesion.cloneNode(true);
-        cerrarSesion.parentNode.replaceChild(nuevoCerrar, cerrarSesion);
-        nuevoCerrar.addEventListener('click', function(e) {
-          e.preventDefault();
-          localStorage.removeItem('usuario');
-          localStorage.removeItem('api_key');
-          window.location.href = '/avisos-jardines/index.html';
-        });
-      }
-      
-      // Admin link (por si existe en el header)
-      if (adminLink) {
-        if (usuario.rol === 'admin') {
-          adminLink.style.display = 'inline-flex';
-          adminLink.onclick = function(e) {
-            e.preventDefault();
-            window.location.href = '/avisos-jardines/admin.html';
-          };
-        } else {
-          adminLink.style.display = 'none';
-        }
-      }
-      
-    } else {
-      // ========== USUARIO NO LOGUEADO ==========
-      
-      if (loginLink) loginLink.style.display = 'inline-flex';
-      if (userArea) userArea.style.display = 'none';
-      if (adminLink) adminLink.style.display = 'none';
-    }
+    }, 5000);
   },
 
-  // Función para forzar actualización desde cualquier página
-  actualizarHeader() {
-    this.sincronizarAuth();
-  }
+  mostrarError(mensaje) {
+    this.mostrarMensaje(mensaje, 'error');
+  },
 
+  mostrarExito(mensaje) {
+    this.mostrarMensaje(mensaje, 'exito');
+  },
+
+  mostrarInfo(mensaje) {
+    this.mostrarMensaje(mensaje, 'info');
+  }
 };
 
-// Exponer función global para que otros scripts puedan actualizar el header
-window.actualizarHeaderSesion = function() {
-  if (UI && UI.sincronizarAuth) {
-    UI.sincronizarAuth();
-  }
-};
+// Exponer funciones globales para compatibilidad
+window.UI = UI;
+window.mostrarError = (msg) => UI.mostrarError(msg);
+window.mostrarExito = (msg) => UI.mostrarExito(msg);

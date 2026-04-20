@@ -19,10 +19,8 @@
         </div>
 
         <div class="header-acciones" id="header-acciones">
-            <!-- Solo visible cuando NO hay sesión -->
             <a href="/avisos-jardines/login.html" id="login-link" class="btn-login">🔐 <span class="btn-text">Iniciar sesión</span></a>
             
-            <!-- Solo visible cuando HAY sesión -->
             <div class="user-area" id="user-area" style="display: none;">
                 <span class="user-name" id="user-name"></span>
                 <a href="#" id="perfil-link" class="btn-perfil">👤 <span class="btn-text">Mi perfil</span></a>
@@ -33,7 +31,6 @@
 </header>
 
 <style>
-    /* ========== HEADER STICKY ========== */
     .header {
         position: sticky;
         top: 0;
@@ -56,7 +53,6 @@
         min-height: 4rem;
     }
     
-    /* ========== LOGO ========== */
     .header-logo {
         display: flex;
         align-items: center;
@@ -96,7 +92,6 @@
         white-space: nowrap;
     }
     
-    /* ========== BOTONES ========== */
     .header-acciones {
         display: flex;
         gap: 12px;
@@ -156,7 +151,6 @@
         transform: translateY(-2px);
     }
     
-    /* Nombre de usuario - marca de agua */
     .user-name {
         font-size: 0.85rem;
         color: #9ca3af;
@@ -169,7 +163,6 @@
         max-width: 150px;
     }
     
-    /* ========== RESPONSIVE: altura 2rem en móviles ========== */
     @media (max-width: 768px) {
         .header-contenido {
             min-height: 2rem;
@@ -206,7 +199,6 @@
         }
     }
     
-    /* Pantallas muy pequeñas: solo ícono */
     @media (max-width: 400px) {
         .btn-text {
             display: none;
@@ -225,7 +217,6 @@
 
 <script>
     (function() {
-        // Función para obtener usuario directamente de localStorage
         function obtenerUsuarioLocal() {
             const usuarioStr = localStorage.getItem('usuario');
             const apiKey = localStorage.getItem('api_key');
@@ -256,23 +247,17 @@
             const cerrarBtn = document.getElementById('cerrar-sesion');
             
             if (!loginLink) {
-                console.warn('Header: Elementos no encontrados, reintentando...');
                 setTimeout(actualizarBotones, 100);
                 return;
             }
             
-            console.log('Header: actualizando botones, usuario=', usuario);
-            
             if (usuario) {
-                // Usuario logueado
                 loginLink.style.display = 'none';
                 userArea.style.display = 'flex';
                 
-                // Mostrar nombre del usuario
                 const nombreMostrar = usuario.nombre || usuario.email || 'Usuario';
-                userNameSpan.textContent = `👋 ${nombreMostrar}`;
+                if (userNameSpan) userNameSpan.textContent = `👋 ${nombreMostrar}`;
                 
-                // Configurar enlace a perfil
                 if (perfilLink) {
                     perfilLink.onclick = function(e) {
                         e.preventDefault();
@@ -280,9 +265,7 @@
                     };
                 }
                 
-                // Configurar botón cerrar sesión
                 if (cerrarBtn) {
-                    // Remover eventos anteriores
                     const nuevoCerrar = cerrarBtn.cloneNode(true);
                     cerrarBtn.parentNode.replaceChild(nuevoCerrar, cerrarBtn);
                     nuevoCerrar.addEventListener('click', function(e) {
@@ -292,29 +275,24 @@
                     });
                 }
             } else {
-                // Usuario NO logueado
                 loginLink.style.display = 'inline-flex';
                 userArea.style.display = 'none';
             }
         }
         
-        // Ejecutar inmediatamente
         actualizarBotones();
         
-        // Ejecutar cuando el DOM esté listo
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', actualizarBotones);
         }
         
-        // Escuchar cambios en localStorage (para cuando se loguea desde otra pestaña)
         window.addEventListener('storage', function(e) {
             if (e.key === 'usuario' || e.key === 'api_key') {
-                console.log('Header: storage event detected', e.key);
                 actualizarBotones();
             }
         });
         
-        // Exponer función global para que otras páginas puedan actualizar el header
         window.actualizarHeaderSesion = actualizarBotones;
+        window._headerActualizarBotones = actualizarBotones;
     })();
 </script>
