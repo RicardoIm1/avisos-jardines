@@ -23,29 +23,25 @@ document.addEventListener('DOMContentLoaded', function () {
 
   configurarTabs();
 
-  // FORMULARIO NUEVO AVISO
+  // ========== FORMULARIO NUEVO AVISO ==========
   const formAviso = document.getElementById('form-aviso');
   if (formAviso) {
     formAviso.addEventListener('submit', async function (e) {
       e.preventDefault();
-      e.stopPropagation(); // Evita que el evento se propague
+      e.stopPropagation();
 
       console.log('=== INICIO DEL ENVÍO ===');
 
-      // Obtener valores DIRECTAMENTE
       const tituloValue = document.getElementById('titulo').value;
       const contenidoValue = document.getElementById('contenido').value;
       const categoriaValue = document.getElementById('categoria').value;
 
       console.log('Título capturado:', tituloValue);
-      console.log('Título es vacío?', tituloValue === '');
-      console.log('Título es null?', tituloValue === null);
 
-      // Validación explícita
       if (!tituloValue || tituloValue.trim() === '') {
         console.error('❌ Título vacío detectado');
         API.mostrarError('El título es obligatorio. Por favor escribe un título.');
-        return; // Detener ejecución
+        return;
       }
 
       const usuarioActual = API.getUsuarioActual();
@@ -68,25 +64,44 @@ document.addEventListener('DOMContentLoaded', function () {
 
       console.log('📦 Datos a enviar:', datos);
 
-      // Validar nuevamente después de construir el objeto
-      if (!datos.titulo || datos.titulo === '') {
-        console.error('❌ Título vacío en el objeto datos');
-        API.mostrarError('El título no puede estar vacío');
-        return;
-      }
-
-      // Continuar con el envío...
       try {
         const resultado = await API.crearAviso(datos, apiKey);
-        console.log('Respuesta:', resultado);
-        // ... resto del código
+        console.log('📡 Respuesta del servidor:', resultado);
+
+        if (resultado && resultado.success) {
+          if (usuarioActual.rol !== 'admin') {
+            API.mostrarExito('✅ Aviso enviado para revisión. El administrador lo publicará en breve.');
+          } else {
+            API.mostrarExito('✅ Aviso publicado correctamente');
+          }
+
+          formAviso.reset();
+          document.getElementById('urgente').checked = false;
+
+          const previewContainer = document.getElementById('preview-nuevo');
+          if (previewContainer) previewContainer.style.display = 'none';
+
+          const previewImg = document.getElementById('preview-imagen-nuevo');
+          if (previewImg) previewImg.src = '';
+
+          await cargarMisAvisos();
+
+          const listaTab = document.querySelector('[data-tab="lista"]');
+          if (listaTab) listaTab.click();
+        } else {
+          const errorMsg = resultado?.error || 'No se pudo publicar el aviso';
+          API.mostrarError('❌ Error: ' + errorMsg);
+          console.error('Error del servidor:', resultado);
+        }
+
       } catch (error) {
-        console.error('Error:', error);
+        console.error('❌ Error al publicar:', error);
+        API.mostrarError('Error al publicar: ' + (error.message || 'Error desconocido'));
       }
     });
   }
 
-  // Cancelar formulario
+  // ========== CANCELAR FORMULARIO ==========
   const cancelar = document.getElementById('cancelar');
   if (cancelar) {
     cancelar.addEventListener('click', function () {
@@ -98,13 +113,13 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Activar notificaciones
+  // ========== ACTIVAR NOTIFICACIONES ==========
   const btnNotif = document.getElementById('activar-notificaciones');
   if (btnNotif) {
     btnNotif.addEventListener('click', activarNotificaciones);
   }
 
-  // Formulario de nuevo usuario
+  // ========== FORMULARIO NUEVO USUARIO ==========
   const formUsuario = document.getElementById('form-usuario');
   if (formUsuario) {
     formUsuario.addEventListener('submit', async function (e) {
@@ -135,13 +150,14 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Configurar modal de edición
+  // ========== CONFIGURAR MODAL DE EDICIÓN ==========
   configurarModalEdicion();
 
-  // Cargar avisos iniciales
+  // ========== CARGAR AVISOS INICIALES ==========
   cargarMisAvisos();
 });
 
+// ========== CONFIGURAR TABS ==========
 function configurarTabs() {
   const tabs = document.querySelectorAll('[data-tab]');
 
@@ -171,6 +187,7 @@ function configurarTabs() {
   });
 }
 
+// ========== CONFIGURAR MODAL EDICIÓN ==========
 function configurarModalEdicion() {
   const cerrarModal = document.getElementById('cerrar-modal');
   if (cerrarModal) {
@@ -214,12 +231,10 @@ function configurarModalEdicion() {
         video_url: document.getElementById('edit-video_url').value
       };
 
-      console.log('📝 Enviando edición con API.actualizarAviso:', { id, datos });
+      console.log('📝 Enviando edición:', { id, datos });
 
       try {
-        // Usar el método actualizarAviso que ya existe
         const resultado = await API.actualizarAviso(id, datos, apiKey);
-
         console.log('📡 Respuesta:', resultado);
 
         if (resultado && resultado.success) {
@@ -237,7 +252,7 @@ function configurarModalEdicion() {
   }
 }
 
-// Función para convertir URL de YouTube a embed
+// ========== CONVERTIR URL DE YOUTUBE ==========
 function getYouTubeEmbedUrl(url) {
   if (!url) return null;
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
@@ -245,13 +260,12 @@ function getYouTubeEmbedUrl(url) {
   return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
 }
 
-// Función para renderizar avisos en grid con tarjeta destacada
+// ========== RENDERIZAR AVISOS EN GRID ==========
 function renderizarAvisosGrid(avisos) {
   if (!avisos || avisos.length === 0) {
     return '<div class="mensaje mensaje-info">📭 No hay avisos que coincidan con los filtros</div>';
   }
 
-  // Ordenar por fecha (más reciente primero)
   const avisosOrdenados = [...avisos].sort((a, b) => {
     const fechaA = new Date(a.created_at || 0);
     const fechaB = new Date(b.created_at || 0);
@@ -261,7 +275,7 @@ function renderizarAvisosGrid(avisos) {
   let html = '<div class="avisos-grid">';
 
   avisosOrdenados.forEach((aviso, index) => {
-    const esMasReciente = index === 0; // El primero es el más reciente
+    const esMasReciente = index === 0;
     const fecha = aviso.created_at
       ? new Date(aviso.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })
       : 'Fecha no disponible';
@@ -288,13 +302,11 @@ function renderizarAvisosGrid(avisos) {
       statusBadge = '<span class="reciente-badge">✨ RECIENTE</span>';
     }
 
-    // Imagen
     let imagenHtml = '';
     if (aviso.imagen_url) {
       imagenHtml = `<img src="${escapeHTML(aviso.imagen_url)}" class="tarjeta-imagen" alt="Imagen" onerror="this.style.display='none'">`;
     }
 
-    // Video
     let videoHtml = '';
     const embedUrl = getYouTubeEmbedUrl(aviso.video_url);
     if (embedUrl) {
@@ -345,10 +357,8 @@ function renderizarAvisosGrid(avisos) {
   return html;
 }
 
+// ========== CARGAR MIS AVISOS ==========
 async function cargarMisAvisos() {
-  console.log('🔍 FUNCIÓN cargarUsuarios EJECUTADA');  // <-- Agrega esto
-  console.log('📌 ¿Se encontró el contenedor?', document.getElementById('lista-usuarios-container'));
-
   const contenedor = document.getElementById('mis-avisos-container');
   if (!contenedor) return;
 
@@ -358,7 +368,6 @@ async function cargarMisAvisos() {
     const usuarioActual = API.getUsuarioActual();
     const esAdmin = usuarioActual && usuarioActual.rol === 'admin';
 
-    // Eliminar filtros anteriores
     const filtrosCatExistentes = document.querySelector('.filtros-categorias');
     if (filtrosCatExistentes) filtrosCatExistentes.remove();
 
@@ -390,7 +399,6 @@ async function cargarMisAvisos() {
 
     contenedor.insertAdjacentHTML('beforebegin', filtrosHTML);
 
-    // Event listeners para filtros de categoría
     document.querySelectorAll('[data-filtro-cat]').forEach(btn => {
       btn.addEventListener('click', function () {
         document.querySelectorAll('[data-filtro-cat]').forEach(b => b.classList.remove('activo'));
@@ -401,7 +409,6 @@ async function cargarMisAvisos() {
       });
     });
 
-    // Event listeners para filtros de estado
     if (esAdmin) {
       document.querySelectorAll('[data-filtro-status]').forEach(btn => {
         btn.addEventListener('click', function () {
@@ -414,7 +421,6 @@ async function cargarMisAvisos() {
       });
     }
 
-    // Construir consulta
     let consulta = {};
     if (filtroCategoriaAdmin !== 'todos') {
       consulta.categoria = filtroCategoriaAdmin;
@@ -435,10 +441,8 @@ async function cargarMisAvisos() {
 
     console.log('📋 Avisos cargados:', avisos.length);
 
-    // Renderizar usando grid
     contenedor.innerHTML = renderizarAvisosGrid(avisos);
 
-    // Paginación
     if (paginacion.paginas > 1) {
       let pagHtml = '<div class="paginacion-botones">';
       if (paginaAdmin > 1) {
@@ -478,6 +482,7 @@ async function cargarMisAvisos() {
   }
 }
 
+// ========== APROBAR AVISO ==========
 async function aprobarAviso(id) {
   if (!confirm('¿Aprobar este aviso? Se publicará automáticamente en la página principal.')) return;
 
@@ -493,6 +498,7 @@ async function aprobarAviso(id) {
   }
 }
 
+// ========== RECHAZAR AVISO ==========
 async function rechazarAviso(id) {
   if (!confirm('¿Rechazar este aviso? El usuario será notificado y el aviso no se publicará.')) return;
 
@@ -508,10 +514,12 @@ async function rechazarAviso(id) {
   }
 }
 
+// ========== VER AVISO ==========
 function verAviso(id) {
   window.location.href = `/avisos-jardines/aviso.html?id=${id}`;
 }
 
+// ========== CARGAR PERFIL ==========
 function cargarPerfil() {
   const contenedor = document.getElementById('perfil-info');
   if (!contenedor) return;
@@ -538,6 +546,7 @@ function cargarPerfil() {
   `;
 }
 
+// ========== CARGAR USUARIOS ==========
 async function cargarUsuarios() {
   const contenedor = document.getElementById('lista-usuarios-container');
   if (!contenedor) {
@@ -551,12 +560,9 @@ async function cargarUsuarios() {
     const apiKey = localStorage.getItem('api_key');
     console.log('🔑 Cargando usuarios con API key:', apiKey ? 'Presente' : 'Ausente');
 
-    // Usar la misma estructura que en cargarMisAvisos
     const resultado = await API.listar('USUARIOS', { activo: 'TRUE' });
-
     console.log('📡 Respuesta completa de API.listar usuarios:', resultado);
 
-    // Extraer los usuarios correctamente (puede estar en datos o directamente en el resultado)
     let usuarios = [];
     if (resultado && resultado.datos) {
       usuarios = resultado.datos;
@@ -587,7 +593,6 @@ async function cargarUsuarios() {
             <small>${escapeHTML(user.email)}</small>
             <span class="rol-badge ${rolClass}">${user.rol === 'admin' ? 'Administrador' : 'Usuario'}</span>
             <small style="display: block; margin-top: 4px;">🏷️ ${escapeHTML(user.categorias || 'todas')}</small>
-            <small style="display: block;">🆔 ID: ${escapeHTML(user.id || 'N/A')}</small>
           </div>
           <button class="boton boton-chico boton-peligro" onclick="eliminarUsuario('${user.id}')" style="padding: 4px 12px;">🗑️</button>
         </div>
@@ -604,6 +609,7 @@ async function cargarUsuarios() {
   }
 }
 
+// ========== ELIMINAR AVISO ==========
 async function eliminarAviso(id) {
   if (!confirm('¿Eliminar este aviso permanentemente?')) return;
 
@@ -625,6 +631,7 @@ async function eliminarAviso(id) {
   }
 }
 
+// ========== ELIMINAR USUARIO ==========
 async function eliminarUsuario(id) {
   if (!confirm('¿Eliminar este usuario permanentemente?')) return;
 
@@ -646,6 +653,7 @@ async function eliminarUsuario(id) {
   }
 }
 
+// ========== ACTIVAR NOTIFICACIONES ==========
 async function activarNotificaciones() {
   if ('Notification' in window) {
     const permission = await Notification.requestPermission();
@@ -659,6 +667,7 @@ async function activarNotificaciones() {
   }
 }
 
+// ========== ESCAPE HTML ==========
 function escapeHTML(str) {
   if (str === undefined || str === null) return '';
   if (typeof str !== 'string') str = String(str);
@@ -670,7 +679,7 @@ function escapeHTML(str) {
     .replace(/'/g, '&#39;');
 }
 
-// Función global para abrir editor (sobrescribe la anterior)
+// ========== ABRIR EDITOR GLOBAL ==========
 window.abrirEditor = function (id, titulo, contenido, categoria, ubicacion, contacto, fecha_evento, imagen_url, video_url) {
   console.log('=== ABRIR EDITOR ===', { id, titulo });
 
