@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', function () {
   console.log('Admin.js cargado correctamente');
 
   const usuario = Auth.requireAuth();
-
   if (!usuario) return;
 
   console.log('Usuario logueado:', usuario);
@@ -24,7 +23,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   configurarTabs();
 
-  // FORMULARIO NUEVO AVISO
+  // FORMULARIO NUEVO AVISO - CORREGIDO
+  // FORMULARIO NUEVO AVISO - USANDO API.crearAviso
   const formAviso = document.getElementById('form-aviso');
   if (formAviso) {
     formAviso.addEventListener('submit', async function (e) {
@@ -33,9 +33,14 @@ document.addEventListener('DOMContentLoaded', function () {
       const usuarioActual = API.getUsuarioActual();
       const apiKey = localStorage.getItem('api_key');
 
+      if (!apiKey) {
+        API.mostrarError('❌ No hay sesión activa. Inicia sesión nuevamente.');
+        return;
+      }
+
       const datos = {
-        titulo: document.getElementById('titulo').value,
-        contenido: document.getElementById('contenido').value,
+        titulo: document.getElementById('titulo').value.trim(),
+        contenido: document.getElementById('contenido').value.trim(),
         categoria: document.getElementById('categoria').value,
         ubicacion: document.getElementById('ubicacion').value || '',
         contacto: document.getElementById('contacto').value || '',
@@ -43,49 +48,58 @@ document.addEventListener('DOMContentLoaded', function () {
         imagen_url: document.getElementById('imagen_url').value || '',
         video_url: document.getElementById('video_url').value || '',
         destacado: document.getElementById('urgente').checked ? 'TRUE' : 'FALSE',
-        status: 'pendiente', // Por defecto pendiente, admin puede aprobar
+        status: usuarioActual.rol === 'admin' ? 'activo' : 'pendiente',
         created_by: usuarioActual.id,
+        created_at: new Date().toISOString()
       };
 
-      console.log('Enviando aviso con datos:', datos);
-
+      // Validar campos obligatorios
       if (!datos.categoria || !datos.titulo || !datos.contenido) {
-        API.mostrarError('Completa los campos obligatorios');
+        API.mostrarError('Completa los campos obligatorios (Categoría, Título y Descripción)');
         return;
       }
 
+      console.log('📤 Enviando aviso con API.crearAviso:', datos);
+
       try {
-        // Usar API.peticion en lugar de API.crear
-        const resultado = await API.peticion('CREAR', {
-          coleccion: 'AVISOS',
-          datos: datos
-        }, apiKey);
+        // Usar el método crearAviso que ya está definido en API
+        const resultado = await API.crearAviso(datos, apiKey);
 
-        console.log('Respuesta del servidor:', resultado);
+        console.log('📡 Respuesta del servidor:', resultado);
 
-        const usuarioActualRol = API.getUsuarioActual()?.rol;
-        if (usuarioActualRol !== 'admin') {
-          API.mostrarExito('✅ Aviso enviado para revisión. El administrador lo publicará en breve.');
+        if (resultado && resultado.success) {
+          if (usuarioActual.rol !== 'admin') {
+            API.mostrarExito('✅ Aviso enviado para revisión. El administrador lo publicará en breve.');
+          } else {
+            API.mostrarExito('✅ Aviso publicado correctamente');
+          }
+
+          // Resetear formulario
+          formAviso.reset();
+          document.getElementById('urgente').checked = false;
+
+          // Limpiar vista previa
+          const previewContainer = document.getElementById('preview-nuevo');
+          if (previewContainer) previewContainer.style.display = 'none';
+
+          const previewImg = document.getElementById('preview-imagen-nuevo');
+          if (previewImg) previewImg.src = '';
+
+          // Recargar la lista de avisos
+          await cargarMisAvisos();
+
+          // Cambiar a la pestaña de lista
+          const listaTab = document.querySelector('[data-tab="lista"]');
+          if (listaTab) listaTab.click();
         } else {
-          API.mostrarExito('✅ Aviso publicado correctamente');
+          const errorMsg = resultado?.error || 'No se pudo publicar el aviso';
+          API.mostrarError('❌ Error: ' + errorMsg);
+          console.error('Error del servidor:', resultado);
         }
 
-        formAviso.reset();
-        document.getElementById('urgente').checked = false;
-        document.getElementById('imagen_url').value = '';
-        document.getElementById('video_url').value = '';
-
-        // Ocultar vista previa
-        const previewContainer = document.getElementById('preview-nuevo');
-        if (previewContainer) previewContainer.style.display = 'none';
-
-        // Cambiar a la pestaña de lista
-        const listaTab = document.querySelector('[data-tab="lista"]');
-        if (listaTab) listaTab.click();
-
       } catch (error) {
-        console.error('Error al publicar:', error);
-        API.mostrarError('Error al publicar: ' + error.message);
+        console.error('❌ Error al publicar:', error);
+        API.mostrarError('Error al publicar: ' + (error.message || 'Error desconocido'));
       }
     });
   }
@@ -97,6 +111,8 @@ document.addEventListener('DOMContentLoaded', function () {
       const form = document.getElementById('form-aviso');
       if (form) form.reset();
       document.getElementById('urgente').checked = false;
+      const previewContainer = document.getElementById('preview-nuevo');
+      if (previewContainer) previewContainer.style.display = 'none';
     });
   }
 
@@ -197,63 +213,153 @@ function configurarModalEdicion() {
     });
   }
 
-  const formEditar = document.getElementById('form-editar');
-  if (formEditar) {
-    formEditar.addEventListener('submit', async (e) => {
-      e.preventDefault();
+ const formEditar = document.getElementById('form-editar');
+if (formEditar) {
+  formEditar.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-      const id = document.getElementById('edit-id').value;
-      const apiKey = localStorage.getItem('api_key');
+    const id = document.getElementById('edit-id').value;
+    const apiKey = localStorage.getItem('api_key');
 
-      const datos = {
-        titulo: document.getElementById('edit-titulo').value,
-        contenido: document.getElementById('edit-contenido').value,
-        categoria: document.getElementById('edit-categoria').value,
-        ubicacion: document.getElementById('edit-ubicacion').value,
-        contacto: document.getElementById('edit-contacto').value,
-        fecha_evento: document.getElementById('edit-fecha_evento').value,
-        imagen_url: document.getElementById('edit-imagen_url').value
-      };
+    const datos = {
+      titulo: document.getElementById('edit-titulo').value,
+      contenido: document.getElementById('edit-contenido').value,
+      categoria: document.getElementById('edit-categoria').value,
+      ubicacion: document.getElementById('edit-ubicacion').value,
+      contacto: document.getElementById('edit-contacto').value,
+      fecha_evento: document.getElementById('edit-fecha_evento').value,
+      imagen_url: document.getElementById('edit-imagen_url').value,
+      video_url: document.getElementById('edit-video_url').value
+    };
 
-      console.log('📝 Enviando edición:', { id, datos });
+    console.log('📝 Enviando edición con API.actualizarAviso:', { id, datos });
 
-      try {
-        const resultado = await API.peticion('ACTUALIZAR', {
-          coleccion: 'AVISOS',
-          id: id,
-          datos: datos
-        }, apiKey);
+    try {
+      // Usar el método actualizarAviso que ya existe
+      const resultado = await API.actualizarAviso(id, datos, apiKey);
+      
+      console.log('📡 Respuesta:', resultado);
 
-        console.log('📡 Respuesta:', resultado);
-
-        if (resultado && resultado.success) {
-          API.mostrarExito('✅ Aviso actualizado correctamente');
-          document.getElementById('modal-editar').style.display = 'none';
-          cargarMisAvisos();
-        } else {
-          API.mostrarError('❌ Error: ' + (resultado?.error || 'No se pudo actualizar'));
-        }
-      } catch (error) {
-        console.error('Error al actualizar:', error);
-        API.mostrarError('❌ Error al actualizar el aviso: ' + error.message);
+      if (resultado && resultado.success) {
+        API.mostrarExito('✅ Aviso actualizado correctamente');
+        document.getElementById('modal-editar').style.display = 'none';
+        cargarMisAvisos();
+      } else {
+        API.mostrarError('❌ Error: ' + (resultado?.error || 'No se pudo actualizar'));
       }
-    });
-  }
+    } catch (error) {
+      console.error('Error al actualizar:', error);
+      API.mostrarError('❌ Error al actualizar el aviso: ' + error.message);
+    }
+  });
 }
 
-function abrirEditor(id, titulo, contenido, categoria, ubicacion, contacto, fecha_evento, imagen_url) {
-  console.log('=== ABRIR EDITOR ===');
-  console.log('ID:', id);
+// Función para convertir URL de YouTube a embed
+function getYouTubeEmbedUrl(url) {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
+}
 
-  document.getElementById('edit-id').value = id || '';
-  document.getElementById('edit-titulo').value = titulo || '';
-  document.getElementById('edit-contenido').value = contenido || '';
-  document.getElementById('edit-categoria').value = categoria || 'eventos';
-  document.getElementById('edit-ubicacion').value = ubicacion || '';
-  document.getElementById('edit-contacto').value = contacto || '';
-  document.getElementById('edit-fecha_evento').value = fecha_evento || '';
-  document.getElementById('edit-imagen_url').value = imagen_url || '';
-  document.getElementById('modal-editar').style.display = 'flex';
+// Función para renderizar avisos en grid con tarjeta destacada
+function renderizarAvisosGrid(avisos) {
+  if (!avisos || avisos.length === 0) {
+    return '<div class="mensaje mensaje-info">📭 No hay avisos que coincidan con los filtros</div>';
+  }
+
+  // Ordenar por fecha (más reciente primero)
+  const avisosOrdenados = [...avisos].sort((a, b) => {
+    const fechaA = new Date(a.created_at || 0);
+    const fechaB = new Date(b.created_at || 0);
+    return fechaB - fechaA;
+  });
+
+  let html = '<div class="avisos-grid">';
+
+  avisosOrdenados.forEach((aviso, index) => {
+    const esMasReciente = index === 0; // El primero es el más reciente
+    const fecha = aviso.created_at
+      ? new Date(aviso.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })
+      : 'Fecha no disponible';
+    const contenidoPreview = aviso.contenido ? aviso.contenido.substring(0, 150) : '';
+    const esUrgente = aviso.destacado === 'TRUE' || aviso.categoria === 'urgente';
+    const esPendiente = aviso.status === 'pendiente';
+    const esAdmin = API.getUsuarioActual()?.rol === 'admin';
+
+    let cardClass = 'tarjeta';
+    if (esMasReciente && !esPendiente) cardClass += ' destacada';
+
+    let cardStyle = '';
+    let statusBadge = '';
+
+    if (esPendiente) {
+      cardStyle = 'border-left: 4px solid #fbbf24; background: #fffbeb;';
+      statusBadge = '<span class="reciente-badge" style="background: #fbbf24; color: #7b2e00;">⏳ Pendiente</span>';
+    } else if (esUrgente) {
+      cardStyle = 'border-left: 4px solid #dc3545; background: #fff5f5;';
+      if (esMasReciente) {
+        statusBadge = '<span class="reciente-badge" style="background: #dc3545;">⚠️ URGENTE</span>';
+      }
+    } else if (esMasReciente) {
+      statusBadge = '<span class="reciente-badge">✨ RECIENTE</span>';
+    }
+
+    // Imagen
+    let imagenHtml = '';
+    if (aviso.imagen_url) {
+      imagenHtml = `<img src="${escapeHTML(aviso.imagen_url)}" class="tarjeta-imagen" alt="Imagen" onerror="this.style.display='none'">`;
+    }
+
+    // Video
+    let videoHtml = '';
+    const embedUrl = getYouTubeEmbedUrl(aviso.video_url);
+    if (embedUrl) {
+      videoHtml = `<div class="tarjeta-video"><iframe src="${embedUrl}" frameborder="0" allowfullscreen></iframe></div>`;
+    }
+
+    const tituloEdit = encodeURIComponent(aviso.titulo || '');
+    const contenidoEdit = encodeURIComponent(aviso.contenido || '');
+    const ubicacionEdit = encodeURIComponent(aviso.ubicacion || '');
+    const contactoEdit = encodeURIComponent(aviso.contacto || '');
+    const imagenEdit = encodeURIComponent(aviso.imagen_url || '');
+    const videoEdit = encodeURIComponent(aviso.video_url || '');
+
+    html += `
+      <div class="${cardClass}" style="${cardStyle}">
+        ${statusBadge}
+        ${imagenHtml}
+        ${videoHtml}
+        <div class="tarjeta-titulo">
+          <strong>${escapeHTML(aviso.titulo || 'Sin título')}</strong>
+        </div>
+        <div class="tarjeta-fecha">📅 ${fecha}</div>
+        <div class="tarjeta-contenido">${escapeHTML(contenidoPreview)}${aviso.contenido && aviso.contenido.length > 150 ? '...' : ''}</div>
+        <div class="tarjeta-meta">
+          <span style="background: #e0e0e0; padding: 4px 8px; border-radius: 4px; font-size: 12px;">🏷️ ${aviso.categoria || 'general'}</span>
+          ${aviso.ubicacion ? `<span>📍 ${escapeHTML(aviso.ubicacion)}</span>` : ''}
+        </div>
+        <div class="grupo-botones">
+          <button class="boton boton-chico" onclick="verAviso('${aviso.id}')">👁️ Ver</button>
+    `;
+
+    if (esAdmin && esPendiente) {
+      html += `
+          <button class="boton boton-chico boton-exito" onclick="aprobarAviso('${aviso.id}')">✅ Aprobar</button>
+          <button class="boton boton-chico boton-peligro" onclick="rechazarAviso('${aviso.id}')">❌ Rechazar</button>
+      `;
+    }
+
+    html += `
+          <button class="boton boton-chico boton-secundario" onclick="abrirEditor('${aviso.id}', decodeURIComponent('${tituloEdit}'), decodeURIComponent('${contenidoEdit}'), '${aviso.categoria || ''}', decodeURIComponent('${ubicacionEdit}'), decodeURIComponent('${contactoEdit}'), '${aviso.fecha_evento || ''}', decodeURIComponent('${imagenEdit}'), decodeURIComponent('${videoEdit}'))">✏️ Editar</button>
+          <button class="boton boton-chico boton-peligro" onclick="eliminarAviso('${aviso.id}')">🗑️ Eliminar</button>
+        </div>
+      </div>
+    `;
+  });
+
+  html += '</div>';
+  return html;
 }
 
 async function cargarMisAvisos() {
@@ -266,7 +372,7 @@ async function cargarMisAvisos() {
     const usuarioActual = API.getUsuarioActual();
     const esAdmin = usuarioActual && usuarioActual.rol === 'admin';
 
-    // Eliminar filtros anteriores para evitar duplicados
+    // Eliminar filtros anteriores
     const filtrosCatExistentes = document.querySelector('.filtros-categorias');
     if (filtrosCatExistentes) filtrosCatExistentes.remove();
 
@@ -279,8 +385,9 @@ async function cargarMisAvisos() {
         <button class="filtro ${filtroCategoriaAdmin === 'urgente' ? 'activo' : ''}" data-filtro-cat="urgente">⚠️ Urgentes</button>
         <button class="filtro ${filtroCategoriaAdmin === 'eventos' ? 'activo' : ''}" data-filtro-cat="eventos">🎉 Eventos</button>
         <button class="filtro ${filtroCategoriaAdmin === 'servicios' ? 'activo' : ''}" data-filtro-cat="servicios">🔧 Servicios</button>
-        <button class="filtro ${filtroCategoriaAdmin === 'perdidos' ? 'activo' : ''}" data-filtro-cat="perdidos">🔍 Perdidos</button>
-        <button class="filtro ${filtroCategoriaAdmin === 'clasificados' ? 'activo' : ''}" data-filtro-cat="clasificados">💰 Clasificados</button>
+        <button class="filtro ${filtroCategoriaAdmin === 'comercios' ? 'activo' : ''}" data-filtro-cat="comercios">🛒 Comercios</button>
+        <button class="filtro ${filtroCategoriaAdmin === 'gobierno' ? 'activo' : ''}" data-filtro-cat="gobierno">🏛️ Gobierno</button>
+        <button class="filtro ${filtroCategoriaAdmin === 'varios' ? 'activo' : ''}" data-filtro-cat="varios">📢 Varios</button>
       </div>
     `;
 
@@ -297,6 +404,7 @@ async function cargarMisAvisos() {
 
     contenedor.insertAdjacentHTML('beforebegin', filtrosHTML);
 
+    // Event listeners para filtros de categoría
     document.querySelectorAll('[data-filtro-cat]').forEach(btn => {
       btn.addEventListener('click', function () {
         document.querySelectorAll('[data-filtro-cat]').forEach(b => b.classList.remove('activo'));
@@ -307,6 +415,7 @@ async function cargarMisAvisos() {
       });
     });
 
+    // Event listeners para filtros de estado
     if (esAdmin) {
       document.querySelectorAll('[data-filtro-status]').forEach(btn => {
         btn.addEventListener('click', function () {
@@ -319,102 +428,45 @@ async function cargarMisAvisos() {
       });
     }
 
+    // Construir consulta
     let consulta = {};
     if (filtroCategoriaAdmin !== 'todos') {
       consulta.categoria = filtroCategoriaAdmin;
     }
     if (esAdmin && filtroStatusAdmin !== 'todos') {
       consulta.status = filtroStatusAdmin;
+    } else if (!esAdmin) {
+      consulta.status = 'activo';
     }
 
     const resultado = await API.listar('AVISOS', consulta, {
       pagina: paginaAdmin,
-      limite: 10
+      limite: 20
     });
 
     const avisos = resultado.datos || [];
     const paginacion = resultado.paginacion || { pagina: 1, paginas: 1, total: 0 };
 
-    console.log('Avisos cargados:', avisos.length);
+    console.log('📋 Avisos cargados:', avisos.length);
 
-    if (avisos.length === 0) {
-      contenedor.innerHTML = '<div class="mensaje mensaje-info">📭 No hay avisos que coincidan con los filtros</div>';
-      return;
-    }
+    // Renderizar usando grid
+    contenedor.innerHTML = renderizarAvisosGrid(avisos);
 
-    let html = '';
-    avisos.forEach(aviso => {
-      const fecha = aviso.created_at
-        ? new Date(aviso.created_at).toLocaleDateString('es-MX')
-        : 'Fecha no disponible';
-      const contenidoPreview = aviso.contenido ? aviso.contenido.substring(0, 100) : '';
-      const esUrgente = aviso.destacado === 'TRUE' || aviso.categoria === 'urgente';
-      const esPendiente = aviso.status === 'pendiente';
-
-      let cardStyle = '';
-      let statusBadge = '';
-
-      if (esPendiente) {
-        cardStyle = 'border-left: 4px solid #fbbf24; background: #fffbeb;';
-        statusBadge = '<span style="background: #fbbf24; color: #7b2e00; padding: 2px 8px; border-radius: 20px; font-size: 11px; margin-left: 8px;">⏳ Pendiente de aprobación</span>';
-      } else if (esUrgente) {
-        cardStyle = 'border-left: 4px solid #dc3545; background: #fff5f5;';
-      }
-
-      const tituloEdit = encodeURIComponent(aviso.titulo || '');
-      const contenidoEdit = encodeURIComponent(aviso.contenido || '');
-      const ubicacionEdit = encodeURIComponent(aviso.ubicacion || '');
-      const contactoEdit = encodeURIComponent(aviso.contacto || '');
-      const imagenEdit = encodeURIComponent(aviso.imagen_url || '');
-
-      html += `
-        <div class="tarjeta" style="${cardStyle}">
-          <div class="tarjeta-titulo">
-            <strong>${escapeHTML(aviso.titulo || 'Sin título')}</strong> 
-            ${esUrgente && !esPendiente ? '⚠️' : ''}
-            ${statusBadge}
-          </div>
-          <div class="tarjeta-fecha">📅 ${fecha}</div>
-          <div class="tarjeta-contenido">${escapeHTML(contenidoPreview)}${aviso.contenido && aviso.contenido.length > 100 ? '...' : ''}</div>
-          <div class="tarjeta-meta">
-            <span style="background: #e0e0e0; padding: 4px 8px; border-radius: 4px; font-size: 12px;">🏷️ ${aviso.categoria || 'general'}</span>
-            ${aviso.ubicacion ? `<span style="margin-left: 8px;">📍 ${escapeHTML(aviso.ubicacion)}</span>` : ''}
-          </div>
-          <div class="grupo-botones" style="margin-top: 16px;">
-            <button class="boton boton-chico" onclick="verAviso('${aviso.id}')">👁️ Ver</button>
-      `;
-
-      if (esAdmin && esPendiente) {
-        html += `
-            <button class="boton boton-chico boton-exito" onclick="aprobarAviso('${aviso.id}')">✅ Aprobar</button>
-            <button class="boton boton-chico boton-peligro" onclick="rechazarAviso('${aviso.id}')">❌ Rechazar</button>
-        `;
-      }
-
-      html += `
-            <button class="boton boton-chico boton-secundario" onclick="abrirEditor('${aviso.id}', decodeURIComponent('${tituloEdit}'), decodeURIComponent('${contenidoEdit}'), '${aviso.categoria || ''}', decodeURIComponent('${ubicacionEdit}'), decodeURIComponent('${contactoEdit}'), '${aviso.fecha_evento || ''}', decodeURIComponent('${imagenEdit}'))">✏️ Editar</button>
-            <button class="boton boton-chico boton-peligro" onclick="eliminarAviso('${aviso.id}')">🗑️ Eliminar</button>
-          </div>
-        </div>
-      `;
-    });
-
-    contenedor.innerHTML = html;
-
+    // Paginación
     if (paginacion.paginas > 1) {
-      let pagHtml = '<div class="paginacion-botones" style="display: flex; justify-content: center; gap: 8px; margin-top: 20px; flex-wrap: wrap;">';
+      let pagHtml = '<div class="paginacion-botones">';
       if (paginaAdmin > 1) {
-        pagHtml += `<button class="pagina" data-pagina="${paginaAdmin - 1}" style="padding: 8px 12px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer;">« Anterior</button>`;
+        pagHtml += `<button class="pagina" data-pagina="${paginaAdmin - 1}">« Anterior</button>`;
       }
       for (let i = 1; i <= paginacion.paginas; i++) {
         if (i === 1 || i === paginacion.paginas || (i >= paginaAdmin - 2 && i <= paginaAdmin + 2)) {
-          pagHtml += `<button class="pagina ${i === paginaAdmin ? 'activa' : ''}" data-pagina="${i}" style="padding: 8px 12px; border: 1px solid ${i === paginaAdmin ? '#007bff' : '#ddd'}; background: ${i === paginaAdmin ? '#007bff' : 'white'}; color: ${i === paginaAdmin ? 'white' : '#333'}; border-radius: 4px; cursor: pointer;">${i}</button>`;
+          pagHtml += `<button class="pagina ${i === paginaAdmin ? 'activa' : ''}" data-pagina="${i}">${i}</button>`;
         } else if (i === paginaAdmin - 3 || i === paginaAdmin + 3) {
-          pagHtml += `<span style="padding: 8px 12px;">...</span>`;
+          pagHtml += `<span>...</span>`;
         }
       }
       if (paginaAdmin < paginacion.paginas) {
-        pagHtml += `<button class="pagina" data-pagina="${paginaAdmin + 1}" style="padding: 8px 12px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer;">Siguiente »</button>`;
+        pagHtml += `<button class="pagina" data-pagina="${paginaAdmin + 1}">Siguiente »</button>`;
       }
       pagHtml += '</div>';
 
@@ -429,6 +481,9 @@ async function cargarMisAvisos() {
           });
         });
       }
+    } else {
+      const pagContainer = document.getElementById('paginacion-admin');
+      if (pagContainer) pagContainer.innerHTML = '';
     }
 
   } catch (error) {
@@ -512,16 +567,20 @@ async function cargarUsuarios() {
       return;
     }
 
-    let html = '<div style="margin-top: 16px;">';
+    let html = '<div class="usuarios-grid">';
     usuarios.forEach(user => {
+      const rolClass = user.rol === 'admin' ? 'rol-admin' : 'rol-usuario';
+      const rolIcon = user.rol === 'admin' ? '👑' : '👤';
       html += `
-        <div class="tarjeta" style="margin-bottom: 12px;">
-          <div><strong>${escapeHTML(user.nombre || 'Sin nombre')}</strong></div>
-          <div>📧 ${escapeHTML(user.email)}</div>
-          <div>👔 Rol: ${escapeHTML(user.rol)} | 🏷️ Categorías: ${escapeHTML(user.categorias || 'todas')}</div>
-          <div class="grupo-botones" style="margin-top: 12px;">
-            <button class="boton boton-chico boton-peligro" onclick="eliminarUsuario('${user.id}')">🗑️ Eliminar</button>
+        <div class="tarjeta-usuario">
+          <div class="avatar-usuario">${rolIcon}</div>
+          <div class="info-usuario">
+            <strong>${escapeHTML(user.nombre || 'Sin nombre')}</strong>
+            <small>${escapeHTML(user.email)}</small>
+            <span class="rol-badge ${rolClass}">${user.rol === 'admin' ? 'Administrador' : 'Usuario'}</span>
+            <small style="display: block; margin-top: 4px;">🏷️ ${escapeHTML(user.categorias || 'todas')}</small>
           </div>
+          <button class="boton boton-chico boton-peligro" onclick="eliminarUsuario('${user.id}')" style="padding: 4px 12px;">🗑️</button>
         </div>
       `;
     });
@@ -540,10 +599,7 @@ async function eliminarAviso(id) {
 
   try {
     const apiKey = localStorage.getItem('api_key');
-    const resultado = await API.peticion('ELIMINAR', {
-      coleccion: 'AVISOS',
-      id: id
-    }, apiKey);
+    const resultado = await API.eliminar('AVISOS', id, apiKey);
 
     console.log('Resultado eliminar:', resultado);
 
@@ -603,3 +659,29 @@ function escapeHTML(str) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
+
+// Función global para abrir editor (sobrescribe la anterior)
+window.abrirEditor = function (id, titulo, contenido, categoria, ubicacion, contacto, fecha_evento, imagen_url, video_url) {
+  console.log('=== ABRIR EDITOR ===', { id, titulo });
+
+  document.getElementById('edit-id').value = id || '';
+  document.getElementById('edit-titulo').value = titulo || '';
+  document.getElementById('edit-contenido').value = contenido || '';
+  document.getElementById('edit-categoria').value = categoria || 'eventos';
+  document.getElementById('edit-ubicacion').value = ubicacion || '';
+  document.getElementById('edit-contacto').value = contacto || '';
+  document.getElementById('edit-fecha_evento').value = fecha_evento || '';
+  document.getElementById('edit-imagen_url').value = imagen_url || '';
+  document.getElementById('edit-video_url').value = video_url || '';
+
+  const previewContainer = document.getElementById('preview-editar');
+  const previewImg = document.getElementById('preview-imagen-editar');
+  if (imagen_url && (imagen_url.startsWith('http://') || imagen_url.startsWith('https://'))) {
+    previewImg.src = imagen_url;
+    previewContainer.style.display = 'block';
+  } else {
+    previewContainer.style.display = 'none';
+  }
+
+  document.getElementById('modal-editar').style.display = 'flex';
+};
