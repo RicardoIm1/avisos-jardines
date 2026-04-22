@@ -23,7 +23,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   configurarTabs();
 
-  // FORMULARIO NUEVO AVISO - CORREGIDO
   // FORMULARIO NUEVO AVISO - USANDO API.crearAviso
   const formAviso = document.getElementById('form-aviso');
   if (formAviso) {
