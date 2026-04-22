@@ -183,6 +183,7 @@
       .registro-content {
         padding: 1.5rem;
       }
+
       .registro-header h1 {
         font-size: 1.4rem;
       }
@@ -257,7 +258,8 @@
         <div class="checkbox-acuerdo">
           <input type="checkbox" id="acepto">
           <label>
-            Acepto el <strong>Compromiso de Confianza Vecinal</strong>
+            Acepto el <strong><a href="/avisos-jardines/confianza.html" target="_blank">Compromiso de Confianza
+                Vecinal</a></strong>
           </label>
         </div>
 
@@ -273,9 +275,9 @@
   <script src="/avisos-jardines/js/ui.js"></script>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       UI.cargarHeader();
-      
+
       fetch('/avisos-jardines/common/footer.html')
         .then(response => response.text())
         .then(data => {
@@ -345,11 +347,11 @@
           categorias: oficio,
           direccion: direccion
         });
-        
+
         console.log('Registro exitoso:', resultado);
-        
+
         mostrarMensaje(`✅ ¡Bienvenido/a ${nombre}! Tu registro fue exitoso.`, false);
-        
+
         setTimeout(() => {
           window.location.href = '/avisos-jardines/login.html';
         }, 2000);
