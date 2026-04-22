@@ -139,19 +139,21 @@ class API {
 
   // Listar avisos - CORREGIDO: envía coleccion como parámetro directo
   static async listar(coleccion, filtros = {}, paginacion = {}) {
-    // Construir parámetros directamente, no anidados
+    const apiKey = localStorage.getItem('api_key');  // Obtener la API Key
+
     const params = {
       coleccion: coleccion,
       ...filtros,
       ...paginacion
     };
-    const resultado = await API.peticion('LISTAR', params);
+
+    // Pasar la API Key a la petición
+    const resultado = await API.peticion('LISTAR', params, apiKey);
 
     if (resultado && resultado.success) {
       return resultado.data || { datos: [], total: 0 };
     }
 
-    // Si no tiene success pero tiene datos directamente (como en listarAvisosPublico)
     if (resultado && resultado.datos) {
       return resultado;
     }
