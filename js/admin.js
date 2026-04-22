@@ -363,6 +363,9 @@ function renderizarAvisosGrid(avisos) {
 }
 
 async function cargarMisAvisos() {
+  console.log('🔍 FUNCIÓN cargarUsuarios EJECUTADA');  // <-- Agrega esto
+  console.log('📌 ¿Se encontró el contenedor?', document.getElementById('lista-usuarios-container'));
+
   const contenedor = document.getElementById('mis-avisos-container');
   if (!contenedor) return;
 
