@@ -703,51 +703,6 @@
         });
       }
     });
-
-    // Sobrescribir la función cargarUsuarios para usar grid
-    const cargarUsuariosOriginal = window.cargarUsuarios;
-    if (cargarUsuariosOriginal) {
-      window.cargarUsuarios = async function() {
-        const contenedor = document.getElementById('lista-usuarios-container');
-        if (!contenedor) return;
-
-        contenedor.innerHTML = '<div class="cargando">🔄 Cargando usuarios...</div>';
-
-        try {
-          const resultado = await API.listar('USUARIOS', { activo: 'TRUE' });
-          const usuarios = resultado.datos || [];
-
-          if (usuarios.length === 0) {
-            contenedor.innerHTML = '<div class="mensaje mensaje-info">👥 No hay usuarios registrados</div>';
-            return;
-          }
-
-          let html = '<div class="usuarios-grid">';
-          usuarios.forEach(user => {
-            const rolClass = user.rol === 'admin' ? 'rol-admin' : 'rol-usuario';
-            const rolIcon = user.rol === 'admin' ? '👑' : '👤';
-            html += `
-              <div class="tarjeta-usuario">
-                <div class="avatar-usuario">${rolIcon}</div>
-                <div class="info-usuario">
-                  <strong>${escapeHTML(user.nombre || 'Sin nombre')}</strong>
-                  <small>${escapeHTML(user.email)}</small>
-                  <span class="rol-badge ${rolClass}">${user.rol === 'admin' ? 'Administrador' : 'Usuario'}</span>
-                  <small style="display: block; margin-top: 4px;">🏷️ ${escapeHTML(user.categorias || 'todas')}</small>
-                </div>
-                <button class="boton boton-chico boton-peligro" onclick="eliminarUsuario('${user.id}')" style="padding: 4px 12px;">🗑️</button>
-              </div>
-            `;
-          });
-          html += '</div>';
-
-          contenedor.innerHTML = html;
-        } catch (error) {
-          console.error('Error cargando usuarios:', error);
-          contenedor.innerHTML = '<div class="mensaje mensaje-error">❌ Error al cargar usuarios</div>';
-        }
-      };
-    }
   </script>
 
   <!-- Modal de edición -->

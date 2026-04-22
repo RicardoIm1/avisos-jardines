@@ -554,15 +554,37 @@ function cargarPerfil() {
 
 async function cargarUsuarios() {
   const contenedor = document.getElementById('lista-usuarios-container');
-  if (!contenedor) return;
+  if (!contenedor) {
+    console.error('❌ Contenedor lista-usuarios-container no encontrado');
+    return;
+  }
 
   contenedor.innerHTML = '<div class="cargando">🔄 Cargando usuarios...</div>';
 
   try {
-    const resultado = await API.listar('USUARIOS', { activo: 'TRUE' });
-    const usuarios = resultado.datos || [];
+    const apiKey = localStorage.getItem('api_key');
+    console.log('🔑 Cargando usuarios con API key:', apiKey ? 'Presente' : 'Ausente');
 
-    if (usuarios.length === 0) {
+    // Usar la misma estructura que en cargarMisAvisos
+    const resultado = await API.listar('USUARIOS', { activo: 'TRUE' });
+
+    console.log('📡 Respuesta completa de API.listar usuarios:', resultado);
+
+    // Extraer los usuarios correctamente (puede estar en datos o directamente en el resultado)
+    let usuarios = [];
+    if (resultado && resultado.datos) {
+      usuarios = resultado.datos;
+    } else if (resultado && Array.isArray(resultado)) {
+      usuarios = resultado;
+    } else if (resultado && resultado.data && resultado.data.datos) {
+      usuarios = resultado.data.datos;
+    } else if (resultado && resultado.usuarios) {
+      usuarios = resultado.usuarios;
+    }
+
+    console.log('👥 Usuarios encontrados:', usuarios.length, usuarios);
+
+    if (!usuarios || usuarios.length === 0) {
       contenedor.innerHTML = '<div class="mensaje mensaje-info">👥 No hay usuarios registrados</div>';
       return;
     }
@@ -575,10 +597,11 @@ async function cargarUsuarios() {
         <div class="tarjeta-usuario">
           <div class="avatar-usuario">${rolIcon}</div>
           <div class="info-usuario">
-            <strong>${escapeHTML(user.nombre || 'Sin nombre')}</strong>
+            <strong>${escapeHTML(user.nombre || user.email || 'Sin nombre')}</strong>
             <small>${escapeHTML(user.email)}</small>
             <span class="rol-badge ${rolClass}">${user.rol === 'admin' ? 'Administrador' : 'Usuario'}</span>
             <small style="display: block; margin-top: 4px;">🏷️ ${escapeHTML(user.categorias || 'todas')}</small>
+            <small style="display: block;">🆔 ID: ${escapeHTML(user.id || 'N/A')}</small>
           </div>
           <button class="boton boton-chico boton-peligro" onclick="eliminarUsuario('${user.id}')" style="padding: 4px 12px;">🗑️</button>
         </div>
@@ -587,10 +610,11 @@ async function cargarUsuarios() {
     html += '</div>';
 
     contenedor.innerHTML = html;
+    console.log('✅ Usuarios renderizados correctamente');
 
   } catch (error) {
-    console.error('Error cargando usuarios:', error);
-    contenedor.innerHTML = '<div class="mensaje mensaje-error">❌ Error al cargar usuarios</div>';
+    console.error('❌ Error cargando usuarios:', error);
+    contenedor.innerHTML = '<div class="mensaje mensaje-error">❌ Error al cargar usuarios: ' + error.message + '</div>';
   }
 }
 
