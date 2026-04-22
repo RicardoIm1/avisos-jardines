@@ -555,7 +555,7 @@ async function cargarUsuarios() {
 
   try {
     const apiKey = localStorage.getItem('api_key');
-    const resultado = await API.listar('USUARIOS', { activo: 'TRUE' });
+    const resultado = await API.listar('USUARIOS');
 
     console.log('Respuesta usuarios:', resultado);
 
