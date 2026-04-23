@@ -10,36 +10,40 @@
     <meta name="theme-color" content="#2c3e50">
     <style>
         /* ========== ESTILOS PREMIUM PARA EL INDEX ========== */
+        :root {
+            --color-primario: #2c3e50;
+            --color-secundario: #e67e22;
+            --color-acento: #e67e22;
+            --color-texto: #2c3e50;
+            --color-texto-claro: #7f8c8d;
+            --color-borde: #ecf0f1;
+            --color-fondo: #f8f9fa;
+        }
 
         /* Tarjetas cliqueables */
         .aviso-card {
             cursor: pointer;
-            transition: var(--transition);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
             position: relative;
             overflow: hidden;
             background: white;
             border-radius: 16px;
-            box-shadow: var(--shadow-sm);
-            animation: cardFadeIn 0.5s ease-out forwards;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            animation: fadeInUp 0.4s ease-out forwards;
             opacity: 0;
             transform: translateY(20px);
         }
 
-        @keyframes cardFadeIn {
+        @keyframes fadeInUp {
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
-        .aviso-card.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
         .aviso-card:hover {
             transform: translateY(-4px);
-            box-shadow: var(--shadow-md);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
         }
 
         /* Badge de categoría más elegante */
@@ -69,7 +73,7 @@
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            transition: var(--transition);
+            transition: all 0.2s ease;
             z-index: 3;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/960px-WhatsApp.svg.png');
@@ -97,7 +101,7 @@
             align-items: center;
             justify-content: center;
             text-decoration: none;
-            transition: var(--transition);
+            transition: all 0.2s ease;
             z-index: 3;
             font-size: 1rem;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -108,6 +112,7 @@
             background: var(--color-secundario);
         }
 
+        /* Fecha más elegante */
         .aviso-fecha {
             font-size: 0.7rem;
             color: var(--color-texto-claro);
@@ -117,6 +122,7 @@
             margin-bottom: 0.5rem;
         }
 
+        /* Contenido con límite de líneas */
         .aviso-contenido-preview {
             display: -webkit-box;
             -webkit-line-clamp: 3;
@@ -127,6 +133,7 @@
             color: var(--color-texto);
         }
 
+        /* Pie de tarjeta con metadatos */
         .aviso-footer {
             margin-top: 0.8rem;
             padding-top: 0.8rem;
@@ -138,11 +145,13 @@
             color: var(--color-texto-claro);
         }
 
+        /* Urgente: borde rojo y fondo suave */
         .aviso-card.urgente {
             border-left: 4px solid #dc3545;
             background: linear-gradient(135deg, #fff5f5 0%, white 100%);
         }
 
+        /* Imagen en la tarjeta (si tiene) */
         .aviso-imagen {
             width: 100%;
             height: 160px;
@@ -152,6 +161,7 @@
             background: var(--color-fondo);
         }
 
+        /* Estado pendiente */
         .aviso-card.pendiente {
             opacity: 0.85;
             filter: grayscale(0.1);
@@ -171,7 +181,7 @@
             z-index: 2;
         }
 
-        /* Barra superior con filtros y buscador */
+        /* Top bar con filtros y buscador */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -181,6 +191,7 @@
             flex-wrap: wrap;
         }
 
+        /* Filtros mejorados */
         .filtros {
             display: flex;
             gap: 0.5rem;
@@ -191,7 +202,7 @@
 
         .buscador-container {
             position: relative;
-            min-width: 250px;
+            min-width: 260px;
         }
 
         .buscador-input {
@@ -200,7 +211,7 @@
             border: 1px solid var(--color-borde);
             width: 100%;
             font-size: 0.85rem;
-            transition: var(--transition);
+            transition: all 0.2s;
             background: white;
         }
 
@@ -228,7 +239,7 @@
             border-radius: 40px;
             font-size: 0.85rem;
             font-weight: 500;
-            transition: var(--transition);
+            transition: all 0.2s;
             background: white;
             border: 1px solid var(--color-borde);
             cursor: pointer;
@@ -245,67 +256,78 @@
             border-color: var(--color-acento);
         }
 
-        /* Grid responsivo mejorado - 3 columnas para primeros 3, luego 4 */
+        /* Grid responsivo - NUEVO: primeros 3 en 3 columnas, resto en 4 */
         .grid-avisos {
             display: grid;
             gap: 1.5rem;
         }
 
-        /* Para pantallas medianas y grandes */
-        @media (min-width: 768px) {
-            .grid-avisos.has-first-three {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        /* Los elementos después del tercero se organizan en 4 columnas en pantallas grandes */
-        @media (min-width: 1024px) {
-            .grid-avisos.has-more {
-                grid-template-columns: repeat(4, 1fr);
-            }
-
-            .grid-avisos.has-first-three.has-more {
-                grid-template-columns: repeat(4, 1fr);
-            }
-
-            /* Los primeros 3 ocupan todo el ancho en su fila implícita */
-            .grid-avisos.has-first-three .aviso-card:nth-child(-n+3) {
-                grid-column: span 1;
-            }
-        }
-
-        /* Para móviles: 1 columna */
+        /* Móvil: 1 columna */
         @media (max-width: 767px) {
             .grid-avisos {
                 grid-template-columns: 1fr;
             }
-
+            
             .top-bar {
                 flex-direction: column;
                 align-items: stretch;
             }
-
+            
             .filtros {
                 display: none;
             }
-
+            
             .filtros.mobile-visible {
                 display: flex;
             }
-
+            
             .buscador-container {
                 width: 100%;
             }
-
+            
             .mobile-filter-toggle {
                 display: block;
                 background: var(--color-acento);
                 color: white;
                 border: none;
-                padding: 0.5rem;
+                padding: 0.6rem;
                 border-radius: 40px;
-                margin-bottom: 0.5rem;
                 cursor: pointer;
+                margin-bottom: 0.5rem;
+                width: 100%;
+            }
+        }
+
+        /* Tablets y pantallas medianas */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .grid-avisos {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Pantallas grandes: 4 columnas base */
+        @media (min-width: 1024px) {
+            .grid-avisos {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* Los primeros 3 avisos en pantallas grandes ocupan 3 columnas en su fila */
+        @media (min-width: 1024px) {
+            .grid-avisos .aviso-card:nth-child(1),
+            .grid-avisos .aviso-card:nth-child(2),
+            .grid-avisos .aviso-card:nth-child(3) {
+                grid-column: span 1;
+            }
+            
+            /* Para que los primeros 3 se vean igual que los demás pero formando 3 columnas */
+            .grid-avisos {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            
+            /* Si hay menos de 4 avisos, ajustamos */
+            .grid-avisos:has(.aviso-card:first-child:nth-last-child(3)) {
+                grid-template-columns: repeat(3, 1fr);
             }
         }
 
@@ -313,10 +335,11 @@
             display: none;
         }
 
+        /* Botón Me interesa (corazón) */
         .interes-btn {
             position: absolute;
             bottom: 12px;
-            right: 100px;
+            right: 56px;
             background: #ff4757;
             color: white;
             width: 32px;
@@ -327,7 +350,7 @@
             justify-content: center;
             border: none;
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.2s ease;
             z-index: 3;
             font-size: 1rem;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -338,6 +361,7 @@
             background: #e84118;
         }
 
+        /* Estadísticas en tarjetas */
         .aviso-stats {
             display: flex;
             gap: 1rem;
@@ -353,9 +377,13 @@
             align-items: center;
             gap: 0.3rem;
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.2s;
             padding: 0.2rem 0.4rem;
             border-radius: 20px;
+        }
+
+        .stat-item.like-btn {
+            cursor: pointer;
         }
 
         .stat-item.like-btn:hover {
@@ -367,6 +395,11 @@
             color: #ff4757;
         }
 
+        .stat-item:active {
+            transform: scale(0.95);
+        }
+
+        /* Comentarios flotantes */
         .comments-panel {
             position: fixed;
             bottom: 0;
@@ -388,12 +421,87 @@
             transform: translateY(0);
         }
 
-        .loader-more {
-            text-align: center;
-            padding: 2rem;
-            color: var(--color-texto-claro);
+        .comments-header {
+            padding: 1rem;
+            background: var(--color-primario);
+            color: white;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
+        .comments-header h3 {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .close-comments {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .comments-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            max-height: 400px;
+        }
+
+        .comment-item {
+            background: var(--color-fondo);
+            border-radius: 12px;
+            padding: 0.8rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .comment-author {
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--color-primario);
+            margin-bottom: 0.3rem;
+        }
+
+        .comment-text {
+            font-size: 0.85rem;
+            color: var(--color-texto);
+            line-height: 1.4;
+        }
+
+        .comment-date {
+            font-size: 0.6rem;
+            color: var(--color-texto-claro);
+            margin-top: 0.3rem;
+        }
+
+        .comment-input-area {
+            padding: 1rem;
+            border-top: 1px solid var(--color-borde);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .comment-input-area input {
+            flex: 1;
+            padding: 0.6rem;
+            border: 1px solid var(--color-borde);
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .comment-input-area button {
+            background: var(--color-primario);
+            color: white;
+            border: none;
+            padding: 0.6rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        /* Toast de notificación */
         .toast-notification {
             position: fixed;
             bottom: 20px;
@@ -412,6 +520,19 @@
         .toast-notification.show {
             transform: translateX(-50%) translateY(0);
         }
+
+        /* Loader para scroll infinito */
+        .loader-more {
+            text-align: center;
+            padding: 2rem;
+            color: var(--color-texto-claro);
+        }
+
+        .cargando {
+            text-align: center;
+            padding: 3rem;
+            color: var(--color-texto-claro);
+        }
     </style>
 </head>
 
@@ -419,13 +540,13 @@
     <div id="header-container"></div>
 
     <main class="contenedor">
+        <!-- Barra superior con filtros y buscador -->
         <div class="top-bar">
             <div class="buscador-container">
-                <input type="text" id="buscador" class="buscador-input"
-                    placeholder="🔍 Buscar por título, contenido, ubicación, fecha...">
+                <input type="text" id="buscador" class="buscador-input" placeholder="🔍 Buscar por título, contenido, ubicación, fecha...">
                 <button class="clear-search" id="clearSearch">✕</button>
             </div>
-            <button class="mobile-filter-toggle" id="mobileFilterToggle">📋 Filtros</button>
+            <button class="mobile-filter-toggle" id="mobileFilterToggle">📋 Mostrar filtros</button>
             <div class="filtros" id="filtros">
                 <button class="filtro activo" data-categoria="todos">📋 Todos</button>
                 <button class="filtro" data-categoria="urgente">🚨 URGENTE</button>
@@ -438,15 +559,38 @@
             </div>
         </div>
 
+        <!-- Mensajes de error/info -->
         <div id="mensaje-container"></div>
+
+        <!-- Avisos -->
         <div id="avisos-container" class="grid-avisos">
             <div class="cargando">📰 Cargando avisos...</div>
         </div>
+
+        <!-- Loader para scroll infinito -->
         <div id="loader-more" class="loader-more" style="display: none;">📰 Cargando más avisos...</div>
     </main>
 
+    <!-- Footer -->
     <div id="footer-container"></div>
+
+    <!-- Toast para notificaciones -->
     <div id="toast" class="toast-notification"></div>
+
+    <!-- Panel de comentarios flotante -->
+    <div id="comments-panel" class="comments-panel">
+        <div class="comments-header">
+            <h3>💬 Comentarios</h3>
+            <button class="close-comments" onclick="cerrarPanelComentarios()">×</button>
+        </div>
+        <div id="comments-list" class="comments-list">
+            <div class="cargando">Cargando comentarios...</div>
+        </div>
+        <div class="comment-input-area">
+            <input type="text" id="comment-input" placeholder="Escribe tu comentario...">
+            <button onclick="enviarComentario()">Enviar</button>
+        </div>
+    </div>
 
     <script src="/avisos-jardines/js/api.js"></script>
     <script src="/avisos-jardines/js/auth.js"></script>
@@ -454,20 +598,20 @@
 
     <script>
         // ========== VARIABLES GLOBALES ==========
-        let avisosData = [];
+        let todosLosAvisos = [];
+        let avisosFiltrados = [];
         let currentUser = null;
         let likedAvisos = JSON.parse(localStorage.getItem('likedAvisos') || '{}');
         let currentAvisoIdForComments = null;
-        let todosLosAvisos = [];
-        let avisosFiltrados = [];
         let currentPage = 1;
         let isLoading = false;
         let hasMore = true;
         let categoriaActual = 'todos';
         let busquedaActual = '';
-        let scrollListener = null;
+        const ITEMS_PER_PAGE = 12;
 
-        // ========== FUNCIONES DE ESTADÍSTICAS ==========
+        // ========== FUNCIONES DE ESTADÍSTICAS (tus funciones originales) ==========
+
         function showToast(message, duration = 2000) {
             const toast = document.getElementById('toast');
             toast.textContent = message;
@@ -480,15 +624,25 @@
         async function registrarVista(id) {
             try {
                 const api = new API();
-                await api.llamar('REGISTRAR_VISTA', { id: id });
-            } catch (e) { }
+                const result = await api.llamar('REGISTRAR_VISTA', { id: id });
+                if (result && result.success) {
+                    console.log(`✅ Vista registrada para aviso ${id}`);
+                }
+            } catch (e) {
+                console.warn('Error registrando vista:', e);
+            }
         }
 
         async function registrarClickWhatsApp(id) {
             try {
                 const api = new API();
-                await api.llamar('REGISTRAR_CLICK_WHATSAPP', { id: id });
-            } catch (e) { }
+                const result = await api.llamar('REGISTRAR_CLICK_WHATSAPP', { id: id });
+                if (result && result.success) {
+                    console.log(`✅ Click WhatsApp registrado para aviso ${id}`);
+                }
+            } catch (e) {
+                console.warn('Error registrando click WhatsApp:', e);
+            }
         }
 
         async function registrarInteres(id) {
@@ -497,31 +651,44 @@
                 const result = await api.llamar('REGISTRAR_INTERES', { id: id });
                 if (result && result.success) {
                     const aviso = todosLosAvisos.find(a => a.id == id);
-                    if (aviso) aviso.intereses = (aviso.intereses || 0) + 1;
+                    if (aviso) {
+                        aviso.intereses = (aviso.intereses || 0) + 1;
+                    }
                     return true;
                 }
-            } catch (e) { }
+            } catch (e) {
+                console.warn('Error registrando interés:', e);
+            }
             return false;
         }
 
-        // ========== FUNCIONES DE INTERACCIÓN ==========
-        window.verAviso = async function (id) {
+        // ========== FUNCIONES DE INTERACCIÓN (tus funciones originales) ==========
+
+        window.verAviso = async function(id) {
             await registrarVista(id);
             window.location.href = `/avisos-jardines/aviso.html?id=${id}`;
         };
 
-        window.abrirWhatsApp = async function (numero, texto, id, event) {
+        window.abrirWhatsApp = async function(numero, texto, id, event) {
             if (event) event.stopPropagation();
             if (id) await registrarClickWhatsApp(id);
-            window.open(`https://wa.me/${numero}?text=${encodeURIComponent(texto)}`, '_blank');
+            const url = `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
+            window.open(url, '_blank');
         };
 
-        window.darLike = async function (id, event) {
+        window.abrirTelefono = function(numero, event) {
             if (event) event.stopPropagation();
+            window.open(`tel:${numero}`, '_blank');
+        };
+
+        window.darLike = async function(id, event) {
+            if (event) event.stopPropagation();
+
             if (likedAvisos[id]) {
                 showToast('❤️ Ya marcaste "Me interesa" en este aviso', 1500);
                 return;
             }
+
             const success = await registrarInteres(id);
             if (success) {
                 likedAvisos[id] = true;
@@ -531,23 +698,27 @@
             }
         };
 
-        window.abrirComentarios = function (id, event) {
+        window.abrirComentarios = function(id, event) {
             if (event) event.stopPropagation();
             currentAvisoIdForComments = id;
             document.getElementById('comments-panel').classList.add('open');
             cargarComentarios(id);
         };
 
-        window.cerrarPanelComentarios = function () {
+        window.cerrarPanelComentarios = function() {
             document.getElementById('comments-panel').classList.remove('open');
+            currentAvisoIdForComments = null;
         };
 
         async function cargarComentarios(avisoId) {
             const commentsList = document.getElementById('comments-list');
             if (!commentsList) return;
+
             commentsList.innerHTML = '<div class="cargando">💬 Cargando comentarios...</div>';
+
             try {
                 const resultado = await API.peticion('LISTAR_COMENTARIOS', { avisoId: avisoId });
+
                 if (resultado && resultado.success && Array.isArray(resultado.data)) {
                     if (resultado.data.length === 0) {
                         commentsList.innerHTML = '<div style="text-align:center; color:#888;">📝 No hay comentarios aún. ¡Sé el primero!</div>';
@@ -564,20 +735,28 @@
                     commentsList.innerHTML = '<div style="text-align:center; color:#888;">💬 No hay comentarios aún</div>';
                 }
             } catch (e) {
+                console.error('Error cargando comentarios:', e);
                 commentsList.innerHTML = '<div style="text-align:center; color:#e74c3c;">❌ Error al cargar comentarios</div>';
             }
         }
 
-        window.enviarComentario = async function () {
+        window.enviarComentario = async function() {
             const input = document.getElementById('comment-input');
             const texto = input.value.trim();
+
             if (!texto) {
                 showToast('✏️ Escribe un comentario primero', 1500);
                 return;
             }
-            if (!currentAvisoIdForComments) return;
+
+            if (!currentAvisoIdForComments) {
+                showToast('❌ Error: No se identificó el aviso', 1500);
+                return;
+            }
+
             const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
             const autor = usuario.nombre || usuario.email || 'Anónimo';
+
             try {
                 const api = new API();
                 const result = await api.llamar('AGREGAR_COMENTARIO', {
@@ -585,18 +764,25 @@
                     texto: texto,
                     autor: autor
                 });
+
                 if (result && result.success) {
                     input.value = '';
                     showToast('💬 Comentario enviado', 1500);
                     cargarComentarios(currentAvisoIdForComments);
+                } else {
+                    showToast('❌ Error al enviar comentario', 1500);
                 }
-            } catch (e) { }
+            } catch (e) {
+                console.error('Error enviando comentario:', e);
+                showToast('❌ Error de conexión', 1500);
+            }
         };
 
         // ========== FUNCIONES AUXILIARES ==========
+
         function escapeHtml(str) {
             if (!str) return '';
-            return str.replace(/[&<>]/g, function (m) {
+            return str.replace(/[&<>]/g, function(m) {
                 if (m === '&') return '&amp;';
                 if (m === '<') return '&lt;';
                 if (m === '>') return '&gt;';
@@ -607,42 +793,80 @@
         function formatearFecha(fechaStr) {
             if (!fechaStr) return 'Reciente';
             try {
-                return new Date(fechaStr).toLocaleDateString('es-MX');
-            } catch { return fechaStr; }
+                const fecha = new Date(fechaStr);
+                return fecha.toLocaleDateString('es-MX');
+            } catch (e) {
+                return fechaStr;
+            }
         }
 
+        function formatearFechaHora(fechaStr) {
+            if (!fechaStr) return 'Reciente';
+            try {
+                const fecha = new Date(fechaStr);
+                return fecha.toLocaleDateString('es-MX') + ' ' + fecha.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+            } catch (e) {
+                return fechaStr;
+            }
+        }
+
+        function getIconoCategoria(cat) {
+            const iconos = {
+                urgente: '⚠️', escuelas: '🏫', servicios: '🛠️',
+                comercios: '🛒', eventos: '📅', gobierno: '🏛️', varios: '📢'
+            };
+            return iconos[cat] || '📄';
+        }
+
+        function getColorCategoria(cat) {
+            const colores = {
+                urgente: '#dc3545', escuelas: '#3498db', servicios: '#f39c12',
+                comercios: '#27ae60', eventos: '#9b59b6', gobierno: '#1abc9c', varios: '#7f8c8d'
+            };
+            return colores[cat] || '#95a5a6';
+        }
+
+        // ========== BÚSQUEDA EN TODOS LOS CAMPOS ==========
         function buscarEnAviso(aviso, termino) {
             if (!termino) return true;
             const lowerTerm = termino.toLowerCase();
-            const campos = [
-                aviso.titulo, aviso.contenido, aviso.categoria, aviso.ubicacion,
-                aviso.contacto, aviso.created_at, aviso.autor_nombre
+            const camposBusqueda = [
+                aviso.titulo,
+                aviso.contenido,
+                aviso.categoria,
+                aviso.ubicacion,
+                aviso.contacto,
+                formatearFecha(aviso.created_at),
+                aviso.autor_nombre || ''
             ];
-            return campos.some(campo => campo && campo.toString().toLowerCase().includes(lowerTerm));
+            return camposBusqueda.some(campo => campo && campo.toString().toLowerCase().includes(lowerTerm));
         }
 
+        // ========== FILTROS Y BÚSQUEDA ==========
         function aplicarFiltrosYBusqueda() {
             let resultado = [...todosLosAvisos];
+            
             if (categoriaActual !== 'todos') {
                 resultado = resultado.filter(a => a.categoria === categoriaActual);
             }
+            
             if (busquedaActual.trim()) {
                 resultado = resultado.filter(a => buscarEnAviso(a, busquedaActual));
             }
+            
             avisosFiltrados = resultado;
             currentPage = 1;
             hasMore = true;
             renderizarAvisosConScroll();
         }
 
+        // ========== RENDERIZADO CON SCROLL INFINITO ==========
         function renderizarAvisosConScroll() {
-            const itemsPerPage = 20;
-            const start = 0;
-            const end = currentPage * itemsPerPage;
-            const avisosAMostrar = avisosFiltrados.slice(start, end);
+            const end = currentPage * ITEMS_PER_PAGE;
+            const avisosAMostrar = avisosFiltrados.slice(0, end);
             hasMore = end < avisosFiltrados.length;
             renderizarAvisos(avisosAMostrar);
-
+            
             if (!hasMore && document.getElementById('loader-more')) {
                 document.getElementById('loader-more').style.display = 'none';
             }
@@ -653,16 +877,15 @@
             isLoading = true;
             const loader = document.getElementById('loader-more');
             if (loader) loader.style.display = 'block';
-
+            
             setTimeout(() => {
                 currentPage++;
-                const itemsPerPage = 20;
-                const end = currentPage * itemsPerPage;
+                const end = currentPage * ITEMS_PER_PAGE;
                 const nuevosAvisos = avisosFiltrados.slice(0, end);
                 renderizarAvisos(nuevosAvisos, true);
                 hasMore = end < avisosFiltrados.length;
                 isLoading = false;
-                if (loader) loader.style.display = hasMore ? 'none' : 'none';
+                if (loader) loader.style.display = 'none';
             }, 300);
         }
 
@@ -670,11 +893,17 @@
             const container = document.getElementById('avisos-container');
             if (!container) return;
 
+            if (avisos.length === 0) {
+                container.innerHTML = '<div class="cargando">📭 No hay avisos que coincidan con tu búsqueda</div>';
+                document.getElementById('loader-more').style.display = 'none';
+                return;
+            }
+
             const avisosHTML = avisos.map((aviso, index) => `
                 <div class="aviso-card ${aviso.categoria === 'urgente' ? 'urgente' : ''}" 
                      data-id="${aviso.id}"
                      onclick="verAviso('${aviso.id}')"
-                     style="animation-delay: ${Math.min(index * 0.03, 0.5)}s">
+                     style="animation-delay: ${Math.min(index * 0.02, 0.3)}s">
                     <div class="categoria-badge" style="background: ${getColorCategoria(aviso.categoria)}; color: white;">
                         ${getIconoCategoria(aviso.categoria)} ${aviso.categoria?.toUpperCase() || 'GENERAL'}
                     </div>
@@ -682,68 +911,94 @@
                     <div style="padding: 1rem;">
                         <div class="aviso-fecha">📅 ${formatearFecha(aviso.created_at)}</div>
                         <h3 style="margin: 0 0 0.5rem 0; font-size: 1.1rem;">${escapeHtml(aviso.titulo)}</h3>
-                        <div class="aviso-contenido-preview">${escapeHtml((aviso.contenido || '').substring(0, 150))}${(aviso.contenido || '').length > 150 ? '...' : ''}</div>
+                        <div class="aviso-contenido-preview">
+                            ${escapeHtml((aviso.contenido || '').substring(0, 150))}${(aviso.contenido || '').length > 150 ? '...' : ''}
+                        </div>
                         <div class="aviso-stats">
                             <span class="stat-item">👁️ <span class="stat-value">${aviso.vistas || 0}</span></span>
-                            <span class="stat-item like-btn ${likedAvisos[aviso.id] ? 'liked' : ''}" data-id="${aviso.id}" onclick="darLike('${aviso.id}', event)">❤️ <span class="stat-value">${aviso.intereses || 0}</span></span>
-                            <span class="stat-item" onclick="abrirComentarios('${aviso.id}', event)">💬 <span class="stat-value">0</span></span>
+                            <span class="stat-item like-btn ${likedAvisos[aviso.id] ? 'liked' : ''}" 
+                                  data-id="${aviso.id}" 
+                                  onclick="darLike('${aviso.id}', event)">
+                                ❤️ <span class="stat-value">${aviso.intereses || 0}</span>
+                            </span>
+                            <span class="stat-item" onclick="abrirComentarios('${aviso.id}', event)">
+                                💬 <span class="stat-value">0</span>
+                            </span>
                         </div>
-                        <div class="aviso-footer"><span>📍 ${aviso.ubicacion || 'Jardines PVR'}</span></div>
+                        <div class="aviso-footer">
+                            <span>📍 ${aviso.ubicacion || 'Jardines PVR'}</span>
+                        </div>
                     </div>
-                    ${aviso.contacto ? `<button class="whatsapp-btn" onclick="abrirWhatsApp('${aviso.contacto}', '${encodeURIComponent('Hola, vi tu aviso en Jardines PVR: ' + aviso.titulo)}', '${aviso.id}', event)">💬</button>` : ''}
+                    ${aviso.contacto ? `
+                        <button class="whatsapp-btn" 
+                                onclick="abrirWhatsApp('${aviso.contacto}', '${encodeURIComponent('Hola, vi tu aviso en Jardines PVR: ' + aviso.titulo)}', '${aviso.id}', event)">
+                        </button>
+                    ` : ''}
                     <button class="interes-btn" onclick="darLike('${aviso.id}', event)">❤️</button>
                 </div>
             `).join('');
-
+            
             if (!esCargaIncremental) {
                 container.innerHTML = avisosHTML;
             } else {
                 container.insertAdjacentHTML('beforeend', avisosHTML);
-                const newCards = container.querySelectorAll('.aviso-card:not(.visible)');
-                newCards.forEach(card => {
-                    card.classList.add('visible');
-                });
+                // Animar las nuevas tarjetas
+                const newCards = container.querySelectorAll('.aviso-card');
+                for (let i = newCards.length - avisos.length; i < newCards.length; i++) {
+                    if (newCards[i]) newCards[i].style.animation = 'fadeInUp 0.4s ease-out forwards';
+                }
             }
-
-            // Aplicar grid dinámico según cantidad de avisos
-            const hasFirstThree = avisos.length >= 3;
-            const hasMoreThanThree = avisos.length > 3;
-            container.classList.toggle('has-first-three', hasFirstThree);
-            container.classList.toggle('has-more', hasMoreThanThree);
-
-            // Forzar visibilidad de todas las tarjetas
-            document.querySelectorAll('.aviso-card').forEach(card => card.classList.add('visible'));
+            
+            // Actualizar contadores de comentarios
+            actualizarContadoresComentarios(avisos);
         }
 
-        function getIconoCategoria(cat) {
-            const iconos = { urgente: '⚠️', escuelas: '🏫', servicios: '🛠️', comercios: '🛒', eventos: '📅', gobierno: '🏛️', varios: '📢' };
-            return iconos[cat] || '📄';
+        async function actualizarContadoresComentarios(avisos) {
+            try {
+                const api = new API();
+                for (const aviso of avisos) {
+                    const result = await api.llamar('LISTAR_COMENTARIOS', { avisoId: aviso.id });
+                    if (result && result.success && result.data) {
+                        const count = result.data.length;
+                        const card = document.querySelector(`.aviso-card[data-id="${aviso.id}"]`);
+                        if (card) {
+                            const commentStat = card.querySelector('.stat-item:last-child .stat-value');
+                            if (commentStat) commentStat.textContent = count;
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn('No se pudieron actualizar contadores de comentarios');
+            }
         }
 
-        function getColorCategoria(cat) {
-            const colores = { urgente: '#dc3545', escuelas: '#3498db', servicios: '#f39c12', comercios: '#27ae60', eventos: '#9b59b6', gobierno: '#1abc9c', varios: '#7f8c8d' };
-            return colores[cat] || '#95a5a6';
-        }
-
-        // ========== CARGA INICIAL ==========
+        // ========== CARGA DE AVISOS DESDE TU API ==========
         async function cargarAvisosIniciales() {
             const container = document.getElementById('avisos-container');
+            if (!container) return;
+
             container.innerHTML = '<div class="cargando">📰 Cargando avisos...</div>';
+
             try {
                 const resultado = await API.listar('AVISOS', {}, { pagina: 1, limite: 200 });
+
                 if (resultado && resultado.datos) {
-                    todosLosAvisos = resultado.datos.filter(a => a.status === 'activo' || !a.status);
+                    todosLosAvisos = resultado.datos.filter(a => a.status === 'activo' || a.status === undefined);
+                    // Ordenar por fecha (más recientes primero)
+                    todosLosAvisos.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                     aplicarFiltrosYBusqueda();
                 } else {
-                    container.innerHTML = '<div class="mensaje mensaje-info">📭 No hay avisos disponibles</div>';
+                    container.innerHTML = '<div class="cargando">📭 No hay avisos disponibles</div>';
                 }
             } catch (error) {
-                container.innerHTML = '<div class="mensaje mensaje-error">❌ Error al cargar avisos</div>';
+                console.error('Error cargando avisos:', error);
+                container.innerHTML = '<div class="cargando">❌ Error al cargar avisos. Verifica tu conexión.</div>';
             }
         }
 
-        // ========== EVENTOS Y FILTROS ==========
+        // ========== INICIALIZACIÓN DE FILTROS Y BUSCADOR ==========
         function initFiltrosYBuscador() {
+            // Filtros de categoría
             const filtros = document.querySelectorAll('.filtro');
             filtros.forEach(filtro => {
                 filtro.addEventListener('click', () => {
@@ -753,33 +1008,35 @@
                     aplicarFiltrosYBusqueda();
                 });
             });
-
+            
+            // Buscador
             const buscador = document.getElementById('buscador');
             const clearBtn = document.getElementById('clearSearch');
+            
             buscador.addEventListener('input', (e) => {
                 busquedaActual = e.target.value;
                 clearBtn.style.display = busquedaActual ? 'block' : 'none';
                 aplicarFiltrosYBusqueda();
             });
+            
             clearBtn.addEventListener('click', () => {
                 buscador.value = '';
                 busquedaActual = '';
                 clearBtn.style.display = 'none';
                 aplicarFiltrosYBusqueda();
             });
-
+            
             // Scroll infinito
-            scrollListener = () => {
+            window.addEventListener('scroll', () => {
                 const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
                 const windowHeight = window.innerHeight;
                 const documentHeight = document.documentElement.scrollHeight;
                 if (scrollTop + windowHeight >= documentHeight - 300) {
                     cargarMasAvisos();
                 }
-            };
-            window.addEventListener('scroll', scrollListener);
-
-            // Menú móvil para filtros
+            });
+            
+            // Botón móvil para filtros
             const mobileToggle = document.getElementById('mobileFilterToggle');
             const filtrosContainer = document.getElementById('filtros');
             if (mobileToggle) {
@@ -790,9 +1047,9 @@
         }
 
         // ========== INICIALIZACIÓN ==========
-        document.addEventListener('DOMContentLoaded', function () {
-            initFiltros();
-            cargarAvisos();
+        document.addEventListener('DOMContentLoaded', function() {
+            initFiltrosYBuscador();
+            cargarAvisosIniciales();
 
             // Cargar header
             fetch('/avisos-jardines/common/header.html')
@@ -830,6 +1087,7 @@
         });
     </script>
 
+    <!-- Cookie Banner -->
     <div id="cookieBanner"
         style="position: fixed; bottom: 0; left: 0; right: 0; background: #1e4620; color: white; padding: 1rem; text-align: center; z-index: 1000; display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem;">
         <span>🍪 Usamos cookies para que la plataforma funcione bien. No vendemos tus datos.</span>
@@ -840,27 +1098,16 @@
                 style="background: transparent; border: 1px solid white; color: white; padding: 0.4rem 1.2rem; border-radius: 2rem; text-decoration: none; margin-left: 0.5rem;">Configurar</a>
         </div>
     </div>
+
     <script>
-        if (localStorage.getItem('cookie_consent') === 'aceptadas') document.getElementById('cookieBanner').style.display = 'none';
-        document.getElementById('aceptarCookies')?.addEventListener('click', () => {
+        if (localStorage.getItem('cookie_consent') === 'aceptadas') {
+            document.getElementById('cookieBanner').style.display = 'none';
+        }
+        document.getElementById('aceptarCookies').addEventListener('click', () => {
             localStorage.setItem('cookie_consent', 'aceptadas');
             document.getElementById('cookieBanner').style.display = 'none';
         });
     </script>
-
-    <div id="comments-panel" class="comments-panel">
-        <div class="comments-header">
-            <h3>💬 Comentarios</h3>
-            <button class="close-comments" onclick="cerrarPanelComentarios()">×</button>
-        </div>
-        <div id="comments-list" class="comments-list">
-            <div class="cargando">Cargando comentarios...</div>
-        </div>
-        <div class="comment-input-area">
-            <input type="text" id="comment-input" placeholder="Escribe tu comentario...">
-            <button onclick="enviarComentario()">Enviar</button>
-        </div>
-    </div>
 </body>
 
 </html>
