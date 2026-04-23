@@ -605,6 +605,9 @@
         let allAvisos = [];
         let filteredAvisos = [];
         let renderedCount = 0;
+        
+        // Bandera para evitar doble carga
+        let isInitialLoadDone = false;
 
         // ========== FUNCIONES DE ESTADÍSTICAS ==========
 
@@ -817,7 +820,10 @@
             renderedCount = 0;
             currentPage = 1;
             hasMore = true;
-            document.getElementById('avisos-container').innerHTML = '';
+            const container = document.getElementById('avisos-container');
+            if (container) {
+                container.innerHTML = '';
+            }
             loadMoreAvisos();
         }
 
@@ -825,7 +831,9 @@
             if (isLoading || !hasMore) return;
             isLoading = true;
             const loadingTrigger = document.getElementById('loading-trigger');
-            loadingTrigger.style.display = 'block';
+            if (loadingTrigger) {
+                loadingTrigger.style.display = 'block';
+            }
             
             setTimeout(() => {
                 const start = renderedCount;
@@ -840,9 +848,13 @@
                 
                 if (end >= filteredAvisos.length) {
                     hasMore = false;
-                    loadingTrigger.style.display = 'none';
+                    if (loadingTrigger) {
+                        loadingTrigger.style.display = 'none';
+                    }
                 } else {
-                    loadingTrigger.style.display = 'block';
+                    if (loadingTrigger) {
+                        loadingTrigger.style.display = 'block';
+                    }
                 }
                 isLoading = false;
             }, 400);
@@ -850,6 +862,8 @@
 
         function appendAvisosToGrid(avisos) {
             const container = document.getElementById('avisos-container');
+            if (!container) return;
+            
             const html = avisos.map(aviso => `
                 <div class="aviso-card ${aviso.categoria === 'urgente' ? 'urgente' : ''}" 
                      onclick="verAviso('${aviso.id}')">
@@ -893,21 +907,35 @@
         }
 
         async function cargarAvisos() {
+            // Evitar doble carga
+            if (isInitialLoadDone) {
+                console.log('⚠️ Carga ya realizada, omitiendo duplicado');
+                return;
+            }
+            
             const container = document.getElementById('avisos-container');
-            container.innerHTML = '<div class="cargando">📰 Cargando avisos...</div>';
+            if (container) {
+                container.innerHTML = '<div class="cargando">📰 Cargando avisos...</div>';
+            }
+            
             try {
                 const resultado = await API.listar('AVISOS', {}, { pagina: 1, limite: 200 });
                 if (resultado && resultado.datos) {
                     allAvisos = resultado.datos.filter(a => a.status === 'activo' || a.status === undefined);
                     // Ordenar por fecha más reciente primero
                     allAvisos.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                    isInitialLoadDone = true;
                     applyFiltersAndSearch();
                 } else {
-                    container.innerHTML = '<div class="mensaje mensaje-info">📭 No hay avisos disponibles</div>';
+                    if (container) {
+                        container.innerHTML = '<div class="mensaje mensaje-info">📭 No hay avisos disponibles</div>';
+                    }
                 }
             } catch (error) {
                 console.error('Error cargando avisos:', error);
-                container.innerHTML = '<div class="mensaje mensaje-error">❌ Error al cargar avisos</div>';
+                if (container) {
+                    container.innerHTML = '<div class="mensaje mensaje-error">❌ Error al cargar avisos</div>';
+                }
             }
         }
 
@@ -950,10 +978,12 @@
         // Buscador en tiempo real
         function setupSearch() {
             const searchInput = document.getElementById('buscador-input');
-            searchInput.addEventListener('input', (e) => {
-                currentSearchTerm = e.target.value;
-                applyFiltersAndSearch();
-            });
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    currentSearchTerm = e.target.value;
+                    applyFiltersAndSearch();
+                });
+            }
         }
 
         // ========== INICIALIZACIÓN ==========
@@ -961,7 +991,7 @@
             initFiltros();
             setupSearch();
             setupInfiniteScroll();
-            cargarAvisos();
+            cargarAvisos(); // Solo una llamada
 
             fetch('/avisos-jardines/common/header.html')
                 .then(res => res.ok ? res.text() : Promise.reject())
