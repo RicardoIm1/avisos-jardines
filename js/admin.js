@@ -11,6 +11,13 @@ document.addEventListener('DOMContentLoaded', function () {
   const usuario = Auth.requireAuth();
   if (!usuario) return;
 
+  // ========== NUEVO: Verificar que sea admin o al menos usuario normal ==========
+  if (usuario.rol !== 'admin' && usuario.rol !== 'usuario') {
+    alert('No tienes permisos para acceder al panel de administración.');
+    window.location.href = 'index.html';
+    return;
+  }
+
   console.log('Usuario logueado:', usuario);
 
   // Mostrar tab de usuarios solo si es admin
