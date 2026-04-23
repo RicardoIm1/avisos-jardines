@@ -53,7 +53,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const usuarioActual = API.getUsuarioActual();
       const apiKey = localStorage.getItem('api_key');
-
+      
+      console.log('API Key presente:', !!apiKey);
+      
       const datos = {
         titulo: tituloValue.trim(),
         contenido: contenidoValue.trim(),
@@ -127,32 +129,71 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // ========== FORMULARIO NUEVO USUARIO ==========
+  // ========== FORMULARIO NUEVO USUARIO ==========
   const formUsuario = document.getElementById('form-usuario');
   if (formUsuario) {
     formUsuario.addEventListener('submit', async function (e) {
       e.preventDefault();
 
-      const datos = {
-        email: document.getElementById('user-email').value,
-        nombre: document.getElementById('user-nombre').value,
-        rol: document.getElementById('user-rol').value,
-        password_hash: document.getElementById('user-password').value,
-        categorias: document.getElementById('user-categorias').value || 'todas',
-        activo: 'TRUE'
-      };
+      const email = document.getElementById('user-email').value;
+      const nombre = document.getElementById('user-nombre').value;
+      const rol = document.getElementById('user-rol').value;
+      const password = document.getElementById('user-password').value;
+      const categorias = document.getElementById('user-categorias').value || 'todas';
 
-      if (!datos.email || !datos.nombre || !datos.password_hash) {
-        API.mostrarError('Completa todos los campos');
+      // Validaciones básicas
+      if (!email || !nombre || !password) {
+        API.mostrarError('Completa todos los campos obligatorios');
         return;
       }
 
+      if (password.length < 6) {
+        API.mostrarError('La contraseña debe tener al menos 6 caracteres');
+        return;
+      }
+
+      // IMPORTANTE: Usar password_hash como clave (lo que espera el backend)
+      const datos = {
+        email: email,
+        nombre: nombre,
+        rol: rol,
+        password_hash: password,  // ✅ Nombre correcto para el backend
+        categorias: categorias,
+        activo: 'TRUE'
+      };
+
+      console.log('📝 Enviando datos de usuario:', {
+        ...datos,
+        password_hash: '***'
+      });
+
       try {
-        await API.peticion('CREAR_USUARIO', datos);
-        API.mostrarExito('✅ Usuario creado correctamente');
-        formUsuario.reset();
-        cargarUsuarios();
+        // Usar la petición con la acción CREAR y colección USUARIOS
+        const respuesta = await API.peticion('CREAR', {
+          coleccion: 'USUARIOS',
+          ...datos
+        });
+
+        console.log('📡 Respuesta completa:', respuesta);
+
+        if (respuesta && respuesta.success) {
+          API.mostrarExito('✅ Usuario creado correctamente');
+          formUsuario.reset();
+
+          // Recargar la lista de usuarios si estamos en esa pestaña
+          const tabUsuarios = document.getElementById('tab-usuarios');
+          if (tabUsuarios && tabUsuarios.classList.contains('activo')) {
+            cargarUsuarios();
+          }
+        } else {
+          const errorMsg = respuesta?.error || 'Error desconocido al crear usuario';
+          API.mostrarError('❌ Error: ' + errorMsg);
+          console.error('Error del servidor:', respuesta);
+        }
+
       } catch (error) {
-        API.mostrarError('Error al crear usuario: ' + error.message);
+        console.error('❌ Error detallado:', error);
+        API.mostrarError('Error al crear usuario: ' + (error.message || 'Error de conexión'));
       }
     });
   }
@@ -561,12 +602,26 @@ async function cargarUsuarios() {
   contenedor.innerHTML = '<div class="cargando">🔄 Cargando usuarios...</div>';
 
   try {
+    const usuarioActual = API.getUsuarioActual();
+    if (usuarioActual.rol !== 'admin') {
+      contenedor.innerHTML = '<div class="mensaje-error">No tienes permisos para ver usuarios</div>';
+      return;
+    }
+
     const apiKey = localStorage.getItem('api_key');
-    const resultado = await API.listar('USUARIOS');
+    
+    // Usar la acción LISTAR con colección USUARIOS
+    const respuesta = await API.peticion('LISTAR', {
+      coleccion: 'USUARIOS'
+    }, apiKey);
 
-    console.log('Respuesta usuarios:', resultado);
+    console.log('Respuesta usuarios:', respuesta);
 
-    let usuarios = resultado.datos || [];
+    if (!respuesta || !respuesta.success) {
+      throw new Error(respuesta?.error || 'Error al cargar usuarios');
+    }
+
+    const usuarios = respuesta.data?.datos || respuesta.datos || [];
 
     if (usuarios.length === 0) {
       contenedor.innerHTML = '<div class="mensaje">👥 No hay usuarios registrados</div>';
@@ -593,7 +648,7 @@ async function cargarUsuarios() {
     contenedor.innerHTML = html;
   } catch (error) {
     console.error('Error cargando usuarios:', error);
-    contenedor.innerHTML = '<div class="mensaje-error">❌ Error al cargar usuarios</div>';
+    contenedor.innerHTML = '<div class="mensaje-error">❌ Error al cargar usuarios: ' + error.message + '</div>';
   }
 }
 
