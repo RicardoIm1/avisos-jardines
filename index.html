@@ -1263,6 +1263,74 @@
                 })
                 .catch(error => console.error('Error cargando el footer:', error));
         });
+
+        // ========== VOTAR (Likes/Dislikes) ==========
+        window.votarAviso = async function (avisoId, tipo, event) {
+            if (event) event.stopPropagation();
+
+            const apiKey = localStorage.getItem('api_key');
+            if (!apiKey) {
+                showToast('🔐 Inicia sesión para votar', 2000);
+                return;
+            }
+
+            // Verificar si ya votó este tipo antes
+            const votosKey = `votos_${avisoId}`;
+            const votosGuardados = JSON.parse(localStorage.getItem(votosKey) || '{}');
+
+            if (tipo === 'positivo' && votosGuardados.positivo) {
+                showToast('👍 Ya votaste positivo en este aviso', 1500);
+                return;
+            }
+            if (tipo === 'negativo' && votosGuardados.negativo) {
+                showToast('👎 Ya votaste negativo en este aviso', 1500);
+                return;
+            }
+
+            try {
+                const resultado = await API.peticion('VOTAR_AVISO', {
+                    aviso_id: avisoId,
+                    tipo: tipo
+                }, apiKey);
+
+                if (resultado && resultado.success) {
+                    // Guardar en localStorage que ya votó
+                    votosGuardados[tipo] = true;
+                    localStorage.setItem(votosKey, JSON.stringify(votosGuardados));
+
+                    // Actualizar el contador visualmente
+                    const card = document.querySelector(`.aviso-card[data-id="${avisoId}"]`);
+                    if (card) {
+                        const contadorSpan = card.querySelector(`.${tipo === 'positivo' ? 'like-btn' : 'dislike-btn'} .stat-value`);
+                        if (contadorSpan) {
+                            let valorActual = parseInt(contadorSpan.textContent) || 0;
+                            contadorSpan.textContent = valorActual + 1;
+                        }
+                        // Cambiar estilo del botón
+                        const btn = card.querySelector(`.${tipo === 'positivo' ? 'like-btn' : 'dislike-btn'}`);
+                        if (btn) btn.classList.add(tipo === 'positivo' ? 'liked' : 'disliked');
+                    }
+
+                    showToast(tipo === 'positivo' ? '👍 Gracias por tu voto positivo' : '👎 Voto negativo registrado', 1500);
+
+                    // Si es negativo, verificar si el aviso debe desaparecer (3 votos)
+                    if (tipo === 'negativo') {
+                        const dislikesSpan = card?.querySelector('.dislike-btn .stat-value');
+                        const totalDislikes = dislikesSpan ? parseInt(dislikesSpan.textContent) : 0;
+                        if (totalDislikes >= 3) {
+                            // Ocultar el aviso del feed
+                            if (card) card.style.display = 'none';
+                            showToast('⚠️ Este aviso ha sido eliminado por la comunidad (3 votos negativos)', 3000);
+                        }
+                    }
+                } else {
+                    showToast('❌ Error al votar: ' + (resultado?.error || 'Intenta de nuevo'), 2000);
+                }
+            } catch (error) {
+                console.error('Error votando:', error);
+                showToast('❌ Error de conexión', 2000);
+            }
+        };
     </script>
 
     <!-- Cookie Banner -->
