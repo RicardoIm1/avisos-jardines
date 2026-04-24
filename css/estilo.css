@@ -46,10 +46,10 @@ body {
     --fuente-subtitulo: 20px;
     --fuente-cuerpo: 18px;
     --fuente-pequena: 16px;
-    
+
     --border-radius: 12px;
-    --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 /* ==================== ESTILOS BASE ==================== */
@@ -136,7 +136,7 @@ body {
     display: none;
     align-items: center;
     gap: 12px;
-    background: rgba(0,0,0,0.05);
+    background: rgba(0, 0, 0, 0.05);
     padding: 6px 15px;
     border-radius: 40px;
     font-size: 0.8rem;
@@ -149,7 +149,9 @@ body {
     flex-shrink: 0;
 }
 
-.btn-login, .btn-admin, .btn-logout {
+.btn-login,
+.btn-admin,
+.btn-logout {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -703,26 +705,28 @@ body {
     .header .contenedor {
         padding: 0.4rem 0.75rem;
     }
-    
+
     .logo-icon {
         width: 34px;
         height: 34px;
         font-size: 1.5rem;
     }
-    
+
     .logo-texto h1 {
         font-size: 0.8rem;
     }
-    
+
     .header-slogan {
         font-size: 0.5rem;
     }
-    
-    .btn-login, .btn-admin, .btn-logout {
+
+    .btn-login,
+    .btn-admin,
+    .btn-logout {
         padding: 0.3rem 0.8rem;
         font-size: 0.7rem;
     }
-    
+
     #reputacion-widget {
         display: none !important;
     }
@@ -753,22 +757,24 @@ body {
     .btn-text {
         display: none;
     }
-    
-    .btn-login, .btn-admin, .btn-logout {
+
+    .btn-login,
+    .btn-admin,
+    .btn-logout {
         padding: 0.3rem 0.6rem;
         font-size: 0.9rem;
     }
-    
+
     .logo-icon {
         width: 30px;
         height: 30px;
         font-size: 1.4rem;
     }
-    
+
     .logo-texto h1 {
         font-size: 0.7rem;
     }
-    
+
     .header-slogan {
         font-size: 0.45rem;
     }
@@ -799,4 +805,22 @@ body {
 .header-acciones .btn-admin,
 .header-acciones .btn-logout {
     display: inline-flex !important;
+}
+
+/* Estilos para Dislikes */
+.dislike-btn {
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.dislike-btn:hover {
+    transform: scale(1.05);
+}
+
+.dislike-btn.disliked {
+    color: #e74c3c;
+}
+
+.like-btn.liked {
+    color: #e74c3c;
 }
