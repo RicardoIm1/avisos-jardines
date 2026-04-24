@@ -403,13 +403,13 @@
 
       if (!AVISO_ID) {
         container.innerHTML = `
-          <div class="error-message">
-            ❌ No se especificó ningún aviso
-            <div style="margin-top: 1rem;">
-              <a href="/barrio/index.html" class="btn-action back" style="display: inline-block;">← Volver al inicio</a>
-            </div>
-          </div>
-        `;
+      <div class="error-message">
+        ❌ No se especificó ningún aviso
+        <div style="margin-top: 1rem;">
+          <a href="/barrio/index.html" class="btn-action back" style="display: inline-block;">← Volver al inicio</a>
+        </div>
+      </div>
+    `;
         return;
       }
 
@@ -429,20 +429,12 @@
           console.log('MultimediaManager inicializado');
         }
 
-        // Obtener el aviso - Usar listar correctamente
-        // Obtener el aviso directamente por ID
-        let aviso = null;
-
-        try {
-          // Intentar obtener el aviso con la función específica
-          aviso = await API.obtenerAviso(AVISO_ID);
-          console.log('Aviso obtenido vía obtenerAviso:', aviso);
-        } catch (e) {
-          console.warn('Error con obtenerAviso, intentando con listar:', e);
-        }
+        // ========== USAR obtenerAviso DIRECTAMENTE ==========
+        let aviso = await API.obtenerAviso(AVISO_ID);
 
         // Fallback: si no funcionó, intentar con listar
         if (!aviso) {
+          console.warn('obtenerAviso no devolvió nada, intentando con listar');
           const resultado = await API.listar('AVISOS');
           let avisos = [];
           if (resultado && resultado.datos && Array.isArray(resultado.datos)) {
@@ -457,13 +449,13 @@
 
         if (!aviso) {
           container.innerHTML = `
-            <div class="error-message">
-              ❌ El aviso no existe o fue eliminado
-              <div style="margin-top: 1rem;">
-                <a href="/barrio/index.html" class="btn-action back" style="display: inline-block;">← Volver al inicio</a>
-              </div>
-            </div>
-          `;
+        <div class="error-message">
+          ❌ El aviso no existe o fue eliminado
+          <div style="margin-top: 1rem;">
+            <a href="/barrio/index.html" class="btn-action back" style="display: inline-block;">← Volver al inicio</a>
+          </div>
+        </div>
+      `;
           return;
         }
 
@@ -492,13 +484,13 @@
       } catch (error) {
         console.error('Error cargando aviso:', error);
         container.innerHTML = `
-          <div class="error-message">
-            ❌ Error al cargar el aviso: ${escapeHTML(error.message || 'Error desconocido')}
-            <div style="margin-top: 1rem;">
-              <a href="/barrio/index.html" class="btn-action back" style="display: inline-block;">← Volver al inicio</a>
-            </div>
-          </div>
-        `;
+      <div class="error-message">
+        ❌ Error al cargar el aviso: ${escapeHTML(error.message || 'Error desconocido')}
+        <div style="margin-top: 1rem;">
+          <a href="/barrio/index.html" class="btn-action back" style="display: inline-block;">← Volver al inicio</a>
+        </div>
+      </div>
+    `;
       }
     }
 

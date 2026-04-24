@@ -166,7 +166,6 @@ class API {
     return { datos: [], total: 0 };
   }
 
-  // Obtener un aviso específico
   // Obtener un aviso específico por ID
   static async obtenerAviso(id) {
     // Usar listar con filtro id
