@@ -8,7 +8,6 @@
   <link rel="manifest" href="/barrio/manifest.json">
   <meta name="theme-color" content="#2c3e50">
   <style>
-    /* ========== ESTILO PERIÓDICO DIGITAL PREMIUM ========== */
     .aviso-paper {
       max-width: 960px;
       margin: 2rem auto;
@@ -28,9 +27,6 @@
     .article-meta { display: flex; flex-wrap: wrap; gap: 1.5rem; padding: 0.8rem 0; margin: 0.5rem 0 0; color: #6c757d; font-size: 0.8rem; border-top: 1px solid #e9ecef; border-bottom: 1px solid #e9ecef; }
     .article-meta span { display: inline-flex; align-items: center; gap: 0.4rem; }
     .article-body { padding: 2rem 2.5rem; font-size: 1.1rem; line-height: 1.7; color: #2c3e2f; }
-    .info-card { background: #f8f9fa; border-left: 4px solid #f5b042; padding: 1.2rem 1.8rem; margin: 1.5rem 0; border-radius: 0 12px 12px 0; }
-    .info-card p { margin: 0.6rem 0; display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
-    .info-card strong { min-width: 80px; color: #1a2a3a; }
     .gallery-section { margin: 2rem 0; }
     .gallery-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #f5b042; display: inline-block; }
     .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
@@ -52,8 +48,6 @@
     .stat-item { display: flex; align-items: center; gap: 0.3rem; }
     .loading-state { text-align: center; padding: 4rem 2rem; color: #6c757d; font-size: 1.1rem; }
     .error-message { background: #fef2e8; border-left: 4px solid #c0392b; padding: 1.2rem; margin: 2rem; border-radius: 8px; color: #c0392b; }
-    
-    /* ========== PANEL DE COMENTARIOS ========== */
     .comments-panel {
       position: fixed;
       bottom: 0;
@@ -129,7 +123,6 @@
   <div id="footer-container"></div>
   <div id="toast" class="toast-notification"></div>
 
-  <!-- Panel de comentarios -->
   <div id="comments-panel" class="comments-panel">
     <div class="comments-header">
       <h3>💬 Comentarios</h3>
@@ -150,7 +143,6 @@
   <script src="/barrio/js/multimedia.js"></script>
 
   <script>
-    // ========== UTILIDADES ==========
     function escapeHTML(str) {
       if (str === null || str === undefined) return '';
       return String(str).replace(/[&<>]/g, function(m) {
@@ -183,7 +175,6 @@
       setTimeout(() => toast.classList.remove('show'), duration);
     }
 
-    // ========== LIGHTBOX ==========
     function abrirLightbox(url, tipo) {
       const lightbox = document.getElementById('lightbox');
       const content = document.getElementById('lightbox-content');
@@ -199,7 +190,6 @@
       document.getElementById('lightbox-content').innerHTML = '';
     }
 
-    // ========== REGISTRAR VISTA ==========
     async function registrarVista(avisoId) {
       try {
         const apiKey = localStorage.getItem('api_key');
@@ -207,21 +197,17 @@
       } catch(e) { console.warn('Error registrando vista:', e); }
     }
 
-    // ========== COMENTARIOS ==========
     let currentAvisoIdForComments = null;
-
     window.abrirComentarios = function(id, event) {
       if (event) event.stopPropagation();
       currentAvisoIdForComments = id;
       document.getElementById('comments-panel').classList.add('open');
       cargarComentarios(id);
     };
-
     window.cerrarPanelComentarios = function() {
       document.getElementById('comments-panel').classList.remove('open');
       currentAvisoIdForComments = null;
     };
-
     async function cargarComentarios(avisoId) {
       const commentsList = document.getElementById('comments-list');
       if (!commentsList) return;
@@ -248,7 +234,6 @@
         commentsList.innerHTML = '<div style="text-align:center; color:#e74c3c;">❌ Error al cargar comentarios</div>';
       }
     }
-
     window.enviarComentario = async function() {
       const input = document.getElementById('comment-input');
       const texto = input.value.trim();
@@ -266,7 +251,6 @@
           input.value = '';
           showToast('💬 Comentario enviado', 1500);
           cargarComentarios(currentAvisoIdForComments);
-          // Actualizar contador de comentarios en la página
           const comentariosSpan = document.querySelector('.stat-item.comentarios span');
           if (comentariosSpan) {
             let actual = parseInt(comentariosSpan.textContent) || 0;
@@ -281,7 +265,6 @@
       }
     };
 
-    // ========== CARGA DEL AVISO ==========
     const AVISO_ID = new URLSearchParams(window.location.search).get('id');
     let avisoActual = null;
     let usuarioActual = null;
@@ -316,17 +299,16 @@
             if (multimediaResult?.success) multimediaItems = multimediaResult.data || [];
           } catch(e) { console.warn('Error multimedia:', e); }
         }
-        // Obtener contador de comentarios
         const comentariosResult = await API.peticion('LISTAR_COMENTARIOS', { avisoId: AVISO_ID });
         comentariosCount = (comentariosResult?.success && Array.isArray(comentariosResult.data)) ? comentariosResult.data.length : 0;
-        renderizarAviso(multimediaItems, comentariosCount);
+        renderizarAviso(multimediaItems);
       } catch(error) {
         console.error('Error cargando aviso:', error);
         container.innerHTML = `<div class="error-message">❌ Error al cargar el aviso: ${escapeHTML(error.message)}<div style="margin-top:1rem;"><a href="/barrio/index.html" class="btn-action back">← Volver al inicio</a></div></div>`;
       }
     }
 
-    function renderizarAviso(multimediaItems, comentariosCount) {
+    function renderizarAviso(multimediaItems) {
       if (!avisoActual) return;
       let fechaTexto = 'Fecha no disponible';
       if (avisoActual.created_at) {
@@ -338,13 +320,11 @@
       const esAdmin = usuarioActual && usuarioActual.rol === 'admin';
       const esPropietario = usuarioActual && String(usuarioActual.id) === String(avisoActual.created_by);
       const puedeEditar = esAdmin || esPropietario;
-      const vistas = avisoActual.vistas || 0;
-      const clicksWhatsApp = avisoActual.clicks_whatsapp || 0;
-      const intereses = avisoActual.intereses || 0;
       const categoriaLegible = { 'urgente':'URGENTE','escuelas':'ESCUELAS','servicios':'SERVICIOS','comercios':'COMERCIOS','eventos':'EVENTOS','gobierno':'GOBIERNO','varios':'VARIOS' }[avisoActual.categoria] || avisoActual.categoria || 'GENERAL';
       let categoriaClase = ''; let categoriaTexto = categoriaLegible;
       if (esUrgente) { categoriaClase = 'urgente'; categoriaTexto = '⚠️ URGENTE'; }
       else if (esPendiente) { categoriaClase = 'pendiente'; categoriaTexto = '⏳ PENDIENTE DE APROBACIÓN'; }
+      
       let imagenDestacada = null, imagenesGaleria = [];
       if (avisoActual.imagen_url?.trim()) {
         imagenDestacada = avisoActual.imagen_url;
@@ -355,10 +335,12 @@
         const videos = multimediaItems.filter(m => m.tipo?.includes('video'));
         imagenesGaleria.push(...videos);
       }
+      
       const tieneContacto = avisoActual.contacto && typeof avisoActual.contacto === 'string' && avisoActual.contacto.trim();
       const numero = tieneContacto ? String(avisoActual.contacto).replace(/[^0-9]/g, '') : '';
       const mensaje = encodeURIComponent(`Hola, vi tu aviso "${avisoActual.titulo}" en BARRIO. Me interesa.`);
       const container = document.getElementById('aviso-container');
+      
       let html = `
         <div class="article-header">
           <div class="article-category ${categoriaClase}">${categoriaTexto}</div>
@@ -372,23 +354,12 @@
         ${imagenDestacada ? `<div class="featured-image-container"><img src="${escapeHTML(imagenDestacada)}" class="featured-image" onclick="abrirLightbox('${escapeHTML(imagenDestacada)}', 'imagen')"></div>` : ''}
         <div class="article-body">
           <div class="article-content">${formatearContenido(avisoActual.contenido)}</div>
-          <div class="stats-row">
-            <span class="stat-item">👁️ ${vistas}  vistas </span>
-            <span class="stat-item">💬 ${clicksWhatsApp} contactos </span>
-            <span class="stat-item">❤️ ${intereses} interesados </span>
-            <span class="stat-item comentarios">💬 ${comentariosCount} comentarios </span>
-          </div>
       `;
-      if (avisoActual.ubicacion || tieneContacto || avisoActual.fecha_evento) {
-        html += `<div class="info-card">`;
-        if (avisoActual.ubicacion) html += `<p><strong>📍 Ubicación</strong> ${escapeHTML(avisoActual.ubicacion)}</p>`;
-        if (tieneContacto) html += `<p><strong>📞 Contacto</strong> ${escapeHTML(avisoActual.contacto)}</p>`;
-        if (avisoActual.fecha_evento) {
-          try { html += `<p><strong>📅 Fecha del evento</strong> ${new Date(avisoActual.fecha_evento).toLocaleDateString('es-MX')}</p>`; }
-          catch(e) { html += `<p><strong>📅 Fecha del evento</strong> ${escapeHTML(avisoActual.fecha_evento)}</p>`; }
-        }
-        html += `</div>`;
+      
+      if (avisoActual.ubicacion) {
+        html += `<p><strong>📍 Ubicación:</strong> ${escapeHTML(avisoActual.ubicacion)}</p>`;
       }
+      
       if (imagenesGaleria.length) {
         html += `<div class="gallery-section"><div class="gallery-title">📸 Galería</div><div class="gallery">`;
         imagenesGaleria.forEach(item => {
@@ -399,11 +370,19 @@
         });
         html += `</div></div>`;
       }
+      
       html += `<div class="article-actions">`;
-      if (puedeEditar) html += `<a href="/barrio/admin.html" class="btn-action back">← Volver al panel</a><button class="btn-action edit" onclick="irAEditar('${avisoActual.id}')">✏️ Editar</button><button class="btn-action delete" onclick="eliminarAviso('${avisoActual.id}')">🗑️ Eliminar</button>`;
-      else html += `<a href="/barrio/index.html" class="btn-action back">← Volver al inicio</a>`;
+      if (puedeEditar) {
+        html += `<a href="/barrio/admin.html" class="btn-action back">← Volver al panel</a>`;
+        html += `<button class="btn-action edit" onclick="irAEditar('${avisoActual.id}')">✏️ Editar</button>`;
+        html += `<button class="btn-action delete" onclick="eliminarAviso('${avisoActual.id}')">🗑️ Eliminar</button>`;
+      } else {
+        html += `<a href="/barrio/index.html" class="btn-action back">← Volver al inicio</a>`;
+      }
       html += `<button class="btn-action comment" onclick="abrirComentarios('${avisoActual.id}', event)">💬 Comentar (${comentariosCount})</button>`;
-      if (tieneContacto) html += `<a href="https://wa.me/52${numero}?text=${mensaje}" class="btn-action" target="_blank" onclick="registrarClickWhatsApp('${avisoActual.id}')">📱 WhatsApp</a>`;
+      if (tieneContacto) {
+        html += `<a href="https://wa.me/52${numero}?text=${mensaje}" class="btn-action" target="_blank" onclick="registrarClickWhatsApp('${avisoActual.id}')">📱 WhatsApp</a>`;
+      }
       html += `</div></div></div>`;
       container.innerHTML = html;
     }
@@ -439,7 +418,6 @@
       cargarAviso();
     });
 
-    // Forzar actualización del header
     (function() {
       function forzarActualizarHeader() {
         const usuarioStr = localStorage.getItem('usuario'), apiKey = localStorage.getItem('api_key');
