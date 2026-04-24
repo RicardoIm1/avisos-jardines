@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Aviso Legal | BARRIO</title>
-  <link rel="stylesheet" href="/avisos-jardines/css/estilo.css">
-  <link rel="manifest" href="/avisos-jardines/manifest.json">
+  <link rel="stylesheet" href="/barrio/css/estilo.css">
+  <link rel="manifest" href="/barrio/manifest.json">
   <meta name="theme-color" content="#2c3e50">
   <style>
     /* Estilos específicos para esta página */
@@ -187,7 +187,7 @@
         <div class="legal-section">
           <h2>2. Objeto y Ámbito de Aplicación</h2>
           <p>El presente Aviso Legal regula el uso de la aplicación/sitio web <strong><span id="sitioWeb">[www.tupagina.com]</span></strong> (en adelante, "la plataforma"), que el titular pone a disposición de los residentes, usuarios y comercios locales.</p>
-          <p>El acceso y uso de esta plataforma atribuye la condición de usuario e implica la aceptación plena y sin reservas de todas las disposiciones incluidas en este Aviso Legal, así como de la <a href="/avisos-jardines/confianza.html">Política de Privacidad</a> y la <a href="/avisos-jardines/cookies.html">Política de Cookies</a>.</p>
+          <p>El acceso y uso de esta plataforma atribuye la condición de usuario e implica la aceptación plena y sin reservas de todas las disposiciones incluidas en este Aviso Legal, así como de la <a href="/barrio/confianza.html">Política de Privacidad</a> y la <a href="/barrio/cookies.html">Política de Cookies</a>.</p>
         </div>
 
         <!-- 3. Condiciones de Uso -->
@@ -255,7 +255,7 @@
         <!-- 8. Protección de Datos Personales -->
         <div class="legal-section">
           <h2>8. Protección de Datos Personales</h2>
-          <p>El tratamiento de los datos personales recopilados a través de la plataforma (datos de registro, correos electrónicos, etc.) se realiza conforme a lo establecido en nuestra <a href="/avisos-jardines/confianza.html">Política de Privacidad</a>, que forma parte integrante del presente Aviso Legal.</p>
+          <p>El tratamiento de los datos personales recopilados a través de la plataforma (datos de registro, correos electrónicos, etc.) se realiza conforme a lo establecido en nuestra <a href="/barrio/confianza.html">Política de Privacidad</a>, que forma parte integrante del presente Aviso Legal.</p>
           <p>En cumplimiento de la normativa aplicable en materia de protección de datos, se informa a los usuarios que:</p>
           <ul>
             <li>Sus datos serán utilizados exclusivamente para la gestión de la plataforma, publicación de avisos, y envío de comunicaciones relacionadas con el servicio.</li>
@@ -294,8 +294,8 @@
 
   <div id="footer-container"></div>
 
-  <script src="/avisos-jardines/js/api.js"></script>
-  <script src="/avisos-jardines/js/auth.js"></script>
+  <script src="/barrio/js/api.js"></script>
+  <script src="/barrio/js/auth.js"></script>
 
   <script>
     // Configuración de datos para personalizar el aviso legal
@@ -305,7 +305,7 @@
       correo: "jeronimoricardo1@gmail.com",
       telefono: "+52 322 235 4331",
       coloniaNombre: "Jardines",
-      sitioWeb: "https://ricardoim1.github.io/avisos-jardines/",
+      sitioWeb: "https://ricardoim1.github.io/barrio/",
       jurisdiccion: "Puerto Vallarta, Jalisco",
       fechaPersonalizada: null
     };
@@ -357,7 +357,7 @@
     // Cargar header y footer
     document.addEventListener('DOMContentLoaded', function() {
       // Header
-      fetch('/avisos-jardines/common/header.html')
+      fetch('/barrio/common/header.html')
         .then(res => {
           if (!res.ok) throw new Error('Header no encontrado');
           return res.text();
@@ -373,7 +373,7 @@
         .catch(err => console.error('Error cargando header:', err));
 
       // Footer
-      fetch('/avisos-jardines/common/footer.html')
+      fetch('/barrio/common/footer.html')
         .then(response => {
           if (!response.ok) throw new Error('Footer no encontrado');
           return response.text();

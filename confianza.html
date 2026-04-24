@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Compromiso de Confianza Vecinal | BARRIO</title>
-  <link rel="stylesheet" href="/avisos-jardines/css/estilo.css">
-  <link rel="manifest" href="/avisos-jardines/manifest.json">
+  <link rel="stylesheet" href="/barrio/css/estilo.css">
+  <link rel="manifest" href="/barrio/manifest.json">
   <meta name="theme-color" content="#2c3e50">
   <style>
     /* Estilos específicos para esta página */
@@ -339,14 +339,14 @@
 
   <div id="footer-container"></div>
 
-  <script src="/avisos-jardines/js/api.js"></script>
-  <script src="/avisos-jardines/js/auth.js"></script>
+  <script src="/barrio/js/api.js"></script>
+  <script src="/barrio/js/auth.js"></script>
 
   <script>
     // Cargar header y footer
     document.addEventListener('DOMContentLoaded', function() {
       // Header
-      fetch('/avisos-jardines/common/header.html')
+      fetch('/barrio/common/header.html')
         .then(res => {
           if (!res.ok) throw new Error('Header no encontrado');
           return res.text();
@@ -362,7 +362,7 @@
         .catch(err => console.error('Error cargando header:', err));
 
       // Footer
-      fetch('/avisos-jardines/common/footer.html')
+      fetch('/barrio/common/footer.html')
         .then(response => {
           if (!response.ok) throw new Error('Footer no encontrado');
           return response.text();
@@ -385,7 +385,7 @@
       localStorage.setItem('compromiso_aceptado', 'true');
       localStorage.setItem('fecha_aceptacion', new Date().toISOString());
       alert('Gracias por tu confianza. Ya puedes continuar con tu registro.');
-      window.location.href = '/avisos-jardines/registro.html';
+      window.location.href = '/barrio/registro.html';
     });
 
     // Botón regresar

@@ -35,7 +35,7 @@ const Auth = {
   },
 
   // 🛡️ Protección básica
-  requireAuth(redirect = '/avisos-jardines/login.html') {
+  requireAuth(redirect = '/barrio/login.html') {
     const usuario = this.getUsuario();
 
     if (!usuario) {
@@ -47,7 +47,7 @@ const Auth = {
   },
 
   // 👑 Protección por rol
-  requireRole(rol, redirect = '/avisos-jardines/index.html') {
+  requireRole(rol, redirect = '/barrio/index.html') {
     const usuario = this.requireAuth();
 
     if (!usuario) return null;

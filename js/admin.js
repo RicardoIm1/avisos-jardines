@@ -564,7 +564,7 @@ async function rechazarAviso(id) {
 
 // ========== VER AVISO ==========
 function verAviso(id) {
-  window.location.href = `/avisos-jardines/aviso.html?id=${id}`;
+  window.location.href = `/barrio/aviso.html?id=${id}`;
 }
 
 // ========== CARGAR PERFIL ==========

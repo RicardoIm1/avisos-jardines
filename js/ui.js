@@ -7,7 +7,7 @@ const UI = {
     if (!container) return;
 
     try {
-      const res = await fetch('/avisos-jardines/common/header.html?v=' + Date.now());
+      const res = await fetch('/barrio/common/header.html?v=' + Date.now());
       if (!res.ok) throw new Error('Header no encontrado');
 
       const html = await res.text();

@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>Términos y Condiciones para Publicidad | BARRIO</title>
-  <link rel="stylesheet" href="/avisos-jardines/css/estilo.css">
-  <link rel="manifest" href="/avisos-jardines/manifest.json">
+  <link rel="stylesheet" href="/barrio/css/estilo.css">
+  <link rel="manifest" href="/barrio/manifest.json">
   <meta name="theme-color" content="#2c3e50">
   <meta name="description" content="Términos y Condiciones para la contratación de espacios publicitarios en la plataforma vecinal. Obligaciones, precios, responsabilidades y orden de compra.">
   <style>
@@ -364,7 +364,7 @@
           <p>Por el Anunciante: podrá cancelar antes del inicio con reembolso del 100%. Iniciada la campaña no se aceptan cancelaciones ni reembolsos. Por el titular: podrá suspender o cancelar sin reembolso en caso de incumplimiento del anunciante o contenido prohibido. Por fallos técnicos ajenos se compensará con días adicionales equivalentes.</p>
           
           <h2>10. Protección de Datos Personales</h2>
-          <p>Los datos del Anunciante serán tratados conforme a la <a href="/avisos-jardines/confianza.html">Política de Privacidad</a> de la Plataforma, exclusivamente para gestionar la contratación, facturación y obligaciones legales. No se cederán a terceros salvo obligación legal.</p>
+          <p>Los datos del Anunciante serán tratados conforme a la <a href="/barrio/confianza.html">Política de Privacidad</a> de la Plataforma, exclusivamente para gestionar la contratación, facturación y obligaciones legales. No se cederán a terceros salvo obligación legal.</p>
           
           <h2>11. Confidencialidad</h2>
           <p>Ambas partes mantendrán confidencialidad sobre la información comercial intercambiada, excepto cuando sea de dominio público o requerida por autoridad competente.</p>
@@ -430,8 +430,8 @@
 
   <div id="footer-container"></div>
 
-  <script src="/avisos-jardines/js/api.js"></script>
-  <script src="/avisos-jardines/js/auth.js"></script>
+  <script src="/barrio/js/api.js"></script>
+  <script src="/barrio/js/auth.js"></script>
 
   <script>
     // Configuración dinámica
@@ -462,7 +462,7 @@
     // Cargar header y footer
     document.addEventListener('DOMContentLoaded', function() {
       // Header
-      fetch('/avisos-jardines/common/header.html')
+      fetch('/barrio/common/header.html')
         .then(res => {
           if (!res.ok) throw new Error('Header no encontrado');
           return res.text();
@@ -478,7 +478,7 @@
         .catch(err => console.error('Error cargando header:', err));
 
       // Footer
-      fetch('/avisos-jardines/common/footer.html')
+      fetch('/barrio/common/footer.html')
         .then(response => {
           if (!response.ok) throw new Error('Footer no encontrado');
           return response.text();

@@ -5,8 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
   <title>Administración | BARRIO</title>
-  <link rel="stylesheet" href="/avisos-jardines/css/estilo.css">
-  <link rel="manifest" href="/avisos-jardines/manifest.json">
+  <link rel="stylesheet" href="/barrio/css/estilo.css">
+  <link rel="manifest" href="/barrio/manifest.json">
   <meta name="theme-color" content="#2c3e50">
   <style>
     /* Estilos adicionales para asegurar que los tabs funcionen */
@@ -679,7 +679,7 @@
     document.addEventListener('DOMContentLoaded', function () {
       UI.cargarHeader();
 
-      fetch('/avisos-jardines/common/footer.html')
+      fetch('/barrio/common/footer.html')
         .then(response => response.text())
         .then(data => {
           document.getElementById('footer-container').innerHTML = data;
@@ -893,7 +893,7 @@
                   e.preventDefault();
                   localStorage.removeItem('usuario');
                   localStorage.removeItem('api_key');
-                  window.location.href = '/avisos-jardines/index.html';
+                  window.location.href = '/barrio/index.html';
                 });
               }
             }
