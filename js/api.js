@@ -19,20 +19,17 @@ class API {
 
       if (apiKey) params.append('api_key', apiKey);
 
-      // Para datos complejos, los enviamos como JSON string
-      if (datos && Object.keys(datos).length > 0) {
-        // En lugar de anidar, enviar cada propiedad directamente
-        for (const [key, value] of Object.entries(datos)) {
-          if (value !== undefined && value !== null) {
-            params.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
-          }
+      // Agregar datos como parámetros
+      for (const [key, value] of Object.entries(datos)) {
+        if (value !== undefined && value !== null) {
+          params.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
         }
       }
 
       const callbackName = 'callback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
       const url = `${API_BASE_URL}?callback=${callbackName}&${params.toString()}`;
 
-      console.log('📡 Petición URL:', url);
+      console.log('📡 Petición JSONP URL:', url);
 
       const timeout = setTimeout(() => {
         if (window[callbackName]) {
@@ -44,7 +41,7 @@ class API {
       window[callbackName] = function (response) {
         clearTimeout(timeout);
         delete window[callbackName];
-        console.log('📡 Respuesta:', response);
+        console.log('📡 Respuesta JSONP:', response);
         resolve(response);
       };
 
@@ -387,6 +384,7 @@ API.listarPublicos = async function (filtros = {}, paginacion = {}) {
     ...paginacion
   };
 
+  // Usar peticion (JSONP), no fetch
   const resultado = await API.peticion('LISTAR_AVISOS_PUBLICOS', params);
 
   if (resultado && resultado.success) {
