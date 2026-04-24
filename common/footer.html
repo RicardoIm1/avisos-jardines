@@ -29,18 +29,30 @@
         <div class="footer-columna">
             <h4>Categorías</h4>
             <ul class="footer-links">
-                <li><a href="index.html?categoria=todos">📋 Todos</a></li>
-                <li><a href="index.html?categoria=urgente">🚨 Urgentes</a></li>
-                <li><a href="index.html?categoria=escuelas">🏫 Escuelas</a></li>
-                <li><a href="index.html?categoria=servicios">🛠️ Servicios</a></li>
-                <li><a href="index.html?categoria=comercios">🛒 Comercios</a></li>
-                <li><a href="index.html?categoria=eventos">📅 Eventos</a></li>
-                <li><a href="index.html?categoria=gobierno">🏛️ Gobierno</a></li>
-                <li><a href="index.html?categoria=varios">📢 Varios</a></li>
+                <li><a href="#" onclick="aplicarCategoria('todos'); return false;">📋 Todos</a></li>
+                <li><a href="#" onclick="aplicarCategoria('urgente'); return false;">🚨 Urgentes</a></li>
+                <li><a href="#" onclick="aplicarCategoria('escuelas'); return false;">🏫 Escuelas</a></li>
+                <li><a href="#" onclick="aplicarCategoria('servicios'); return false;">🛠️ Servicios</a></li>
+                <li><a href="#" onclick="aplicarCategoria('comercios'); return false;">🛒 Comercios</a></li>
+                <li><a href="#" onclick="aplicarCategoria('eventos'); return false;">📅 Eventos</a></li>
+                <li><a href="#" onclick="aplicarCategoria('gobierno'); return false;">🏛️ Gobierno</a></li>
+                <li><a href="#" onclick="aplicarCategoria('varios'); return false;">📢 Varios</a></li>
             </ul>
         </div>
 
+        <script>
+            function aplicarCategoria(categoria) {
+                currentCategory = categoria;
+                applyFiltersAndSearch();
 
+                // Actualizar la URL sin recargar la página (opcional)
+                const newUrl = `${window.location.pathname}?categoria=${categoria}`;
+                window.history.pushState({}, '', newUrl);
+
+                // Hacer scroll al inicio para ver los resultados
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        </script>
 
 
 
