@@ -145,8 +145,8 @@ class API {
       ...paginacion
     };
 
-    // Si NO es admin, filtrar por sus propios avisos (solo para colección AVISOS)
-    if (coleccion === 'AVISOS' && !esAdmin) {
+    // Si NO es admin Y hay usuario logueado, filtrar por sus propios avisos (solo para colección AVISOS)
+    if (coleccion === 'AVISOS' && !esAdmin && usuario) {
       params.created_by = usuario.id;
     }
 
