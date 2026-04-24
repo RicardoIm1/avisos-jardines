@@ -373,16 +373,16 @@
         <div class="article-body">
           <div class="article-content">${formatearContenido(avisoActual.contenido)}</div>
           <div class="stats-row">
-            <span class="stat-item">👁️ ${vistas} /* vistas */</span>
-            <span class="stat-item">💬 ${clicksWhatsApp} /* contactos */</span>
-            <span class="stat-item">❤️ ${intereses} /* interesados */</span>
-            <span class="stat-item comentarios">💬 ${comentariosCount} /* comentarios */</span>
+            <span class="stat-item">👁️ ${vistas}  vistas </span>
+            <span class="stat-item">💬 ${clicksWhatsApp} contactos </span>
+            <span class="stat-item">❤️ ${intereses} interesados </span>
+            <span class="stat-item comentarios">💬 ${comentariosCount} comentarios </span>
           </div>
       `;
       if (avisoActual.ubicacion || tieneContacto || avisoActual.fecha_evento) {
         html += `<div class="info-card">`;
         if (avisoActual.ubicacion) html += `<p><strong>📍 Ubicación</strong> ${escapeHTML(avisoActual.ubicacion)}</p>`;
-        /* if (tieneContacto) html += `<p><strong>📞 Contacto</strong> ${escapeHTML(avisoActual.contacto)}</p>`; */
+        if (tieneContacto) html += `<p><strong>📞 Contacto</strong> ${escapeHTML(avisoActual.contacto)}</p>`;
         if (avisoActual.fecha_evento) {
           try { html += `<p><strong>📅 Fecha del evento</strong> ${new Date(avisoActual.fecha_evento).toLocaleDateString('es-MX')}</p>`; }
           catch(e) { html += `<p><strong>📅 Fecha del evento</strong> ${escapeHTML(avisoActual.fecha_evento)}</p>`; }
