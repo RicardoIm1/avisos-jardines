@@ -612,27 +612,38 @@ async function cargarUsuarios() {
     }
 
     const apiKey = localStorage.getItem('api_key');
-
-    // ✅ CAMBIO AQUÍ: usar API.listarUsuarios en lugar de API.peticion
     const respuesta = await API.listarUsuarios(apiKey);
 
-    console.log('Respuesta usuarios:', respuesta);
+    console.log('Respuesta completa:', respuesta);
 
-    let usuarios = respuesta.datos || [];
+    // Extraer usuarios de cualquier formato
+    let usuarios = [];
+    if (respuesta && respuesta.data && respuesta.data.datos) {
+      usuarios = respuesta.data.datos;
+    } else if (respuesta && respuesta.datos) {
+      usuarios = respuesta.datos;
+    } else if (respuesta && Array.isArray(respuesta)) {
+      usuarios = respuesta;
+    } else if (respuesta && respuesta.data && Array.isArray(respuesta.data)) {
+      usuarios = respuesta.data;
+    }
 
-    if (usuarios.length === 0) {
+    console.log('Usuarios extraídos:', usuarios);
+
+    if (!usuarios || usuarios.length === 0) {
       contenedor.innerHTML = '<div class="mensaje">👥 No hay usuarios registrados</div>';
       return;
     }
 
     let html = '<div class="usuarios-grid">';
     usuarios.forEach(user => {
+      if (!user) return;
       html += `
         <div class="tarjeta-usuario">
           <div class="avatar-usuario">${user.rol === 'admin' ? '👑' : '👤'}</div>
           <div class="info-usuario">
-            <strong>${escapeHTML(user.nombre || user.email)}</strong>
-            <small>${escapeHTML(user.email)}</small>
+            <strong>${escapeHTML(user.nombre || user.email || 'Sin nombre')}</strong>
+            <small>${escapeHTML(user.email || 'Sin email')}</small>
             <span class="rol-badge ${user.rol === 'admin' ? 'rol-admin' : 'rol-usuario'}">${user.rol === 'admin' ? 'Administrador' : 'Usuario'}</span>
             <small>🏷️ ${escapeHTML(user.categorias || 'todas')}</small>
           </div>
