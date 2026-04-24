@@ -1294,7 +1294,14 @@
                     // Ocultar login, mostrar área de usuario
                     if (loginLink) loginLink.style.display = 'none';
                     if (userArea) userArea.style.display = 'flex';
-                    if (userNameSpan) userNameSpan.textContent = `👋 ${usuario.nombre || usuario.email || 'Usuario'}`;
+                    if (userNameSpan) {
+                        userNameSpan.textContent = `👋 ${usuario.nombre || usuario.email || 'Usuario'}`;
+                        // ========== MEJORA: Clic para ir a admin ==========
+                        userNameSpan.style.cursor = 'pointer';
+                        userNameSpan.onclick = () => {
+                            window.location.href = '/barrio/admin.html';
+                        };
+                    }
 
                     // Configurar cierre de sesión
                     if (cerrarBtn) {
@@ -1318,7 +1325,6 @@
                 console.log('Header actualizado - Sin sesión');
             }
         }
-
         // Ejecutar cuando el DOM esté listo
         document.addEventListener('DOMContentLoaded', function () {
             // Esperar un poco a que el header se cargue (fetch)

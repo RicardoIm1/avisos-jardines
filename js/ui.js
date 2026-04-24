@@ -67,3 +67,56 @@ const UI = {
 window.UI = UI;
 window.mostrarError = (msg) => UI.mostrarError(msg);
 window.mostrarExito = (msg) => UI.mostrarExito(msg);
+
+// ========== ACTUALIZAR HEADER SEGÚN SESIÓN ==========
+function actualizarHeaderPorSesion() {
+  const usuarioStr = localStorage.getItem('usuario');
+  const apiKey = localStorage.getItem('api_key');
+
+  const loginLink = document.getElementById('login-link');
+  const userArea = document.getElementById('user-area');
+  const userNameSpan = document.getElementById('user-name');
+  const cerrarBtn = document.getElementById('cerrar-sesion');
+
+  if (!loginLink) {
+    console.log('Header no cargado aún, reintentando...');
+    setTimeout(actualizarHeaderPorSesion, 200);
+    return;
+  }
+
+  if (usuarioStr && apiKey) {
+    try {
+      const usuario = JSON.parse(usuarioStr);
+      if (loginLink) loginLink.style.display = 'none';
+      if (userArea) userArea.style.display = 'flex';
+      if (userNameSpan) {
+        userNameSpan.textContent = `👋 ${usuario.nombre || usuario.email || 'Usuario'}`;
+        userNameSpan.style.cursor = 'pointer';
+        userNameSpan.onclick = () => {
+          window.location.href = '/barrio/admin.html';
+        };
+      }
+
+      if (cerrarBtn) {
+        const nuevoCerrar = cerrarBtn.cloneNode(true);
+        cerrarBtn.parentNode.replaceChild(nuevoCerrar, cerrarBtn);
+        nuevoCerrar.addEventListener('click', function (e) {
+          e.preventDefault();
+          localStorage.removeItem('usuario');
+          localStorage.removeItem('api_key');
+          window.location.href = '/barrio/index.html';
+        });
+      }
+      console.log('Header actualizado - Usuario logueado');
+    } catch (e) {
+      console.error('Error al actualizar header:', e);
+    }
+  } else {
+    if (loginLink) loginLink.style.display = 'inline-flex';
+    if (userArea) userArea.style.display = 'none';
+    console.log('Header actualizado - Sin sesión');
+  }
+}
+
+// Exportar para usar en otras páginas si es necesario
+window.actualizarHeaderPorSesion = actualizarHeaderPorSesion;
