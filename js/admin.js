@@ -606,25 +606,38 @@ async function cargarUsuarios() {
 
   try {
     const usuarioActual = API.getUsuarioActual();
+    console.log('Usuario actual en cargarUsuarios:', usuarioActual);
+
+    if (!usuarioActual) {
+      contenedor.innerHTML = '<div class="mensaje-error">No hay sesión activa</div>';
+      return;
+    }
+
     if (usuarioActual.rol !== 'admin') {
-      contenedor.innerHTML = '<div class="mensaje-error">No tienes permisos para ver usuarios</div>';
+      contenedor.innerHTML = '<div class="mensaje-error">No tienes permisos para ver usuarios (tu rol es: ' + usuarioActual.rol + ')</div>';
       return;
     }
 
     const apiKey = localStorage.getItem('api_key');
+    console.log('API Key presente:', !!apiKey);
+
+    if (!apiKey) {
+      contenedor.innerHTML = '<div class="mensaje-error">No hay API key</div>';
+      return;
+    }
 
     // Usar la acción LISTAR con colección USUARIOS
     const respuesta = await API.peticion('LISTAR', {
       coleccion: 'USUARIOS'
     }, apiKey);
 
-    console.log('Respuesta usuarios:', respuesta);
+    console.log('Respuesta usuarios completa:', respuesta);
 
     if (!respuesta || !respuesta.success) {
       throw new Error(respuesta?.error || 'Error al cargar usuarios');
     }
 
-    // Normalizar la respuesta (puede venir en data.datos o directamente en datos)
+    // Normalizar la respuesta
     let usuarios = [];
     if (respuesta.data && respuesta.data.datos) {
       usuarios = respuesta.data.datos;
@@ -641,7 +654,6 @@ async function cargarUsuarios() {
 
     let html = '<div class="usuarios-grid">';
     usuarios.forEach(user => {
-      // Verificar que el usuario no sea undefined
       if (!user) return;
       html += `
         <div class="tarjeta-usuario">
