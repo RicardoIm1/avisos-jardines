@@ -1086,50 +1086,69 @@
             const container = document.getElementById('avisos-container');
             if (!container) return;
 
-            const html = avisos.map(aviso => `
-        <div class="aviso-card tarjeta-moderna ${aviso.categoria === 'urgente' ? 'urgente' : ''}" 
-             onclick="verAviso('${aviso.id}')">
-            <div class="categoria-badge" style="background: ${getColorCategoria(aviso.categoria)}; color: white;">
-                ${getIconoCategoria(aviso.categoria)} ${aviso.categoria?.toUpperCase() || 'GENERAL'}
-            </div>
-            ${aviso.imagen_url ? `<img src="${aviso.imagen_url}" class="aviso-imagen" alt="${escapeHtml(aviso.titulo)}" loading="lazy">` : ''}
-            <div class="card-contenido-moderno">
-                <div class="card-header-moderno">
-                    <div class="card-fecha-moderna">📅 ${formatearFecha(aviso.created_at)}</div>
-                    <h3 class="card-titulo-moderno">${escapeHtml(aviso.titulo)}</h3>
-                </div>
-                <div class="card-preview-moderno">
-                    ${escapeHtml((aviso.contenido || '').substring(0, 120))}${(aviso.contenido || '').length > 120 ? '...' : ''}
-                </div>
-                <div class="card-stats-moderno">
-                    <span class="stat-item">👁️ <span class="stat-value">${aviso.vistas || 0}</span></span>
-                    <span class="stat-item">📞 <span class="stat-value">${aviso.clicks_whatsapp || 0}</span></span>
-                    <span class="stat-item like-btn ${likedAvisos[aviso.id] ? 'liked' : ''}" 
-                          data-id="${aviso.id}" 
-                          onclick="darLike('${aviso.id}', event)">
-                        ❤️ <span class="stat-value">${aviso.intereses || 0}</span>
-                    </span>
-                    <span class="stat-item" onclick="abrirComentarios('${aviso.id}', event)">
-                        💬 <span class="stat-value">0</span>
-                    </span>
-                </div>
-                <div class="aviso-footer">
-                    <span>📍 ${aviso.ubicacion || 'Jardines PVR'}</span>
-                </div>
-            </div>
-            ${aviso.contacto ? `
-                <button class="whatsapp-btn" 
-                        onclick="abrirWhatsApp('${aviso.contacto}', '${encodeURIComponent('Hola, vi tu aviso en Jardines PVR: ' + aviso.titulo)}', '${aviso.id}', event)">
-                </button>
-            ` : ''}
-            <button class="interes-btn" onclick="darLike('${aviso.id}', event)">
-                ❤️
-            </button>
+            const usuarioActual = API.getUsuarioActual();
+            const apiKey = localStorage.getItem('api_key');
+
+            const html = avisos.map(aviso => {
+                // Verificar si el usuario ya votó este aviso (positivo o negativo)
+                const votosUsuario = JSON.parse(localStorage.getItem(`votos_${aviso.id}`) || '{}');
+                const yaVotoPositivo = votosUsuario.positivo === true;
+                const yaVotoNegativo = votosUsuario.negativo === true;
+                const dislikes = aviso.votos_negativos || 0;
+
+                return `
+      <div class="aviso-card tarjeta-moderna ${aviso.categoria === 'urgente' ? 'urgente' : ''}" 
+           data-id="${aviso.id}"
+           onclick="verAviso('${aviso.id}')">
+        <div class="categoria-badge" style="background: ${getColorCategoria(aviso.categoria)}; color: white;">
+          ${getIconoCategoria(aviso.categoria)} ${aviso.categoria?.toUpperCase() || 'GENERAL'}
         </div>
-    `).join('');
+        ${aviso.imagen_url ? `<img src="${aviso.imagen_url}" class="aviso-imagen" alt="${escapeHtml(aviso.titulo)}" loading="lazy">` : ''}
+        <div class="card-contenido-moderno">
+          <div class="card-header-moderno">
+            <div class="card-fecha-moderna">📅 ${formatearFecha(aviso.created_at)}</div>
+            <h3 class="card-titulo-moderno">${escapeHtml(aviso.titulo)}</h3>
+          </div>
+          <div class="card-preview-moderno">
+            ${escapeHtml((aviso.contenido || '').substring(0, 120))}${(aviso.contenido || '').length > 120 ? '...' : ''}
+          </div>
+          <div class="card-stats-moderno">
+            <span class="stat-item">👁️ <span class="stat-value">${aviso.vistas || 0}</span></span>
+            <span class="stat-item">📞 <span class="stat-value">${aviso.clicks_whatsapp || 0}</span></span>
+            <span class="stat-item like-btn ${yaVotoPositivo ? 'liked' : ''}" 
+                  data-id="${aviso.id}" 
+                  data-tipo="positivo"
+                  onclick="votarAviso('${aviso.id}', 'positivo', event)">
+              👍 <span class="stat-value">${aviso.intereses || 0}</span>
+            </span>
+            <span class="stat-item dislike-btn ${yaVotoNegativo ? 'disliked' : ''}" 
+                  data-id="${aviso.id}" 
+                  data-tipo="negativo"
+                  onclick="votarAviso('${aviso.id}', 'negativo', event)">
+              👎 <span class="stat-value">${dislikes}</span>
+            </span>
+            <span class="stat-item" onclick="abrirComentarios('${aviso.id}', event)">
+              💬 <span class="stat-value">0</span>
+            </span>
+          </div>
+          <div class="aviso-footer">
+            <span>📍 ${aviso.ubicacion || 'Jardines PVR'}</span>
+          </div>
+        </div>
+        ${aviso.contacto ? `
+          <button class="whatsapp-btn" 
+                  onclick="abrirWhatsApp('${aviso.contacto}', '${encodeURIComponent('Hola, vi tu aviso en BARRIO: ' + aviso.titulo)}', '${aviso.id}', event)">
+          </button>
+        ` : ''}
+        <button class="interes-btn" onclick="votarAviso('${aviso.id}', 'positivo', event)">
+          ❤️
+        </button>
+      </div>
+    `;
+            }).join('');
+
             container.insertAdjacentHTML('beforeend', html);
         }
-
         async function cargarAvisos() {
             // SOLUCIÓN: Evitar múltiples llamadas verificando si ya se cargaron o si ya está en proceso
             if (avisosCargados || isLoadingAvisos) {
