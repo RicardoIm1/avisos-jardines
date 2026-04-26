@@ -1,2 +1,2 @@
-# avisos-jardines
-Avisos para los habitantes de la colonia Jardines en Puerto Vallarta Jalisco
+# Barrio
+Avisos para los habitantes de Puerto Vallarta Jalisco y rededores.
