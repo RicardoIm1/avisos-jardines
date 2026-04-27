@@ -409,8 +409,8 @@
     <span class="lightbox-close">&times;</span>
     <div id="lightbox-content"></div>
   </div>
-  <div id="footer-container"></div>
-  <div id="toast" class="toast-notification"></div>
+<!--   <div id="footer-container"></div> -->  
+   <div id="toast" class="toast-notification"></div>
 
   <div id="comments-panel" class="comments-panel">
     <div class="comments-header">
@@ -700,10 +700,10 @@
         document.getElementById('header-container').innerHTML = html;
         setTimeout(() => { if (typeof window.inicializarHeaderAuth === 'function') window.inicializarHeaderAuth(); }, 100);
       }).catch(err => console.error('Error cargando header:', err));
-      fetch('/barrio/common/footer.html').then(res => res.ok ? res.text() : Promise.reject()).then(data => {
+      /* fetch('/barrio/common/footer.html').then(res => res.ok ? res.text() : Promise.reject()).then(data => {
         const footerContainer = document.getElementById('footer-container');
         if (footerContainer) { footerContainer.innerHTML = data; const anioElement = document.getElementById('anio-actual'); if (anioElement) anioElement.textContent = new Date().getFullYear(); }
-      }).catch(err => console.error('Error cargando footer:', err));
+      }).catch(err => console.error('Error cargando footer:', err)); */
       cargarAviso();
     });
 
