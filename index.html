@@ -1291,19 +1291,19 @@
                 }, apiKey);
 
                 if (resultado && resultado.success) {
-                    // Guardar en localStorage que ya votó
+                    // Guardar en localStorage
                     votosGuardados[tipo] = true;
                     localStorage.setItem(votosKey, JSON.stringify(votosGuardados));
 
-                    // Actualizar el contador visualmente
+                    // Actualizar contadores con los valores REALES del servidor
                     const card = document.querySelector(`.aviso-card[data-id="${avisoId}"]`);
                     if (card) {
-                        const contadorSpan = card.querySelector(`.${tipo === 'positivo' ? 'like-btn' : 'dislike-btn'} .stat-value`);
-                        if (contadorSpan) {
-                            let valorActual = parseInt(contadorSpan.textContent) || 0;
-                            contadorSpan.textContent = valorActual + 1;
-                        }
-                        // Cambiar estilo del botón
+                        const likeSpan = card.querySelector('.like-btn .stat-value');
+                        const dislikeSpan = card.querySelector('.dislike-btn .stat-value');
+                        if (likeSpan && resultado.positivos !== undefined) likeSpan.textContent = resultado.positivos;
+                        if (dislikeSpan && resultado.negativos !== undefined) dislikeSpan.textContent = resultado.negativos;
+
+                        // Cambiar estilo del botón clickeado
                         const btn = card.querySelector(`.${tipo === 'positivo' ? 'like-btn' : 'dislike-btn'}`);
                         if (btn) btn.classList.add(tipo === 'positivo' ? 'liked' : 'disliked');
                     }
@@ -1325,14 +1325,11 @@
                     if (resultado && resultado.error === 'Ya votaste este aviso') {
                         showToast('ℹ️ Ya habías votado este aviso anteriormente', 1500);
 
-                        // 👇 NUEVO: Actualizar la interfaz para que coincida con el servidor
                         const card = document.querySelector(`.aviso-card[data-id="${avisoId}"]`);
                         if (card) {
-                            // Marcar el botón como votado
                             const btn = card.querySelector(`.${tipo === 'positivo' ? 'like-btn' : 'dislike-btn'}`);
                             if (btn) btn.classList.add(tipo === 'positivo' ? 'liked' : 'disliked');
 
-                            // Sincronizar el contador (si el servidor devuelve los valores reales)
                             if (resultado.positivos !== undefined) {
                                 const likeSpan = card.querySelector('.like-btn .stat-value');
                                 if (likeSpan) likeSpan.textContent = resultado.positivos;
@@ -1343,18 +1340,16 @@
                             }
                         }
 
-                        // Guardar en localStorage para futuros clics
                         votosGuardados[tipo] = true;
                         localStorage.setItem(votosKey, JSON.stringify(votosGuardados));
                     } else {
                         showToast('❌ Error al votar: ' + (resultado?.error || 'Intenta de nuevo'), 2000);
                     }
                 }
-            
             } catch (error) {
-            console.error('Error votando:', error);
-            showToast('❌ Error de conexión', 2000);
-        }
+                console.error('Error votando:', error);
+                showToast('❌ Error de conexión', 2000);
+            }
         };
     </script>
 
