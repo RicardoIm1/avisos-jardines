@@ -12,14 +12,12 @@ class API {
   // ==================== MÉTODOS ESTÁTICOS PRINCIPALES ====================
 
   // Método principal para hacer peticiones JSONP
-  static async peticion(accion, datos = {}, apiKey = null) {
+  static async peticion(accion, datos = {}, apiKey = null, intentos = 2) {
     return new Promise((resolve, reject) => {
       const params = new URLSearchParams();
       params.append('accion', accion);
-
       if (apiKey) params.append('api_key', apiKey);
 
-      // Agregar datos como parámetros
       for (const [key, value] of Object.entries(datos)) {
         if (value !== undefined && value !== null) {
           params.append(key, typeof value === 'object' ? JSON.stringify(value) : value);
@@ -34,11 +32,16 @@ class API {
       const timeout = setTimeout(() => {
         if (window[callbackName]) {
           delete window[callbackName];
-          reject(new Error('Timeout de conexión'));
+          if (intentos > 0) {
+            console.warn(`⚠️ Timeout, reintentando... (quedan ${intentos} intentos)`);
+            this.peticion(accion, datos, apiKey, intentos - 1).then(resolve).catch(reject);
+          } else {
+            reject(new Error('Timeout de conexión'));
+          }
         }
       }, 30000);
 
-      window[callbackName] = function (response) {
+      window[callbackName] = (response) => {
         clearTimeout(timeout);
         delete window[callbackName];
         console.log('📡 Respuesta JSONP:', response);
@@ -50,7 +53,12 @@ class API {
       script.onerror = () => {
         clearTimeout(timeout);
         delete window[callbackName];
-        reject(new Error('Error de conexión con el servidor'));
+        if (intentos > 0) {
+          console.warn(`⚠️ Error de script, reintentando... (quedan ${intentos} intentos)`);
+          this.peticion(accion, datos, apiKey, intentos - 1).then(resolve).catch(reject);
+        } else {
+          reject(new Error('Error de conexión con el servidor'));
+        }
       };
       document.body.appendChild(script);
     });
@@ -266,7 +274,10 @@ class API {
   }
 
   static async votarAviso(avisoId, tipo, apiKey) {
-    return await API.peticion('VOTAR_AVISO', { aviso_id: avisoId, tipo: tipo }, apiKey);
+    return await API.peticion('VOTAR_AVISO', {
+      aviso_id: avisoId,
+      tipo: tipo
+    }, apiKey);
   }
 
   static async reportarAviso(avisoId, motivo, apiKey) {
