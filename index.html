@@ -881,7 +881,7 @@
                 return;
             }
 
-            const url = 'https://script.google.com/macros/s/AKfycbyw7lcF9tmPBVigUZgqrsWS4YBMH9GaT0USWWM77bFMUcQNyaZFdBbWrgw3_4iEkpOC/exec';
+            const url = 'https://script.google.com/macros/s/AKfycby0tIFqvstmg8Jb-hDoK6nQj4a8LJSl6Rc9w-bs3pNY1nO2kO53XtsowL0Q1zjFetN2/exec';
             
             try {
                 const response = await fetch(`${url}?accion=ENVIAR_PRUEBA_PUSH&api_key=${apiKey}`);
@@ -1041,7 +1041,7 @@
         // Guardar token en Google Apps Script
         async function guardarTokenEnBackend(token, apiKey) {
             try {
-                const url = 'https://script.google.com/macros/s/AKfycbyw7lcF9tmPBVigUZgqrsWS4YBMH9GaT0USWWM77bFMUcQNyaZFdBbWrgw3_4iEkpOC/exec';
+                const url = 'https://script.google.com/macros/s/AKfycby0tIFqvstmg8Jb-hDoK6nQj4a8LJSl6Rc9w-bs3pNY1nO2kO53XtsowL0Q1zjFetN2/exec';
                 const response = await fetch(`${url}?accion=REGISTRAR_TOKEN_PUSH&api_key=${apiKey}&token=${token}&dispositivo=web`);
                 const result = await response.json();
                 if (result.success) {
