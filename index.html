@@ -568,14 +568,75 @@
             window.open(`https://wa.me/52${numero}?text=${encodeURIComponent(texto)}`, '_blank');
         };
 
-        window.darLikeWrapper = function (id, event) {
+        window.darLikeWrapper = async function (id, event) {
             if (event) event.stopPropagation();
-            darLike(id);
+            console.log('🔵 Click en like para aviso:', id);
+
+            const apiKey = localStorage.getItem('api_key');
+            if (!apiKey) {
+                showToast('🔐 Inicia sesión para dar like', 2000);
+                return;
+            }
+
+            try {
+                const resultado = await API.peticion('VOTAR_AVISO', {
+                    aviso_id: id,
+                    tipo: 'positivo'
+                }, apiKey);
+
+                console.log('📥 Respuesta:', resultado);
+
+                if (resultado && resultado.success) {
+                    // Actualizar el contador en la tarjeta
+                    const card = document.querySelector(`.aviso-card[data-id="${id}"]`);
+                    if (card) {
+                        const likesSpan = card.querySelector('.like-btn .stat-value');
+                        const nuevosLikes = resultado.data?.likes || resultado.likes;
+                        if (likesSpan) likesSpan.textContent = nuevosLikes;
+                        showToast('👍 Like registrado', 1500);
+                    }
+                } else {
+                    showToast('❌ Error: ' + (resultado?.error || 'No se pudo'), 1500);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('❌ Error de conexión', 1500);
+            }
         };
 
-        window.darDislikeWrapper = function (id, event) {
+        window.darDislikeWrapper = async function (id, event) {
             if (event) event.stopPropagation();
-            darDislike(id);
+            console.log('🔴 Click en dislike para aviso:', id);
+
+            const apiKey = localStorage.getItem('api_key');
+            if (!apiKey) {
+                showToast('🔐 Inicia sesión para dar dislike', 2000);
+                return;
+            }
+
+            try {
+                const resultado = await API.peticion('VOTAR_AVISO', {
+                    aviso_id: id,
+                    tipo: 'negativo'
+                }, apiKey);
+
+                console.log('📥 Respuesta:', resultado);
+
+                if (resultado && resultado.success) {
+                    const card = document.querySelector(`.aviso-card[data-id="${id}"]`);
+                    if (card) {
+                        const dislikesSpan = card.querySelector('.dislike-btn .stat-value');
+                        const nuevosDislikes = resultado.data?.dislikes || resultado.dislikes;
+                        if (dislikesSpan) dislikesSpan.textContent = nuevosDislikes;
+                        showToast('👎 Dislike registrado', 1500);
+                    }
+                } else {
+                    showToast('❌ Error: ' + (resultado?.error || 'No se pudo'), 1500);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('❌ Error de conexión', 1500);
+            }
         };
 
         window.abrirComentarios = function (id, event) {
