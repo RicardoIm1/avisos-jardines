@@ -614,7 +614,7 @@
     }
 
     window.darLike = darLike;
-    window.darDislike = darDislike; 
+    window.darDislike = darDislike;
 
     let currentAvisoIdForComments = null;
     window.abrirComentarios = function (id, event) {
@@ -707,9 +707,22 @@
       try {
         usuarioActual = API.getUsuarioActual();
 
-        const resultado = await API.listarPublicos({}, { pagina: 1, limite: 500 });
-        const avisos = resultado.datos || [];
-        const aviso = avisos.find(a => String(a.id) === String(AVISO_ID));
+        // 🚀 NUEVO: Cargar SOLO el aviso necesario, no todos
+        const resultado = await API.peticion('LISTAR_AVISOS_PUBLICOS', { id: AVISO_ID });
+
+        let aviso = null;
+        if (resultado && resultado.success && resultado.data && resultado.data.datos) {
+          aviso = resultado.data.datos[0];
+        }
+
+        // Fallback: si no vino en datos.datos, buscar en estructura alternativa
+        if (!aviso && resultado && resultado.success && resultado.data) {
+          if (Array.isArray(resultado.data)) {
+            aviso = resultado.data.find(a => String(a.id) === String(AVISO_ID));
+          } else if (resultado.data.datos) {
+            aviso = resultado.data.datos.find(a => String(a.id) === String(AVISO_ID));
+          }
+        }
 
         if (!aviso) {
           container.innerHTML = `<div class="error-message">❌ Aviso no encontrado</div>`;
@@ -718,8 +731,11 @@
 
         avisoActual = aviso;
 
-        // Obtener estadísticas completas
-        await cargarEstadisticasCompletas(AVISO_ID);
+        // Obtener estadísticas completas del aviso
+        likesCount = parseInt(aviso.intereses) || 0;
+        dislikesCount = parseInt(aviso.votos_negativos) || 0;
+        vistasCount = parseInt(aviso.vistas) || 0;
+        comentariosCount = parseInt(aviso.comentarios_count) || 0;
 
         // Registrar vista
         registrarVista(AVISO_ID);
@@ -734,7 +750,6 @@
         container.innerHTML = `<div class="error-message">❌ Error al cargar el aviso: ${escapeHTML(error.message)}</div>`;
       }
     }
-
     async function cargarEstadisticasCompletas(avisoId) {
       try {
         const apiKey = localStorage.getItem('api_key');
