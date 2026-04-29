@@ -127,10 +127,12 @@
             .grid-avisos {
                 grid-template-columns: repeat(4, 1fr);
             }
+
             .grid-avisos .aviso-card:nth-child(1),
             .grid-avisos .aviso-card:nth-child(2) {
                 grid-column: span 2;
             }
+
             .grid-avisos .aviso-card:nth-child(-n+2) .aviso-imagen {
                 height: 220px;
             }
@@ -140,10 +142,12 @@
             .grid-avisos {
                 grid-template-columns: repeat(4, 1fr);
             }
+
             .grid-avisos .aviso-card:nth-child(1),
             .grid-avisos .aviso-card:nth-child(2) {
                 grid-column: span 2;
             }
+
             .grid-avisos .aviso-card:nth-child(-n+2) .aviso-imagen {
                 height: 240px;
             }
@@ -416,7 +420,7 @@
         let renderedCount = 0;
         let isLoadingAvisos = false;
         let avisosCargados = false;
-        
+
         // UNA SOLA llamada para obtener TODOS los votos del usuario
         let userVotes = {}; // { avisoId: 'like' o 'dislike' }
         let userVotesLoaded = false;
@@ -448,14 +452,14 @@
         }
 
         // ========== VOTACIÓN OPTIMIZADA (SIN llamadas por separado) ==========
-        
+
         async function cargarTodosLosVotos() {
             const apiKey = localStorage.getItem('api_key');
             if (!apiKey || userVotesLoaded) {
                 userVotesLoaded = true;
                 return;
             }
-            
+
             try {
                 // UNA SOLA llamada para obtener todos los votos del usuario
                 const resultado = await API.peticion('OBTENER_MIS_VOTOS', {}, apiKey);
@@ -478,16 +482,16 @@
             }
             userVotesLoaded = true;
         }
-        
+
         async function darLike(avisoId) {
             const apiKey = localStorage.getItem('api_key');
             if (!apiKey) { showToast('🔐 Inicia sesión para dar like', 2000); return false; }
-            
+
             if (userVotes[avisoId] === 'like') {
                 showToast('❤️ Ya te gusta este aviso', 1500);
                 return false;
             }
-            
+
             try {
                 const resultado = await API.peticion('DAR_LIKE', { id: avisoId }, apiKey);
                 if (resultado && resultado.success) {
@@ -499,23 +503,23 @@
             } catch (e) { console.error('Error dando like:', e); showToast('❌ Error de conexión', 1500); }
             return false;
         }
-        
+
         async function darDislike(avisoId) {
             const apiKey = localStorage.getItem('api_key');
             if (!apiKey) { showToast('🔐 Inicia sesión para dar dislike', 2000); return false; }
-            
+
             if (userVotes[avisoId] === 'dislike') {
                 showToast('👎 Ya te disgusta este aviso', 1500);
                 return false;
             }
-            
+
             try {
                 const resultado = await API.peticion('DAR_DISLIKE', { id: avisoId }, apiKey);
                 if (resultado && resultado.success) {
                     userVotes[avisoId] = 'dislike';
                     actualizarContadoresCard(avisoId, resultado.likes, resultado.dislikes);
                     showToast('👎 Dislike registrado', 1500);
-                    
+
                     if (resultado.dislikes >= 3) {
                         const card = document.querySelector(`.aviso-card[data-id="${avisoId}"]`);
                         if (card) card.style.display = 'none';
@@ -526,19 +530,19 @@
             } catch (e) { console.error('Error dando dislike:', e); showToast('❌ Error de conexión', 1500); }
             return false;
         }
-        
+
         function actualizarContadoresCard(avisoId, likes, dislikes) {
             const card = document.querySelector(`.aviso-card[data-id="${avisoId}"]`);
             if (!card) return;
-            
+
             const likeStat = card.querySelector('.like-btn .stat-value');
             const dislikeStat = card.querySelector('.dislike-btn .stat-value');
             const likeBtn = card.querySelector('.like-btn');
             const dislikeBtn = card.querySelector('.dislike-btn');
-            
+
             if (likeStat && likes !== undefined) likeStat.textContent = likes;
             if (dislikeStat && dislikes !== undefined) dislikeStat.textContent = dislikes;
-            
+
             if (likeBtn) {
                 if (userVotes[avisoId] === 'like') likeBtn.classList.add('liked');
                 else likeBtn.classList.remove('liked');
@@ -547,7 +551,7 @@
                 if (userVotes[avisoId] === 'dislike') dislikeBtn.classList.add('disliked');
                 else dislikeBtn.classList.remove('disliked');
             }
-            
+
             // Actualizar en allAvisos
             const aviso = allAvisos.find(a => a.id == avisoId);
             if (aviso) {
@@ -769,10 +773,10 @@
                 if (resultado && resultado.datos) {
                     allAvisos = resultado.datos.filter(a => a.status === 'activo' || a.status === undefined);
                     allAvisos.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-                    
+
                     // UNA SOLA llamada para cargar todos los votos
                     await cargarTodosLosVotos();
-                    
+
                     avisosCargados = true;
                     applyFiltersAndSearch();
                 } else {
@@ -841,11 +845,14 @@
     </script>
 
     <!-- Cookie Banner -->
-    <div id="cookieBanner" style="position: fixed; bottom: 0; left: 0; right: 0; background: #1e4620; color: white; padding: 1rem; text-align: center; z-index: 1000; display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem;">
+    <div id="cookieBanner"
+        style="position: fixed; bottom: 0; left: 0; right: 0; background: #1e4620; color: white; padding: 1rem; text-align: center; z-index: 1000; display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem;">
         <span>🍪 Usamos cookies para que la plataforma funcione bien. No vendemos tus datos.</span>
         <div>
-            <button id="aceptarCookies" style="background: #fbbf24; border: none; padding: 0.4rem 1.2rem; border-radius: 2rem; cursor: pointer;">Aceptar</button>
-            <a href="/barrio/cookies.html" style="background: transparent; border: 1px solid white; color: white; padding: 0.4rem 1.2rem; border-radius: 2rem; text-decoration: none; margin-left: 0.5rem;">Configurar</a>
+            <button id="aceptarCookies"
+                style="background: #fbbf24; border: none; padding: 0.4rem 1.2rem; border-radius: 2rem; cursor: pointer;">Aceptar</button>
+            <a href="/barrio/cookies.html"
+                style="background: transparent; border: 1px solid white; color: white; padding: 0.4rem 1.2rem; border-radius: 2rem; text-decoration: none; margin-left: 0.5rem;">Configurar</a>
         </div>
     </div>
 
@@ -922,6 +929,35 @@
             <button onclick="enviarComentario()">Enviar</button>
         </div>
     </div>
+
+    <!-- PARA LAS NOTIFICACIONES PUSH -->
+    <!-- Agrega al final del body -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(reg => console.log('SW registrado:', reg))
+                .catch(err => console.error('Error SW:', err));
+        }
+
+        // Solicitar permiso para notificaciones
+        function solicitarPermisoNotificaciones() {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permiso => {
+                    if (permiso === 'granted') {
+                        console.log('Permiso concedido');
+                        // Obtener token para push
+                        obtenerTokenPush();
+                    }
+                });
+            }
+        }
+
+        // Obtener token único del dispositivo usando Firebase Cloud Messaging
+        function obtenerTokenPush() {
+            // Aquí integrarías Firebase Cloud Messaging
+            // Más detalles: https://firebase.google.com/docs/cloud-messaging/js/client
+        }
+    </script>
 </body>
 
 </html>
