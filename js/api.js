@@ -2,6 +2,11 @@
 
 const API_BASE_URL = 'https://script.google.com/macros/s/AKfycbxhr54B23xwGqKFBr1ZbdCbDvjB_HnU3JI5CXXbnF9ls5VcpfNf14-I7zj2WxGkCVM/exec';
 
+// Al inicio del archivo, después de const API_BASE_URL
+if (window.location.hostname !== 'localhost') {
+  console.log = function () { }; // Desactiva logs en producción
+}
+
 // ==================== CLASE PRINCIPAL ====================
 
 class API {
