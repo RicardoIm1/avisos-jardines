@@ -567,6 +567,9 @@
         return;
       }
 
+      // Mostrar loading inmediatamente
+      container.innerHTML = '<div class="loading-state">📰 Cargando aviso...</div>';
+
       try {
         usuarioActual = API.getUsuarioActual();
 
@@ -582,18 +585,47 @@
 
         avisoActual = aviso;
 
-        // Registrar vista (petición adicional, pero es necesaria)
-        await registrarVista(AVISO_ID);
+        // Registrar vista SIN esperar (en segundo plano)
+        registrarVista(AVISO_ID);
 
-        // Renderizar sin comentarios (se cargarán después)
+        // Renderizar el aviso inmediatamente (comentarios en 0)
         renderizarAviso([], 0);
 
-        // Cargar comentarios en segundo plano (sin bloquear la vista)
+        // Cargar comentarios en segundo plano (sin bloquear)
         cargarComentariosEnSegundoPlano(AVISO_ID);
 
       } catch (error) {
         console.error('Error cargando aviso:', error);
-        container.innerHTML = `<div class="error-message">❌ Error al cargar el aviso</div>`;
+        container.innerHTML = `<div class="error-message">❌ Error al cargar el aviso: ${escapeHTML(error.message)}</div>`;
+      }
+    }
+
+    // Nueva función: carga comentarios sin bloquear la pantalla
+    async function cargarComentariosEnSegundoPlano(avisoId) {
+      try {
+        const resultado = await API.peticion('LISTAR_COMENTARIOS', { avisoId: avisoId });
+        if (resultado && resultado.success && Array.isArray(resultado.data)) {
+          comentariosCount = resultado.data.length;
+          // Actualizar el contador de comentarios en la página si ya está renderizada
+          const comentariosSpan = document.querySelector('.stat-item.comentarios .stat-value');
+          if (comentariosSpan) comentariosSpan.textContent = comentariosCount;
+        }
+      } catch (e) {
+        console.warn('Error cargando comentarios:', e);
+      }
+    }
+
+    // Nueva función: carga comentarios sin bloquear
+    async function cargarComentariosEnSegundoPlano(avisoId) {
+      try {
+        const resultado = await API.peticion('LISTAR_COMENTARIOS', { avisoId: avisoId });
+        if (resultado && resultado.success && Array.isArray(resultado.data)) {
+          comentariosCount = resultado.data.length;
+          const comentariosSpan = document.querySelector('.stat-item.comentarios .stat-value');
+          if (comentariosSpan) comentariosSpan.textContent = comentariosCount;
+        }
+      } catch (e) {
+        console.warn('Error cargando comentarios:', e);
       }
     }
 
