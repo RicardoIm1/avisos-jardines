@@ -174,24 +174,6 @@ class API {
     return { datos: [], total: 0 };
   }
 
-  // Obtener un aviso específico por ID
-  static async obtenerAviso(id) {
-    const resultado = await API.peticion('LISTAR', {
-      coleccion: 'AVISOS',
-      id: id
-    });
-
-    console.log('obtenerAviso - resultado completo:', resultado);
-
-    if (resultado && resultado.success) {
-      const data = resultado.data;
-      if (data && data.datos && data.datos.length > 0) {
-        return data.datos[0];
-      }
-    }
-    return null;
-  }
-
   // Crear aviso
   static async crearAviso(datos, apiKey) {
     // Enviar los datos DENTRO de un objeto llamado "datos"
