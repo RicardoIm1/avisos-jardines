@@ -690,24 +690,36 @@
             const texto = input.value.trim();
             if (!texto) { showToast('✏️ Escribe un comentario primero', 1500); return; }
             if (!currentAvisoIdForComments) { showToast('❌ Error: No se identificó el aviso', 1500); return; }
-            const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
-            const autor = usuario.nombre || usuario.email || 'Anónimo';
+
+            const apiKey = localStorage.getItem('api_key');
+            if (!apiKey) {
+                showToast('🔐 Inicia sesión para comentar', 1500);
+                return;
+            }
+
             try {
-                const api = new API();
-                const result = await api.llamar('AGREGAR_COMENTARIO', {
+                const resultado = await API.peticion('AGREGAR_COMENTARIO', {
                     avisoId: currentAvisoIdForComments,
-                    texto: texto,
-                    autor: autor
-                });
-                if (result && result.success) {
+                    texto: texto
+                }, apiKey);
+
+                if (resultado && resultado.success) {
                     input.value = '';
                     showToast('💬 Comentario enviado', 1500);
                     cargarComentarios(currentAvisoIdForComments);
+
+                    // Actualizar contador en la tarjeta
+                    const card = document.querySelector(`.aviso-card[data-id="${currentAvisoIdForComments}"]`);
+                    if (card) {
+                        const commentSpan = card.querySelector('.comments-stat .stat-value');
+                        const currentCount = parseInt(commentSpan.textContent) || 0;
+                        commentSpan.textContent = currentCount + 1;
+                    }
                 } else {
-                    showToast('❌ Error al enviar comentario', 1500);
+                    showToast('❌ ' + (resultado?.error || 'Error al enviar comentario'), 1500);
                 }
             } catch (e) {
-                console.error('Error enviando comentario:', e);
+                console.error('Error:', e);
                 showToast('❌ Error de conexión', 1500);
             }
         };
