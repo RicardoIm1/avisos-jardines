@@ -921,6 +921,8 @@
     window.registrarClickWhatsApp = registrarClickWhatsApp;
     window.abrirLightbox = abrirLightbox;
     window.cerrarLightbox = cerrarLightbox;
+    window.darLike = darLike;
+    window.darDislike = darDislike;
 
     document.addEventListener('DOMContentLoaded', function () {
       fetch('/barrio/common/header.html').then(res => res.ok ? res.text() : Promise.reject()).then(html => {
