@@ -559,8 +559,9 @@
         }
         // ========== FUNCIONES DE INTERACCIÓN ==========
 
-        window.verAviso = async function (id) {
-            await registrarVista(id);
+        window.verAviso = function (id) {
+            console.log('Abriendo aviso con ID:', id);
+            registrarVista(id);
             window.location.href = `/barrio/aviso.html?id=${id}`;
         };
 
@@ -801,7 +802,7 @@
                 const whatsappClicks = parseInt(aviso.clicks_whatsapp) || 0;
 
                 return `
-        <div class="aviso-card tarjeta-moderna" data-id="${aviso.id}" onclick="verAviso('${aviso.id}')">
+        <div class="aviso-card tarjeta-moderna" data-id="${aviso.id}" onclick="verAviso(this.getAttribute('data-id'))">
             <div class="categoria-badge" style="background: ${getColorCategoria(aviso.categoria)}; color: white;">
                 ${getIconoCategoria(aviso.categoria)} ${aviso.categoria?.toUpperCase() || 'GENERAL'}
             </div>
