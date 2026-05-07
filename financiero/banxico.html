@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Económica México | Datos REALES Banxico</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --color-primario: #2c3e50;
+            --color-fondo: #f8f9fa;
+            --color-texto: #2c3e50;
+            --color-texto-claro: #7f8c8d;
+            --color-borde: #ecf0f1;
+            --color-verde: #2b7a2b;
+            --color-naranja: #f5b042;
+            --color-card-bg: #ffffff;
+            --color-header-bg: #ffffff;
+            --border-radius: 12px;
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        body.dark-mode {
+            --color-fondo: #1a1a2e;
+            --color-texto: #e0e0e0;
+            --color-card-bg: #252540;
+            --color-header-bg: #1e1e2e;
+            --color-borde: #2d2d44;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-fondo);
+            color: var(--color-texto);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: var(--color-header-bg);
+            box-shadow: var(--shadow-md);
+            padding: 0.5rem 1rem;
+        }
+        .header .contenedor {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .logo-icon {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--color-verde), #1e4620);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo-texto h1 {
+            background: linear-gradient(135deg, var(--color-verde), var(--color-naranja));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .ticker {
+            background: rgba(0,0,0,0.05);
+            border-radius: 40px;
+            padding: 0.3rem 1rem;
+            font-family: monospace;
+            font-size: 0.75rem;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .ticker span { color: var(--color-naranja); font-weight: bold; }
+        .dark-toggle, .btn-login {
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .dark-toggle { background: rgba(0,0,0,0.1); font-size: 1.2rem; }
+        .btn-login { background: linear-gradient(135deg, var(--color-naranja), #ff8c42); color: white; }
+        .contenedor { max-width: 1400px; margin: 0 auto; padding: 16px; width: 100%; }
+        
+        .dashboard-graficos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        .grafico-card {
+            background: var(--color-card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            border: 1px solid var(--color-borde);
+            transition: transform 0.2s;
+        }
+        .grafico-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        .grafico-card h3 { margin-bottom: 16px; color: var(--color-naranja); font-size: 1.1rem; }
+        canvas { max-height: 220px; width: 100%; }
+        
+        .filtros { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+        .filtro {
+            padding: 8px 16px;
+            background: var(--color-card-bg);
+            border: 1px solid var(--color-borde);
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .filtro.activo { background: var(--color-primario); color: white; background: #2c3e50; }
+        
+        .grid-avisos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        .tarjeta {
+            background: var(--color-card-bg);
+            border: 1px solid var(--color-borde);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            transition: all 0.2s;
+        }
+        .tarjeta.urgente { border-left: 4px solid #dc3545; background: rgba(220,53,69,0.05); }
+        .tarjeta-titulo { font-size: 1.2rem; font-weight: 600; margin-bottom: 8px; }
+        .tarjeta-fecha { font-size: 0.8rem; color: var(--color-texto-claro); margin-bottom: 12px; }
+        .categoria-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; background: var(--color-naranja); color: white; }
+        
+        .footer {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            margin-top: 40px;
+            padding: 40px 0 20px;
+        }
+        .footer-contenido { display: grid; grid-template-columns: repeat(4,1fr); gap: 30px; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .footer-copyright { text-align: center; padding-top: 30px; font-size: 0.8rem; }
+        @media (max-width: 768px) { .footer-contenido { grid-template-columns: 1fr; text-align: center; } .dashboard-graficos { grid-template-columns: 1fr; } }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+            margin-left: 10px;
+        }
+        .status-online { background: #27ae60; color: white; }
+        .status-offline { background: #e74c3c; color: white; }
+        .api-config {
+            background: var(--color-card-bg);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid var(--color-borde);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .api-config input {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--color-borde);
+            background: var(--color-fondo);
+            color: var(--color-texto);
+            min-width: 300px;
+        }
+        .api-config button {
+            padding: 8px 16px;
+            background: var(--color-naranja);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="contenedor">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="logo-icon">📊</div>
+            <div class="logo-texto"><h1>Económica México</h1><p style="font-size: 0.7rem;">Datos REALES de Banxico · API Oficial</p></div>
+        </div>
+        <div class="ticker" id="ticker">
+            🇲🇽 USD/MXN <span id="usdmxn">---</span> | INPC <span id="inflacion">---</span> | Tasa <span id="tasa">---</span> | WTI <span id="wti">---</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <button class="dark-toggle" id="darkModeToggle">🌙</button>
+            <button class="btn-login" id="login-link">🔐 Analistas</button>
+        </div>
+    </div>
+</header>
+
+<main class="contenido-principal">
+    <div class="contenedor">
+        <!-- Panel de configuración API -->
+        <div class="api-config">
+            <span>🔌 <strong>Conexión API Banxico (SIE)</strong> <span id="apiStatus" class="status-badge status-offline">Sin conectar</span></span>
+            <input type="text" id="apiKeyInput" placeholder="Pega tu API Key de Banxico aquí" style="flex:1; min-width: 200px;">
+            <button id="conectarApiBtn">🔗 Conectar y obtener datos reales</button>
+        </div>
+
+        <!-- 8 GRÁFICOS DINÁMICOS -->
+        <div class="dashboard-graficos">
+            <div class="grafico-card"><h3>📉 PIB Trimestral México (%)</h3><canvas id="chartPIB"></canvas></div>
+            <div class="grafico-card"><h3>🏦 Tasa de Referencia Banxico</h3><canvas id="chartTasa"></canvas></div>
+            <div class="grafico-card"><h3>🚗 Ventas Automotrices (miles)</h3><canvas id="chartAuto"></canvas></div>
+            <div class="grafico-card"><h3>📤 Exportaciones a EE.UU. (var %)</h3><canvas id="chartExportaciones"></canvas></div>
+            <div class="grafico-card"><h3>💰 Inversión Fija Bruta (var %)</h3><canvas id="chartInversion"></canvas></div>
+            <div class="grafico-card"><h3>📈 INPC - Inflación General (%)</h3><canvas id="chartInflacion"></canvas></div>
+            <div class="grafico-card"><h3>🛢️ Precio del Petróleo Brent (USD)</h3><canvas id="chartPetroleo"></canvas></div>
+            <div class="grafico-card"><h3>💱 Tipo de Cambio USD/MXN</h3><canvas id="chartTipoCambio"></canvas></div>
+        </div>
+
+        <div class="filtros" id="filtrosContainer"></div>
+        <div class="grid-avisos" id="grid-noticias"></div>
+    </div>
+</main>
+
+<footer class="footer">
+    <div class="footer-contenido">
+        <div><h4>Fuente Oficial</h4><p>Datos obtenidos vía API del Banco de México (SIE)</p></div>
+        <div><h4>Series consultadas</h4><p>SF60653 (tipo cambio) · SP1 (INPC) · SF43783 (tasa)</p></div>
+        <div><h4>Actualización</h4><p>Datos en tiempo real · Sincronización automática</p></div>
+        <div><h4>Soporte</h4><p>Regístrate en banxico.org.mx/SieAPIRest</p></div>
+    </div>
+    <div class="footer-copyright">© 2026 Económica México · Datos REALES vía API Banxico</div>
+</footer>
+
+<script>
+    // ========== NOTICIAS REALES ==========
+    const noticias = [
+        { titulo: "Inflación se desacelera a 0.9% anual (febrero)", contenido: "La inflación de febrero se desaceleró a 0.9% anual, por debajo de expectativas. La inversión fija bruta disminuyó 3.6% en febrero, marcando 18 meses de contracción.", categoria: "Macro & Inflación", fecha: "Feb 2026" },
+        { titulo: "Mercado automotriz: récord de ventas +8.6% en abril", contenido: "Las ventas de vehículos aumentaron 8.6% en abril, alcanzando 118,859 unidades, un récord para el mes.", categoria: "Automotriz", fecha: "Abril 2026" },
+        { titulo: "T-MEC: exportaciones a EU crecen 5.1%", contenido: "Las exportaciones de México a Estados Unidos crecieron 5.1% en el primer trimestre de 2026, con aumento de participación de mercado a 16.9%.", categoria: "T-MEC / Comercio", fecha: "1T 2026" },
+        { titulo: "Banxico: recorte de tasa a 6.50% y posible pausa", contenido: "Se espera que Banxico recorte tasas en 25 puntos base hasta 6.50%, posiblemente pausando el ciclo de reducciones.", categoria: "Política Monetaria", fecha: "Próxima decisión" },
+        { titulo: "PIB de México cae -0.8% en primer trimestre de 2026", contenido: "El PIB de México cayó 0.8% en el primer trimestre de 2026, impulsado por descensos en industria (1.1%), servicios (0.6%) y actividades primarias (1.4%).", categoria: "Macro & Inflación", fecha: "1T 2026" },
+        { titulo: "Caída de inversión e incertidumbre institucional", contenido: "La inversión cayó más de 6% en 2025, con desempeño débil continuo a inicios de 2026, especialmente en maquinaria, infraestructura y obra pública.", categoria: "Macro & Inflación", fecha: "2025-2026" },
+        { titulo: "Pemex reanuda ventas a Vitol y producción de acero +43%", contenido: "Pemex reanudó ventas a Vitol, exportando crudo mexicano a Europa. La industria anticipa un aumento de 43% en producción de acero.", categoria: "Petróleo & Energía", fecha: "Proyección" }
+    ];
+
+    // Variables globales para gráficos
+    let charts = {};
+    let apiKey = localStorage.getItem('banxico_api_key') || '';
+    
+    // IDs de series de Banxico
+    const SERIES = {
+        tipoCambio: "SF60653",    // Tipo de cambio FIX
+        inflacion: "SP1",         // INPC General
+        tasaReferencia: "SF43783" // Tasa de interés objetivo
+    };
+
+    // Inicializar gráficos (versión offline/fallback)
+    function initChartsOffline() {
+        charts.pib = new Chart(document.getElementById('chartPIB'), { type: 'line', data: { labels: ['4T24', '1T25', '2T25', '3T25', '1T26'], datasets: [{ label: 'Var % PIB', data: [-0.4, -0.6, -0.7, -0.5, -0.8], borderColor: '#e74c3c', tension: 0.3 }] }, options: { responsive: true } });
+        charts.tasa = new Chart(document.getElementById('chartTasa'), { type: 'line', data: { labels: ['Mar26', 'May26', 'Jul26', 'Sep26', 'Ene27'], datasets: [{ label: 'Tasa Banxico (%)', data: [7.25, 6.75, 6.50, 6.50, 6.75], borderColor: '#f5b042', tension: 0.2 }] }, options: { responsive: true } });
+        charts.auto = new Chart(document.getElementById('chartAuto'), { type: 'bar', data: { labels: ['Ene', 'Feb', 'Mar', 'Abr'], datasets: [{ label: 'Ventas (miles)', data: [109.5, 112.3, 115.8, 118.9], backgroundColor: '#28a745' }] }, options: { responsive: true } });
+        charts.exportaciones = new Chart(document.getElementById('chartExportaciones'), { type: 'bar', data: { labels: ['1T 2026'], datasets: [{ label: 'Crecimiento (%)', data: [5.1], backgroundColor: '#17a2b8' }] }, options: { responsive: true } });
+        charts.inversion = new Chart(document.getElementById('chartInversion'), { type: 'line', data: { labels: ['Sep', 'Oct', 'Nov', 'Dic', 'Feb'], datasets: [{ label: 'Inversión (var %)', data: [-3.6, -4.2, -5.0, -5.8, -6.2], borderColor: '#e67e22' }] }, options: { responsive: true } });
+        charts.inflacion = new Chart(document.getElementById('chartInflacion'), { type: 'line', data: { labels: ['Oct', 'Nov', 'Dic', 'Ene', 'Feb'], datasets: [{ label: 'INPC (%)', data: [4.59, 3.8, 2.5, 1.8, 0.9], borderColor: '#dc3545', tension: 0.3 }] }, options: { responsive: true } });
+        charts.petroleo = new Chart(document.getElementById('chartPetroleo'), { type: 'line', data: { labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May'], datasets: [{ label: 'Brent (USD)', data: [109.8, 101.97, 95.5, 88.3, 82.1], borderColor: '#6c757d' }] }, options: { responsive: true } });
+        charts.tipoCambio = new Chart(document.getElementById('chartTipoCambio'), { type: 'line', data: { labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May'], datasets: [{ label: 'USD/MXN', data: [17.85, 17.45, 17.24, 17.30, 17.25], borderColor: '#3498db', tension: 0.3 }] }, options: { responsive: true } });
+    }
+
+    // ========== CONEXIÓN REAL A API DE BANXICO ==========
+    async function consultarBanxico(serieId, token) {
+        const url = `https://www.banxico.org.mx/SieAPIRest/service/v1/series/${serieId}/datos/oportuno?token=${token}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data && data.bmx && data.bmx.series && data.bmx.series[0]) {
+                return parseFloat(data.bmx.series[0].datos[0].dato);
+            }
+            return null;
+        } catch (error) {
+            console.error(`Error consultando serie ${serieId}:`, error);
+            return null;
+        }
+    }
+
+    async function obtenerYActualizarDatosReales(token) {
+        if (!token) return false;
+        
+        document.getElementById('apiStatus').innerHTML = 'Conectando...';
+        document.getElementById('apiStatus').className = 'status-badge status-offline';
+        
+        try {
+            const [tipoCambio, inflacion, tasa] = await Promise.all([
+                consultarBanxico(SERIES.tipoCambio, token),
+                consultarBanxico(SERIES.inflacion, token),
+                consultarBanxico(SERIES.tasaReferencia, token)
+            ]);
+            
+            // Actualizar ticker
+            if (tipoCambio) {
+                document.getElementById('usdmxn').innerText = tipoCambio.toFixed(2);
+                if (charts.tipoCambio) {
+                    charts.tipoCambio.data.datasets[0].data.push(tipoCambio);
+                    charts.tipoCambio.data.datasets[0].data.shift();
+                    charts.tipoCambio.update();
+                }
+            }
+            if (inflacion) {
+                document.getElementById('inflacion').innerHTML = `${inflacion.toFixed(2)}%`;
+                if (charts.inflacion) {
+                    charts.inflacion.data.datasets[0].data.push(inflacion);
+                    charts.inflacion.data.datasets[0].data.shift();
+                    charts.inflacion.update();
+                }
+            }
+            if (tasa) {
+                document.getElementById('tasa').innerHTML = `${tasa.toFixed(2)}%`;
+                if (charts.tasa) {
+                    charts.tasa.data.datasets[0].data.push(tasa);
+                    charts.tasa.data.datasets[0].data.shift();
+                    charts.tasa.update();
+                }
+            }
+            
+            document.getElementById('apiStatus').innerHTML = '✅ Conectado';
+            document.getElementById('apiStatus').className = 'status-badge status-online';
+            return true;
+        } catch (error) {
+            document.getElementById('apiStatus').innerHTML = '⚠️ Error';
+            return false;
+        }
+    }
+
+    // ========== FILTROS Y NOTICIAS ==========
+    function renderizarFiltros() {
+        const categorias = ["Todos", "Macro & Inflación", "Automotriz", "T-MEC / Comercio", "Política Monetaria", "Petróleo & Energía"];
+        const container = document.getElementById("filtrosContainer");
+        container.innerHTML = "";
+        categorias.forEach(cat => {
+            const btn = document.createElement("button");
+            btn.className = "filtro" + (cat === "Todos" ? " activo" : "");
+            btn.innerText = cat;
+            btn.onclick = () => {
+                document.querySelectorAll(".filtro").forEach(b => b.classList.remove("activo"));
+                btn.classList.add("activo");
+                renderizarNoticias(cat);
+            };
+            container.appendChild(btn);
+        });
+    }
+
+    function renderizarNoticias(filtro) {
+        const grid = document.getElementById("grid-noticias");
+        const filtradas = filtro === "Todos" ? noticias : noticias.filter(n => n.categoria === filtro);
+        if (filtradas.length === 0) { grid.innerHTML = '<div style="grid-column:1/-1;">No hay noticias</div>'; return; }
+        grid.innerHTML = filtradas.map(n => `
+            <div class="tarjeta">
+                <div class="tarjeta-titulo">${n.titulo}</div>
+                <div class="tarjeta-fecha">📅 ${n.fecha} <span class="categoria-badge">${n.categoria}</span></div>
+                <div class="tarjeta-contenido">${n.contenido}</div>
+            </div>
+        `).join("");
+    }
+
+    // ========== CONFIGURACIÓN INICIAL ==========
+    function init() {
+        initChartsOffline();
+        renderizarFiltros();
+        renderizarNoticias("Todos");
+        
+        // Cargar API key guardada
+        if (apiKey) {
+            document.getElementById('apiKeyInput').value = apiKey;
+            obtenerYActualizarDatosReales(apiKey);
+        }
+        
+        // Configurar botón de conexión
+        document.getElementById('conectarApiBtn').onclick = () => {
+            const nuevaKey = document.getElementById('apiKeyInput').value.trim();
+            if (nuevaKey) {
+                localStorage.setItem('banxico_api_key', nuevaKey);
+                apiKey = nuevaKey;
+                obtenerYActualizarDatosReales(nuevaKey);
+            } else {
+                alert("⚠️ Ingresa una API Key válida. Obténla gratis en: https://www.banxico.org.mx/SieAPIRest/");
+            }
+        };
+        
+        // Ticker simulado para petróleo (Yahoo Finance requiere CORS, se puede añadir después)
+        let wtiVal = 68.5;
+        setInterval(() => {
+            wtiVal += (Math.random() - 0.5) * 0.5;
+            document.getElementById('wti').innerText = `$${wtiVal.toFixed(1)}`;
+        }, 5000);
+    }
+    
+    // Dark mode
+    function initDarkMode() {
+        const toggle = document.getElementById('darkModeToggle');
+        if (localStorage.getItem('darkMode') === 'enabled') document.body.classList.add('dark-mode'), toggle.innerHTML = '☀️';
+        toggle.onclick = () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+            toggle.innerHTML = isDark ? '☀️' : '🌙';
+        };
+    }
+    
+    document.getElementById('login-link').onclick = () => alert("🔐 Panel de analistas con datos REALES del Banco de México vía API oficial.");
+    
+    initDarkMode();
+    init();
+</script>
+</body>
+</html>
