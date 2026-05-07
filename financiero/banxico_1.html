@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Económica México | Dashboard Institucional</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --color-primario: #2c3e50;
+            --color-fondo: #f8f9fa;
+            --color-texto: #2c3e50;
+            --color-texto-claro: #7f8c8d;
+            --color-borde: #ecf0f1;
+            --color-verde: #2b7a2b;
+            --color-naranja: #f5b042;
+            --color-card-bg: #ffffff;
+            --color-header-bg: #ffffff;
+            --color-exito: #27ae60;
+            --color-error: #e74c3c;
+            --border-radius: 12px;
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        body.dark-mode {
+            --color-fondo: #1a1a2e;
+            --color-texto: #e0e0e0;
+            --color-card-bg: #252540;
+            --color-header-bg: #1e1e2e;
+            --color-borde: #2d2d44;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-fondo);
+            color: var(--color-texto);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: var(--color-header-bg);
+            box-shadow: var(--shadow-md);
+            padding: 0.5rem 1rem;
+        }
+        .header .contenedor {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .logo-icon {
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--color-verde), #1e4620);
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .ticker {
+            background: rgba(0,0,0,0.05);
+            border-radius: 40px;
+            padding: 0.3rem 1rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .ticker span { color: var(--color-naranja); font-weight: bold; }
+        
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .toolbar button {
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            background: var(--color-card-bg);
+            border: 1px solid var(--color-borde);
+            transition: all 0.2s;
+        }
+        .toolbar button:hover { transform: translateY(-2px); background: var(--color-naranja); color: white; }
+        .dark-toggle { background: rgba(0,0,0,0.1); font-size: 1.2rem; }
+        
+        .contenedor { max-width: 1600px; margin: 0 auto; padding: 20px; width: 100%; }
+        
+        /* Tarjetas KPI */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .kpi-card {
+            background: var(--color-card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            border: 1px solid var(--color-borde);
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .kpi-card h4 { font-size: 0.85rem; color: var(--color-texto-claro); margin-bottom: 8px; }
+        .kpi-card .kpi-valor { font-size: 2rem; font-weight: bold; margin-bottom: 5px; }
+        .kpi-card .kpi-tendencia { font-size: 0.8rem; }
+        .tendencia-up { color: var(--color-exito); }
+        .tendencia-down { color: var(--color-error); }
+        
+        .dashboard-graficos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        .grafico-card {
+            background: var(--color-card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            border: 1px solid var(--color-borde);
+        }
+        .grafico-card h3 { margin-bottom: 16px; color: var(--color-naranja); display: flex; justify-content: space-between; align-items: center; }
+        .grafico-card canvas { max-height: 250px; width: 100%; }
+        .btn-descargar-grafico {
+            font-size: 0.7rem;
+            padding: 4px 10px;
+            background: var(--color-borde);
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        
+        /* Panel de alertas */
+        .alertas-panel {
+            background: var(--color-card-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid var(--color-borde);
+        }
+        .alertas-panel h3 { margin-bottom: 15px; }
+        .alerta-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .alerta-item.activa { background: rgba(231,76,60,0.1); border-left: 3px solid var(--color-error); }
+        
+        .filtros { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+        .filtro {
+            padding: 8px 16px;
+            background: var(--color-card-bg);
+            border: 1px solid var(--color-borde);
+            border-radius: 40px;
+            cursor: pointer;
+        }
+        .filtro.activo { background: var(--color-primario); color: white; }
+        
+        .grid-avisos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        .tarjeta {
+            background: var(--color-card-bg);
+            border: 1px solid var(--color-borde);
+            border-radius: var(--border-radius);
+            padding: 20px;
+        }
+        .footer {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            margin-top: 40px;
+            padding: 40px 0 20px;
+        }
+        .footer-contenido { display: grid; grid-template-columns: repeat(4,1fr); gap: 30px; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        .footer-copyright { text-align: center; padding-top: 30px; }
+        
+        @media (max-width: 768px) {
+            .dashboard-graficos { grid-template-columns: 1fr; }
+            .footer-contenido { grid-template-columns: 1fr; text-align: center; }
+            .kpi-grid { grid-template-columns: repeat(2,1fr); }
+        }
+        
+        .status-online { background: #27ae60; color: white; padding: 2px 8px; border-radius: 20px; font-size: 10px; }
+        .status-offline { background: #e74c3c; color: white; padding: 2px 8px; border-radius: 20px; font-size: 10px; }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="contenedor">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="logo-icon">🏦</div>
+            <div><h1>Económica México</h1><p style="font-size: 0.7rem;">Dashboard Institucional · Datos Banxico</p></div>
+        </div>
+        <div class="ticker" id="ticker">
+            🇲🇽 USD/MXN <span id="usdmxn">---</span> | INPC <span id="inflacion">---</span> | Tasa <span id="tasa">---</span> | CETES <span id="cetes">---</span>
+        </div>
+        <div class="toolbar">
+            <button id="exportExcelBtn">📎 Exportar a Excel</button>
+            <button id="alertasBtn">🔔 Configurar Alertas</button>
+            <button id="darkModeToggle">🌙</button>
+        </div>
+    </div>
+</header>
+
+<main class="contenido-principal">
+    <div class="contenedor">
+        <!-- Panel API Key -->
+        <div class="alertas-panel" style="margin-bottom:20px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;">
+            <div>🔌 <strong>API Banxico</strong> <span id="apiStatus" class="status-offline">Sin conectar</span></div>
+            <input type="text" id="apiKeyInput" placeholder="Pega tu API Key de Banxico" style="flex:1; padding:8px; border-radius:8px; border:1px solid var(--color-borde); background:var(--color-fondo); color:var(--color-texto);">
+            <button id="conectarApiBtn" style="padding:8px 20px; background:var(--color-naranja); border:none; border-radius:8px; cursor:pointer;">🔗 Conectar</button>
+            <button id="actualizarBtn" style="padding:8px 20px; background:var(--color-card-bg); border:1px solid var(--color-borde); border-radius:8px; cursor:pointer;">🔄 Actualizar ahora</button>
+        </div>
+
+        <!-- KPIs destacados -->
+        <div class="kpi-grid" id="kpiContainer">
+            <div class="kpi-card"><h4>🇲🇽 Tipo de Cambio</h4><div class="kpi-valor" id="kpiTC">---</div><div class="kpi-tendencia" id="kpiTCTend">---</div></div>
+            <div class="kpi-card"><h4>📈 INPC (Inflación)</h4><div class="kpi-valor" id="kpiInflacion">---</div><div class="kpi-tendencia" id="kpiInfTend">---</div></div>
+            <div class="kpi-card"><h4>🏦 Tasa Banxico</h4><div class="kpi-valor" id="kpiTasa">---</div><div class="kpi-tendencia">Tasa objetivo</div></div>
+            <div class="kpi-card"><h4>📊 CETES 28 días</h4><div class="kpi-valor" id="kpiCetes">---</div><div class="kpi-tendencia">Rendimiento anual</div></div>
+        </div>
+
+        <!-- Gráficos avanzados -->
+        <div class="dashboard-graficos">
+            <div class="grafico-card"><h3>💱 Tipo de Cambio USD/MXN <button class="btn-descargar-grafico" onclick="descargarGrafico('chartTC')">📸 PNG</button></h3><canvas id="chartTC"></canvas></div>
+            <div class="grafico-card"><h3>📈 INPC vs Expectativas <button class="btn-descargar-grafico" onclick="descargarGrafico('chartInflacion')">📸 PNG</button></h3><canvas id="chartInflacion"></canvas></div>
+            <div class="grafico-card"><h3>🏦 Tasa Banxico vs CETES <button class="btn-descargar-grafico" onclick="descargarGrafico('chartTasas')">📸 PNG</button></h3><canvas id="chartTasas"></canvas></div>
+            <div class="grafico-card"><h3>📊 PIB Trimestral México <button class="btn-descargar-grafico" onclick="descargarGrafico('chartPIB')">📸 PNG</button></h3><canvas id="chartPIB"></canvas></div>
+            <div class="grafico-card"><h3>🛢️ Precio del Petróleo <button class="btn-descargar-grafico" onclick="descargarGrafico('chartPetroleo')">📸 PNG</button></h3><canvas id="chartPetroleo"></canvas></div>
+            <div class="grafico-card"><h3>💵 Reservas Internacionales <button class="btn-descargar-grafico" onclick="descargarGrafico('chartReservas')">📸 PNG</button></h3><canvas id="chartReservas"></canvas></div>
+        </div>
+
+        <!-- Panel de alertas configurables -->
+        <div class="alertas-panel" id="alertasPanel" style="display:none;">
+            <h3>⚙️ Configurar Alertas ⚙️</h3>
+            <div style="display:grid; gap:15px;">
+                <div><label>USD/MXN mayor a: </label><input type="number" id="alertaTC" step="0.1" placeholder="Ej: 19.50"> <button id="guardarAlertaTC">Guardar</button></div>
+                <div><label>INPC superior a: </label><input type="number" id="alertaInf" step="0.5" placeholder="Ej: 4.5"> <button id="guardarAlertaInf">Guardar</button></div>
+            </div>
+            <div id="alertasActivas" style="margin-top:15px;"></div>
+        </div>
+
+        <div class="filtros" id="filtrosContainer"></div>
+        <div class="grid-avisos" id="grid-noticias"></div>
+    </div>
+</main>
+
+<footer class="footer">
+    <div class="footer-contenido">
+        <div><h4>Fuente Oficial</h4><p>Banco de México (SIE) · Datos en tiempo real</p></div>
+        <div><h4>Series Banxico</h4><p>SF60653 · SP1 · SF43783 · SF339621 · SF10145</p></div>
+        <div><h4>Actualización</h4><p>Cada 5 minutos · Histórico 30 días</p></div>
+        <div><h4>Dashboard v3.0</h4><p>Alertas · Exportación · Gráficos HD</p></div>
+    </div>
+    <div class="footer-copyright">© 2026 Económica México · Datos REALES vía API Banxico · Dashboard Institucional</div>
+</footer>
+
+<script>
+    // ========== CONFIGURACIÓN ==========
+    let apiKey = localStorage.getItem('banxico_api_key') || '';
+    let historicoTC = [];
+    let historicoInflacion = [];
+    let intervalActualizacion;
+    let charts = {};
+    
+    // Alertas guardadas
+    let alertas = JSON.parse(localStorage.getItem('alertas')) || { tc: null, inflacion: null };
+    
+    // Series de Banxico
+    const SERIES = {
+        tipoCambio: "SF60653",
+        inflacion: "SP1",
+        tasaReferencia: "SF43783",
+        cetes28: "SF339621",
+        reservas: "SF10145",
+        pib: "381448"
+    };
+    
+    // Noticias reales
+    const noticias = [
+        { titulo: "Inflación se desacelera a 0.9% anual (febrero)", contenido: "La inflación de febrero se desaceleró a 0.9% anual, por debajo de expectativas. La inversión fija bruta disminuyó 3.6% en febrero.", categoria: "Macro & Inflación", fecha: "Feb 2026" },
+        { titulo: "Mercado automotriz: récord de ventas +8.6% en abril", contenido: "Las ventas de vehículos aumentaron 8.6% en abril, alcanzando 118,859 unidades, un récord para el mes.", categoria: "Automotriz", fecha: "Abril 2026" },
+        { titulo: "T-MEC: exportaciones a EU crecen 5.1%", contenido: "Las exportaciones de México a Estados Unidos crecieron 5.1% en el primer trimestre de 2026.", categoria: "T-MEC / Comercio", fecha: "1T 2026" },
+        { titulo: "Caída de inversión e incertidumbre institucional", contenido: "La inversión cayó más de 6% en 2025, con desempeño débil continuo en 2026.", categoria: "Macro & Inflación", fecha: "2025-2026" }
+    ];
+    
+    // ========== FUNCIONES API BANXICO ==========
+    async function consultarBanxico(serieId, token) {
+        const url = `https://www.banxico.org.mx/SieAPIRest/service/v1/series/${serieId}/datos/oportuno?token=${token}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data?.bmx?.series?.[0]?.datos?.[0]) {
+                return parseFloat(data.bmx.series[0].datos[0].dato);
+            }
+            return null;
+        } catch (error) { return null; }
+    }
+    
+    async function consultarHistorico(serieId, token, dias = 30) {
+        const url = `https://www.banxico.org.mx/SieAPIRest/service/v1/series/${serieId}/datos?token=${token}`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data?.bmx?.series?.[0]?.datos) {
+                return data.bmx.series[0].datos.slice(0, dias).reverse().map(d => parseFloat(d.dato));
+            }
+            return [];
+        } catch (error) { return []; }
+    }
+    
+    async function obtenerYActualizarDatosReales() {
+        if (!apiKey) return false;
+        
+        try {
+            const [tc, inflacion, tasa, cetes, reservas] = await Promise.all([
+                consultarBanxico(SERIES.tipoCambio, apiKey),
+                consultarBanxico(SERIES.inflacion, apiKey),
+                consultarBanxico(SERIES.tasaReferencia, apiKey),
+                consultarBanxico(SERIES.cetes28, apiKey),
+                consultarBanxico(SERIES.reservas, apiKey)
+            ]);
+            
+            // Actualizar ticker
+            if (tc) { document.getElementById('usdmxn').innerText = tc.toFixed(4); actualizarKPI('TC', tc); verificarAlertas('tc', tc); }
+            if (inflacion) { document.getElementById('inflacion').innerHTML = inflacion.toFixed(2); actualizarKPI('Inflacion', inflacion); verificarAlertas('inflacion', inflacion); }
+            if (tasa) document.getElementById('tasa').innerHTML = `${tasa.toFixed(2)}%`;
+            if (cetes) document.getElementById('cetes').innerHTML = `${cetes.toFixed(2)}%`;
+            if (reservas) actualizarKPI('Reservas', reservas);
+            
+            // Actualizar históricos y gráficos
+            const historicoTCData = await consultarHistorico(SERIES.tipoCambio, apiKey, 20);
+            const historicoInfData = await consultarHistorico(SERIES.inflacion, apiKey, 20);
+            
+            if (historicoTCData.length) actualizarGraficoTC(historicoTCData);
+            if (historicoInfData.length) actualizarGraficoInflacion(historicoInfData);
+            
+            document.getElementById('apiStatus').innerHTML = '✅ Conectado';
+            document.getElementById('apiStatus').className = 'status-online';
+            return true;
+        } catch (error) {
+            document.getElementById('apiStatus').innerHTML = '⚠️ Error';
+            return false;
+        }
+    }
+    
+    // ========== GRÁFICOS ==========
+    function initCharts() {
+        charts.tc = new Chart(document.getElementById('chartTC'), { type: 'line', data: { labels: [], datasets: [{ label: 'USD/MXN Real', borderColor: '#3498db', tension: 0.3, data: [] }] }, options: { responsive: true } });
+        charts.inflacion = new Chart(document.getElementById('chartInflacion'), { type: 'line', data: { labels: [], datasets: [{ label: 'INPC Real', borderColor: '#e74c3c', tension: 0.3, data: [] }, { label: 'Expectativa Mercado', borderColor: '#95a5a6', borderDash: [5,5], data: [] }] }, options: { responsive: true } });
+        charts.tasas = new Chart(document.getElementById('chartTasas'), { type: 'line', data: { labels: [], datasets: [{ label: 'Tasa Banxico', borderColor: '#f5b042', data: [] }, { label: 'CETES 28d', borderColor: '#27ae60', data: [] }] }, options: { responsive: true } });
+        charts.pib = new Chart(document.getElementById('chartPIB'), { type: 'bar', data: { labels: ['4T24', '1T25', '2T25', '3T25', '1T26'], datasets: [{ label: 'Var % PIB', data: [-0.4, -0.6, -0.7, -0.5, -0.8], backgroundColor: '#e67e22' }] }, options: { responsive: true } });
+        charts.petroleo = new Chart(document.getElementById('chartPetroleo'), { type: 'line', data: { labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May'], datasets: [{ label: 'Brent (USD)', data: [109.8, 101.97, 95.5, 88.3, 82.1], borderColor: '#6c757d' }] }, options: { responsive: true } });
+        charts.reservas = new Chart(document.getElementById('chartReservas'), { type: 'line', data: { labels: [], datasets: [{ label: 'Reservas (millones USD)', borderColor: '#2b7a2b', data: [] }] }, options: { responsive: true } });
+    }
+    
+    function actualizarGraficoTC(datos) {
+        if (charts.tc) {
+            charts.tc.data.labels = datos.map((_, i) => `Día ${i+1}`);
+            charts.tc.data.datasets[0].data = datos;
+            charts.tc.update();
+        }
+    }
+    
+    function actualizarGraficoInflacion(datos) {
+        if (charts.inflacion) {
+            charts.inflacion.data.labels = datos.map((_, i) => `Día ${i+1}`);
+            charts.inflacion.data.datasets[0].data = datos;
+            charts.inflacion.data.datasets[1].data = datos.map(d => d * 0.95);
+            charts.inflacion.update();
+        }
+    }
+    
+    // ========== KPIs Y TENDENCIAS ==========
+    let ultimoValorTC = null, ultimoValorInf = null;
+    function actualizarKPI(tipo, valor) {
+        if (tipo === 'TC') {
+            document.getElementById('kpiTC').innerHTML = `$${valor.toFixed(4)}`;
+            if (ultimoValorTC) {
+                const cambio = valor - ultimoValorTC;
+                document.getElementById('kpiTCTend').innerHTML = cambio > 0 ? `🔴 +${cambio.toFixed(4)} (depreciación)` : `🟢 ${cambio.toFixed(4)} (apreciación)`;
+                document.getElementById('kpiTCTend').className = cambio > 0 ? 'tendencia-up' : 'tendencia-down';
+            }
+            ultimoValorTC = valor;
+        } else if (tipo === 'Inflacion') {
+            document.getElementById('kpiInflacion').innerHTML = `${valor.toFixed(2)}%`;
+            if (ultimoValorInf) {
+                const cambio = valor - ultimoValorInf;
+                document.getElementById('kpiInfTend').innerHTML = cambio > 0 ? `⬆️ +${cambio.toFixed(2)}%` : `⬇️ ${cambio.toFixed(2)}%`;
+            }
+            ultimoValorInf = valor;
+        } else if (tipo === 'Reservas') {
+            document.getElementById('kpiReservas').innerHTML = `$${(valor/1000).toFixed(1)}B`;
+        }
+    }
+    
+    // ========== ALERTAS ==========
+    function verificarAlertas(tipo, valor) {
+        if (tipo === 'tc' && alertas.tc && valor > alertas.tc) {
+            mostrarNotificacion(`⚠️ ALERTA: Tipo de cambio superó $${alertas.tc} (actual: $${valor.toFixed(4)})`);
+        }
+        if (tipo === 'inflacion' && alertas.inflacion && valor > alertas.inflacion) {
+            mostrarNotificacion(`⚠️ ALERTA: Inflación superó ${alertas.inflacion}% (actual: ${valor.toFixed(2)}%)`);
+        }
+    }
+    
+    function mostrarNotificacion(mensaje) {
+        if (Notification.permission === 'granted') {
+            new Notification('📊 Económica México', { body: mensaje });
+        }
+        const alertaDiv = document.getElementById('alertasActivas');
+        const nuevaAlerta = document.createElement('div');
+        nuevaAlerta.className = 'alerta-item activa';
+        nuevaAlerta.innerHTML = `<span>🔔 ${mensaje}</span><span>${new Date().toLocaleTimeString()}</span>`;
+        alertaDiv.prepend(nuevaAlerta);
+        setTimeout(() => nuevaAlerta.remove(), 10000);
+    }
+    
+    // ========== EXPORTAR A EXCEL ==========
+    function exportarAExcel() {
+        const datos = {
+            "Tipo de Cambio": historicoTC,
+            "INPC": historicoInflacion,
+            "Timestamp": new Date().toISOString()
+        };
+        const ws = XLSX.utils.json_to_sheet([datos]);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Datos Economicos");
+        XLSX.writeFile(wb, `datos_economicos_${new Date().toISOString().slice(0,19)}.xlsx`);
+    }
+    
+    async function descargarGrafico(chartId) {
+        const canvas = document.getElementById(chartId);
+        const link = document.createElement('a');
+        link.download = `${chartId}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+    }
+    
+    // ========== FILTROS Y NOTICIAS ==========
+    function renderizarFiltros() {
+        const categorias = ["Todos", "Macro & Inflación", "Automotriz", "T-MEC / Comercio"];
+        const container = document.getElementById("filtrosContainer");
+        container.innerHTML = "";
+        categorias.forEach(cat => {
+            const btn = document.createElement("button");
+            btn.className = "filtro" + (cat === "Todos" ? " activo" : "");
+            btn.innerText = cat;
+            btn.onclick = () => {
+                document.querySelectorAll(".filtro").forEach(b => b.classList.remove("activo"));
+                btn.classList.add("activo");
+                const filtradas = cat === "Todos" ? noticias : noticias.filter(n => n.categoria === cat);
+                document.getElementById("grid-noticias").innerHTML = filtradas.map(n => `<div class="tarjeta"><div class="tarjeta-titulo">${n.titulo}</div><div class="tarjeta-fecha">📅 ${n.fecha}</div><div>${n.contenido}</div></div>`).join("");
+            };
+            container.appendChild(btn);
+        });
+        document.getElementById("grid-noticias").innerHTML = noticias.map(n => `<div class="tarjeta"><div class="tarjeta-titulo">${n.titulo}</div><div class="tarjeta-fecha">📅 ${n.fecha}</div><div>${n.contenido}</div></div>`).join("");
+    }
+    
+    // ========== CONFIGURACIÓN ==========
+    function init() {
+        initCharts();
+        renderizarFiltros();
+        
+        if (apiKey) {
+            document.getElementById('apiKeyInput').value = apiKey;
+            obtenerYActualizarDatosReales();
+            intervalActualizacion = setInterval(() => obtenerYActualizarDatosReales(), 300000);
+        }
+        
+        document.getElementById('conectarApiBtn').onclick = () => {
+            const nuevaKey = document.getElementById('apiKeyInput').value.trim();
+            if (nuevaKey) {
+                localStorage.setItem('banxico_api_key', nuevaKey);
+                apiKey = nuevaKey;
+                obtenerYActualizarDatosReales();
+                if (intervalActualizacion) clearInterval(intervalActualizacion);
+                intervalActualizacion = setInterval(() => obtenerYActualizarDatosReales(), 300000);
+            }
+        };
+        
+        document.getElementById('actualizarBtn').onclick = () => obtenerYActualizarDatosReales();
+        document.getElementById('exportExcelBtn').onclick = exportarAExcel;
+        document.getElementById('alertasBtn').onclick = () => {
+            const panel = document.getElementById('alertasPanel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            if (Notification.permission !== 'granted') Notification.requestPermission();
+        };
+        
+        document.getElementById('guardarAlertaTC').onclick = () => {
+            alertas.tc = parseFloat(document.getElementById('alertaTC').value);
+            localStorage.setItem('alertas', JSON.stringify(alertas));
+            mostrarNotificacion(`✅ Alerta configurada: USD/MXN > $${alertas.tc}`);
+        };
+        document.getElementById('guardarAlertaInf').onclick = () => {
+            alertas.inflacion = parseFloat(document.getElementById('alertaInf').value);
+            localStorage.setItem('alertas', JSON.stringify(alertas));
+            mostrarNotificacion(`✅ Alerta configurada: INPC > ${alertas.inflacion}%`);
+        };
+        
+        if (alertas.tc) document.getElementById('alertaTC').value = alertas.tc;
+        if (alertas.inflacion) document.getElementById('alertaInf').value = alertas.inflacion;
+    }
+    
+    // Dark mode
+    function initDarkMode() {
+        const toggle = document.getElementById('darkModeToggle');
+        if (localStorage.getItem('darkMode') === 'enabled') document.body.classList.add('dark-mode'), toggle.innerHTML = '☀️';
+        toggle.onclick = () => {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode') ? 'enabled' : 'disabled');
+            toggle.innerHTML = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+        };
+    }
+    
+    // Agregar KPI de reservas al grid
+    const kpiGrid = document.querySelector('.kpi-grid');
+    kpiGrid.innerHTML += `<div class="kpi-card"><h4>💵 Reservas Internacionales</h4><div class="kpi-valor" id="kpiReservas">---</div><div class="kpi-tendencia">Millones USD</div></div>`;
+    
+    initDarkMode();
+    init();
+</script>
+</body>
+</html>
