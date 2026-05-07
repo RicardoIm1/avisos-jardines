@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
-    <title>Barrio | Inicio</title>
+    <title>El Barrio | Inicio</title>
     <link rel="shortcut icon" href="/barrio/img/favicon.ico" type="image/x-icon">
     <link rel="icon" href="/barrio/img/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="/barrio/css/estilo.css">
@@ -797,7 +797,7 @@
                 const isLiked = userVote === 'like';
                 const isDisliked = userVote === 'dislike';
                 const whatsappNumber = aviso.contacto ? String(aviso.contacto).replace(/[^0-9]/g, '') : '';
-                const mensaje = encodeURIComponent(`Hola, vi tu aviso "${aviso.titulo}" en BARRIO. Me interesa.`);
+                const mensaje = encodeURIComponent(`Hola, vi tu aviso "${aviso.titulo}" en EL BARRIO. Me interesa.`);
 
                 // USAR LOS CAMPOS CORRECTOS DE TU HOJA
                 const likes = parseInt(aviso.intereses) || 0;           // ← intereses = likes
@@ -915,27 +915,28 @@
                 })
                 .catch(err => console.error('Error cargando header:', err));
 
+            // Footer
             fetch('/barrio/common/footer.html')
                 .then(response => response.ok ? response.text() : Promise.reject())
                 .then(data => {
                     const footerContainer = document.getElementById('footer-container');
-                    if (footerContainer) footerContainer.innerHTML = data;
-
-                    // ✅ Forzar la ejecución de scripts después de inyectar
-                    const scripts = footerContainer.querySelectorAll('script');
-                    scripts.forEach(oldScript => {
-                        const newScript = document.createElement('script');
-                        if (oldScript.src) {
-                            newScript.src = oldScript.src;
-                        } else {
-                            newScript.textContent = oldScript.textContent;
+                    if (footerContainer) {
+                        footerContainer.innerHTML = data;
+                        // ✅ Actualizar el año manualmente
+                        const yearSpan = footerContainer.querySelector('#copyright-year');
+                        if (yearSpan) {
+                            yearSpan.innerHTML = `&copy; ${new Date().getFullYear()} - El Barrio. Todos los derechos reservados.`;
                         }
-                        document.body.appendChild(newScript);
-                        oldScript.remove();
-                    });
-                })
-                .catch(error => console.error('Error cargando el footer:', error));
-        });
+                        // Ejecutar scripts
+                        const scripts = footerContainer.querySelectorAll('script');
+                        scripts.forEach(oldScript => {
+                            const newScript = document.createElement('script');
+                            newScript.textContent = oldScript.textContent;
+                            document.body.appendChild(newScript);
+                            oldScript.remove();
+                        });
+                    }
+                });
     </script>
 
     <!-- Cookie Banner -->
@@ -951,98 +952,98 @@
     </div>
 
     <script>
-        if (localStorage.getItem('cookie_consent') === 'aceptadas') {
-            const banner = document.getElementById('cookieBanner');
-            if (banner) banner.style.display = 'none';
-        }
-        const aceptarBtn = document.getElementById('aceptarCookies');
-        if (aceptarBtn) {
-            aceptarBtn.addEventListener('click', () => {
-                localStorage.setItem('cookie_consent', 'aceptadas');
+            if (localStorage.getItem('cookie_consent') === 'aceptadas') {
                 const banner = document.getElementById('cookieBanner');
                 if (banner) banner.style.display = 'none';
-            });
-        }
-
-        // Función para enviar notificación de prueba - AHORA EN EL ÁMBITO GLOBAL
-        async function enviarNotificacionPrueba() {
-            const apiKey = localStorage.getItem('api_key');
-            if (!apiKey) {
-                alert('🔐 Inicia sesión primero para probar notificaciones');
-                return;
+            }
+            const aceptarBtn = document.getElementById('aceptarCookies');
+            if (aceptarBtn) {
+                aceptarBtn.addEventListener('click', () => {
+                    localStorage.setItem('cookie_consent', 'aceptadas');
+                    const banner = document.getElementById('cookieBanner');
+                    if (banner) banner.style.display = 'none';
+                });
             }
 
-            const url = 'https://script.google.com/macros/s/AKfycbymAkb9J6BXWUftZxC8sJAisCWznqnvnpv4_B9jCOMa_Bj4dz_dhDVMHKsourD7WhyW/exec';
-
-            try {
-                const response = await fetch(`${url}?accion=ENVIAR_PRUEBA_PUSH&api_key=${apiKey}`);
-                const result = await response.json();
-
-                if (result.success) {
-                    alert('✅ Notificación de prueba enviada. Deberías verla en unos segundos.');
-                } else {
-                    alert('❌ Error: ' + (result.error || 'No se pudo enviar la notificación'));
+            // Función para enviar notificación de prueba - AHORA EN EL ÁMBITO GLOBAL
+            async function enviarNotificacionPrueba() {
+                const apiKey = localStorage.getItem('api_key');
+                if (!apiKey) {
+                    alert('🔐 Inicia sesión primero para probar notificaciones');
+                    return;
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('❌ Error de conexión. Revisa tu conexión a internet.');
+
+                const url = 'https://script.google.com/macros/s/AKfycbymAkb9J6BXWUftZxC8sJAisCWznqnvnpv4_B9jCOMa_Bj4dz_dhDVMHKsourD7WhyW/exec';
+
+                try {
+                    const response = await fetch(`${url}?accion=ENVIAR_PRUEBA_PUSH&api_key=${apiKey}`);
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert('✅ Notificación de prueba enviada. Deberías verla en unos segundos.');
+                    } else {
+                        alert('❌ Error: ' + (result.error || 'No se pudo enviar la notificación'));
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('❌ Error de conexión. Revisa tu conexión a internet.');
+                }
             }
-        }
     </script>
 
     <script>
-        function actualizarHeaderPorSesion() {
-            const usuarioStr = localStorage.getItem('usuario');
-            const apiKey = localStorage.getItem('api_key');
-            const loginLink = document.getElementById('login-link');
-            const userArea = document.getElementById('user-area');
-            const userNameSpan = document.getElementById('user-name');
-            const cerrarBtn = document.getElementById('cerrar-sesion');
+            function actualizarHeaderPorSesion() {
+                const usuarioStr = localStorage.getItem('usuario');
+                const apiKey = localStorage.getItem('api_key');
+                const loginLink = document.getElementById('login-link');
+                const userArea = document.getElementById('user-area');
+                const userNameSpan = document.getElementById('user-name');
+                const cerrarBtn = document.getElementById('cerrar-sesion');
 
-            if (!loginLink) { setTimeout(actualizarHeaderPorSesion, 200); return; }
+                if (!loginLink) { setTimeout(actualizarHeaderPorSesion, 200); return; }
 
-            if (usuarioStr && apiKey) {
-                try {
-                    const usuario = JSON.parse(usuarioStr);
-                    if (loginLink) loginLink.style.display = 'none';
-                    if (userArea) userArea.style.display = 'flex';
-                    if (userNameSpan) {
-                        userNameSpan.textContent = `👋 ${usuario.nombre || usuario.email || 'Usuario'}`;
-                        userNameSpan.style.cursor = 'pointer';
-                        userNameSpan.onclick = () => window.location.href = '/barrio/admin.html';
-                    }
-                    if (cerrarBtn) {
-                        const nuevoCerrar = cerrarBtn.cloneNode(true);
-                        cerrarBtn.parentNode.replaceChild(nuevoCerrar, cerrarBtn);
-                        nuevoCerrar.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            localStorage.removeItem('usuario');
-                            localStorage.removeItem('api_key');
-                            window.location.href = '/barrio/index.html';
-                        });
-                    }
-                } catch (e) { console.error(e); }
-            } else {
-                if (loginLink) loginLink.style.display = 'inline-flex';
-                if (userArea) userArea.style.display = 'none';
+                if (usuarioStr && apiKey) {
+                    try {
+                        const usuario = JSON.parse(usuarioStr);
+                        if (loginLink) loginLink.style.display = 'none';
+                        if (userArea) userArea.style.display = 'flex';
+                        if (userNameSpan) {
+                            userNameSpan.textContent = `👋 ${usuario.nombre || usuario.email || 'Usuario'}`;
+                            userNameSpan.style.cursor = 'pointer';
+                            userNameSpan.onclick = () => window.location.href = '/barrio/admin.html';
+                        }
+                        if (cerrarBtn) {
+                            const nuevoCerrar = cerrarBtn.cloneNode(true);
+                            cerrarBtn.parentNode.replaceChild(nuevoCerrar, cerrarBtn);
+                            nuevoCerrar.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                localStorage.removeItem('usuario');
+                                localStorage.removeItem('api_key');
+                                window.location.href = '/barrio/index.html';
+                            });
+                        }
+                    } catch (e) { console.error(e); }
+                } else {
+                    if (loginLink) loginLink.style.display = 'inline-flex';
+                    if (userArea) userArea.style.display = 'none';
+                }
             }
-        }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(actualizarHeaderPorSesion, 200);
-            setTimeout(actualizarHeaderPorSesion, 500);
-            setTimeout(actualizarHeaderPorSesion, 1000);
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(actualizarHeaderPorSesion, 200);
+                setTimeout(actualizarHeaderPorSesion, 500);
+                setTimeout(actualizarHeaderPorSesion, 1000);
 
-            // Botón para ir a registro
-            const btnRegistro = document.getElementById('btnProbarNotificacion');
-            if (btnRegistro) {
-                btnRegistro.removeEventListener('click', btnRegistro.clickHandler);
-                btnRegistro.clickHandler = () => {
-                    window.location.href = '/barrio/registro.html';
-                };
-                btnRegistro.addEventListener('click', btnRegistro.clickHandler);
-            }
-        });
+                // Botón para ir a registro
+                const btnRegistro = document.getElementById('btnProbarNotificacion');
+                if (btnRegistro) {
+                    btnRegistro.removeEventListener('click', btnRegistro.clickHandler);
+                    btnRegistro.clickHandler = () => {
+                        window.location.href = '/barrio/registro.html';
+                    };
+                    btnRegistro.addEventListener('click', btnRegistro.clickHandler);
+                }
+            });
     </script>
 
     <!-- Panel de comentarios flotante -->
@@ -1061,78 +1062,78 @@
     </div>
 
     <script type="module">
-        // Notificaciones push con Web Push API nativa (SIN Firebase)
+            // Notificaciones push con Web Push API nativa (SIN Firebase)
 
-        async function registrarPushNotifications(apiKey) {
-            try {
-                if (!('Notification' in window)) {
-                    console.log('Notificaciones no soportadas');
-                    return;
+            async function registrarPushNotifications(apiKey) {
+                try {
+                    if (!('Notification' in window)) {
+                        console.log('Notificaciones no soportadas');
+                        return;
+                    }
+
+                    const permission = await Notification.requestPermission();
+                    if (permission !== 'granted') {
+                        console.log('Permiso denegado');
+                        return;
+                    }
+
+                    // Registrar Service Worker manualmente en /barrio/
+                    const registration = await navigator.serviceWorker.register('/barrio/sw.js');
+                    console.log('Service Worker registrado:', registration);
+
+                    // Suscripción push nativa
+                    const subscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: urlBase64ToUInt8Array('BIFRjw-VpDft10-O6ZJX_0ODl6tEuHM4gR4EvuHfvZz3u7Fo0ypcorNLb2E_rUae8ChaIfjQShrHAe_0r2papBE')
+                    });
+
+                    console.log('Suscripción obtenida:', subscription);
+
+                    // Guardar suscripción en el backend
+                    await guardarSuscripcionEnBackend(subscription, apiKey);
+
+                    showToast('Notificaciones activadas correctamente', 'success');
+                } catch (error) {
+                    console.error('Error:', error);
+                    showToast('Error al activar notificaciones', 'error');
                 }
+            }
 
-                const permission = await Notification.requestPermission();
-                if (permission !== 'granted') {
-                    console.log('Permiso denegado');
-                    return;
+            function urlBase64ToUInt8Array(base64String) {
+                const padding = '='.repeat((4 - base64String.length % 4) % 4);
+                const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+                const rawData = atob(base64);
+                const outputArray = new Uint8Array(rawData.length);
+                for (let i = 0; i < rawData.length; ++i) {
+                    outputArray[i] = rawData.charCodeAt(i);
                 }
-
-                // Registrar Service Worker manualmente en /barrio/
-                const registration = await navigator.serviceWorker.register('/barrio/sw.js');
-                console.log('Service Worker registrado:', registration);
-
-                // Suscripción push nativa
-                const subscription = await registration.pushManager.subscribe({
-                    userVisibleOnly: true,
-                    applicationServerKey: urlBase64ToUInt8Array('BIFRjw-VpDft10-O6ZJX_0ODl6tEuHM4gR4EvuHfvZz3u7Fo0ypcorNLb2E_rUae8ChaIfjQShrHAe_0r2papBE')
-                });
-
-                console.log('Suscripción obtenida:', subscription);
-
-                // Guardar suscripción en el backend
-                await guardarSuscripcionEnBackend(subscription, apiKey);
-
-                showToast('Notificaciones activadas correctamente', 'success');
-            } catch (error) {
-                console.error('Error:', error);
-                showToast('Error al activar notificaciones', 'error');
+                return outputArray;
             }
-        }
 
-        function urlBase64ToUInt8Array(base64String) {
-            const padding = '='.repeat((4 - base64String.length % 4) % 4);
-            const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
-            const rawData = atob(base64);
-            const outputArray = new Uint8Array(rawData.length);
-            for (let i = 0; i < rawData.length; ++i) {
-                outputArray[i] = rawData.charCodeAt(i);
+            async function guardarSuscripcionEnBackend(subscription, apiKey) {
+                const url = 'https://script.google.com/macros/s/AKfycbymAkb9J6BXWUftZxC8sJAisCWznqnvnpv4_B9jCOMa_Bj4dz_dhDVMHKsourD7WhyW/exec';
+                const response = await fetch(`${url}?accion=REGISTRAR_TOKEN_PUSH&api_key=${apiKey}&token=${JSON.stringify(subscription)}&dispositivo=web`);
+                return await response.json();
             }
-            return outputArray;
-        }
 
-        async function guardarSuscripcionEnBackend(subscription, apiKey) {
-            const url = 'https://script.google.com/macros/s/AKfycbymAkb9J6BXWUftZxC8sJAisCWznqnvnpv4_B9jCOMa_Bj4dz_dhDVMHKsourD7WhyW/exec';
-            const response = await fetch(`${url}?accion=REGISTRAR_TOKEN_PUSH&api_key=${apiKey}&token=${JSON.stringify(subscription)}&dispositivo=web`);
-            return await response.json();
-        }
-
-        function showToast(mensaje, tipo) {
-            const toast = document.getElementById('toast');
-            toast.textContent = mensaje;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-
-        // Integrar con login
-        const originalHandleLogin = window.handleLogin;
-        window.handleLogin = async function (email, password) {
-            const result = await originalHandleLogin(email, password);
-            if (result && result.success && result.data && result.data.api_key) {
-                await registrarPushNotifications(result.data.api_key);
+            function showToast(mensaje, tipo) {
+                const toast = document.getElementById('toast');
+                toast.textContent = mensaje;
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 3000);
             }
-            return result;
-        };
 
-        window.registrarPushNotifications = registrarPushNotifications;
+            // Integrar con login
+            const originalHandleLogin = window.handleLogin;
+            window.handleLogin = async function (email, password) {
+                const result = await originalHandleLogin(email, password);
+                if (result && result.success && result.data && result.data.api_key) {
+                    await registrarPushNotifications(result.data.api_key);
+                }
+                return result;
+            };
+
+            window.registrarPushNotifications = registrarPushNotifications;
     </script>
 
     <!-- Estilos para notificaciones -->
