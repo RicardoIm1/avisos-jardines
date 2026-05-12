@@ -385,18 +385,6 @@
             color: var(--color-texto-claro);
         }
     </style>
-
-    <picture>
-        <!-- WEBP para navegadores modernos -->
-        <source srcset="/barrio/img/banner-elbarrio.webp" type="image/webp">
-        <!-- PNG como respaldo -->
-        <img class="hero-banner" src="/barrio/img/banner-elbarrio2.png"
-            alt="El Barrio - Comunidad vecinal en tu colonia" width="1200" height="400" loading="eager"
-            fetchpriority="high" decoding="async"
-            onerror="this.onerror=null; this.src='/barrio/img/fallback-banner.png'; console.warn('⚠️ Banner principal no encontrado');">
-    </picture>
-
-    <!-- Espaciador visual para evitar cambios bruscos de layout -->
     <style>
         .hero-banner {
             width: 100%;
@@ -412,6 +400,15 @@
             }
         }
     </style>
+
+    <!-- ========== BANNER HERO ========== -->
+    <picture>
+        <source srcset="/barrio/img/banner-elbarrio.webp" type="image/webp">
+        <img class="hero-banner" src="/barrio/img/banner-elbarrio2.png"
+            alt="El Barrio - Comunidad vecinal en tu colonia" width="1200" height="400" loading="eager"
+            fetchpriority="high" decoding="async"
+            onerror="this.onerror=null; this.src='/barrio/img/fallback-banner.png'; console.warn('⚠️ Banner principal no encontrado');">
+    </picture>
 </head>
 
 <body>
