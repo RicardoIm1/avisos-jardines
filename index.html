@@ -385,27 +385,35 @@
             color: var(--color-texto-claro);
         }
     </style>
+    <style>
+        .hero-banner {
+            width: 100%;
+            height: auto;
+            max-height: 65vh;
+            object-fit: cover;
+            display: block;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .hero-banner {
+                opacity: 0.95;
+            }
+        }
+        
+    </style>
 
 </head>
 
 <body>
     <div id="header-container"></div>
-    <!-- ========== BANNER HERO CON BOTÓN SUPERPUESTO ========== -->
-    <div class="hero-container">
-        <picture>
-            <source srcset="/barrio/img/banner-elbarrio2.webp" type="image/webp">
-            <img class="hero-banner" src="/barrio/img/banner-elbarrio2.png"
-                alt="El Barrio - Comunidad vecinal en tu colonia" width="1200" height="400" loading="eager"
-                fetchpriority="high" decoding="async"
-                onerror="this.onerror=null; this.src='/barrio/img/fallback-banner.png'; console.warn('⚠️ Banner principal no encontrado');">
-        </picture>
-
-        <!-- Botón superpuesto -->
-        <button id="btnProbarNotificacion" class="btn-hero-overlay">
-            📝 ¿Eres vecino? Regístrate y publica tus avisos gratis
-        </button>
-    </div>
-
+    <!-- ========== BANNER HERO ========== -->
+    <picture>
+        <source srcset="/barrio/img/banner-elbarrio2.webp" type="image/webp">
+        <img class="hero-banner" src="/barrio/img/banner-elbarrio2.png"
+            alt="El Barrio - Comunidad vecinal en tu colonia" width="1200" height="400" loading="eager"
+            fetchpriority="high" decoding="async"
+            onerror="this.onerror=null; this.src='/barrio/img/fallback-banner.png'; console.warn('⚠️ Banner principal no encontrado');">
+    </picture>
     <main class="contenedor">
         <div class="filtros-buscador-wrapper">
             <div class="buscador-container">
