@@ -977,12 +977,14 @@
               mimeType: file.type,
               data: event.target.result.split(',')[1]
             };
+            
             const apiKey = localStorage.getItem('api_key');
             const respuesta = await API.post(
               'SUBIR_IMAGEN_DRIVE',
-              { datos: datosSubida },
+              { datos: JSON.stringify(datosSubida) },
               apiKey
             );
+
             if (respuesta && respuesta.success) {
               document.getElementById('imagen_url').value = respuesta.data.url;
               const vistaPrevia = document.getElementById('vista-previa');
