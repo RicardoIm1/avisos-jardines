@@ -6,6 +6,7 @@ let filtroCategoriaAdmin = 'todos';
 let filtroStatusAdmin = 'todos';
 
 document.addEventListener('DOMContentLoaded', function () {
+  let subiendoImagen = false;  // ← AGREGAR ESTA LÍNEA
   console.log('Admin.js cargado correctamente');
 
   const usuario = Auth.requireAuth();
@@ -36,6 +37,10 @@ document.addEventListener('DOMContentLoaded', function () {
     formAviso.addEventListener('submit', async function (e) {
       e.preventDefault();
       e.stopPropagation();
+      if (subiendoImagen) {
+        API.mostrarError('⏳ Espera a que termine de subir la imagen');
+        return;
+      }
 
       console.log('=== INICIO DEL ENVÍO ===');
 

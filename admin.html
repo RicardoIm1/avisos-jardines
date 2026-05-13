@@ -961,6 +961,13 @@
           const file = e.target.files[0];
           if (!file) return;
 
+          subiendoImagen = true;
+          const botonSubmit = document.querySelector('#form-aviso .boton[type="submit"]');
+          if (botonSubmit) {
+            botonSubmit.disabled = true;
+            botonSubmit.textContent = '📤 Subiendo imagen...';
+          }
+
           const reader = new FileReader();
           reader.onload = async (event) => {
             const datosSubida = {
@@ -980,8 +987,14 @@
               if (vistaPrevia) {
                 vistaPrevia.innerHTML = `<img src="${respuesta.data.url}" style="max-width:100%; max-height:150px; border-radius: 8px;">`;
               }
+              API.mostrarExito('✅ Imagen subida correctamente');
             } else {
-              alert('Error al subir la imagen: ' + (respuesta?.error || 'Intenta de nuevo'));
+              API.mostrarError('Error al subir la imagen: ' + (respuesta?.error || 'Intenta de nuevo'));
+            }
+            subiendoImagen = false;
+            if (botonSubmit) {
+              botonSubmit.disabled = false;
+              botonSubmit.textContent = 'Publicar aviso';
             }
           };
           reader.readAsDataURL(file);
