@@ -103,7 +103,7 @@ class API {
   // Login
   static async login(email, password) {
     try {
-      const resultado = await API.peticion('LOGIN', { email: email, password: password });
+      const resultado = await API.post('LOGIN', { email: email, password: password });
 
       if (resultado && resultado.success && resultado.data && resultado.data.api_key) {
         localStorage.setItem('api_key', resultado.data.api_key);
@@ -211,7 +211,7 @@ class API {
   // Crear aviso
   static async crearAviso(datos, apiKey) {
     // Enviar los datos DENTRO de un objeto llamado "datos"
-    return await API.peticion('CREAR', {
+    return await API.post('CREAR', {
       coleccion: 'AVISOS',
       datos: datos  // <-- Aquí está la clave: anidar dentro de "datos"
     }, apiKey);
@@ -219,7 +219,7 @@ class API {
 
   // Actualizar aviso
   static async actualizarAviso(id, datos, apiKey) {
-    return await API.peticion('ACTUALIZAR', {
+    return await API.post('ACTUALIZAR', {
       coleccion: 'AVISOS',
       id: id,
       datos: datos
