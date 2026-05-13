@@ -69,6 +69,35 @@ class API {
     });
   }
 
+  static async post(accion, datos = {}, apiKey = null) {
+
+    try {
+
+      const body = {
+        accion,
+        ...datos
+      };
+
+      if (apiKey) {
+        body.api_key = apiKey;
+      }
+
+      const response = await fetch(API_BASE_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify(body)
+      });
+
+      return await response.json();
+
+    } catch (error) {
+      console.error('Error POST:', error);
+      throw error;
+    }
+  }
+
   // ==================== MÉTODOS DE AUTENTICACIÓN ====================
 
   // Login
