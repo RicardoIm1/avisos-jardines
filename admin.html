@@ -574,12 +574,18 @@
           <input type="date" id="fecha_evento" name="fecha_evento">
         </div>
 
-        <div class="campo">
+        <!-- <div class="campo">
           <label for="imagen_url">URL de imagen (opcional)</label>
           <input type="url" id="imagen_url" name="imagen_url" placeholder="https://ejemplo.com/imagen.jpg">
           <div id="preview-nuevo" class="preview-container">
             <img id="preview-imagen-nuevo" class="preview-imagen" alt="Vista previa">
           </div>
+        </div> -->
+
+        <div class="campo">
+          <label>📸 Subir imagen (opcional)</label>
+          <input type="file" id="upload-imagen" accept="image/*" capture="environment">
+          <div id="vista-previa" style="margin-top: 10px;"></div>
         </div>
 
         <div class="campo">
@@ -946,6 +952,40 @@
       setTimeout(actualizarHeader, 1000);
     })();
   </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const uploadInput = document.getElementById('upload-imagen');
+      if (uploadInput) {
+        uploadInput.addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = async (event) => {
+            const datosSubida = {
+              nombre: file.name,
+              mimeType: file.type,
+              data: event.target.result
+            };
+            const apiKey = localStorage.getItem('api_key');
+            const respuesta = await API.peticion('SUBIR_IMAGEN_DRIVE', { datos: datosSubida }, apiKey);
+            if (respuesta && respuesta.success) {
+              document.getElementById('imagen_url').value = respuesta.data.url;
+              const vistaPrevia = document.getElementById('vista-previa');
+              if (vistaPrevia) {
+                vistaPrevia.innerHTML = `<img src="${respuesta.data.url}" style="max-width:100%; max-height:150px; border-radius: 8px;">`;
+              }
+            } else {
+              alert('Error al subir la imagen: ' + (respuesta?.error || 'Intenta de nuevo'));
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+    });
+  </script>
+
 </body>
 
 </html>
