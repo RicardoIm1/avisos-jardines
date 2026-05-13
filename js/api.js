@@ -1,6 +1,6 @@
 // ==================== API CLIENT - Jardines PVR ====================
 
-const API_BASE_URL = 'https://script.google.com/macros/s/AKfycbynH0XBUP8a6zKOMkxm0DpO9VWXMTWiVR13QTtC2rVCpqRrwGgxWFjDokihqQHQlZa9/exec';
+const API_BASE_URL = 'https://script.google.com/macros/s/AKfycby_cQ1wJOKCbcgtH_PO6LyD3IuKBXtr6OgFbIgdM5aLPNwHDMMonb9R67TeMFvkbUcb/exec';
 
 // Al inicio del archivo, después de const API_BASE_URL
 if (window.location.hostname !== 'localhost') {
@@ -434,3 +434,4 @@ API.listarPublicos = async function (filtros = {}, paginacion = {}) {
 
   return { datos: [], total: 0 };
 };
+
