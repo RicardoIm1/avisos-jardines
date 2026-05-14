@@ -421,18 +421,14 @@ API.listarPublicos = async function (filtros = {}, paginacion = {}) {
     ...filtros,
     ...paginacion
   };
-
-  // Si hay id, enviarlo para filtrar
-  if (filtros.id) {
-    params.id = filtros.id;
-  }
-
+  
+  // Usar peticion (JSONP) en lugar de post
   const resultado = await API.peticion('LISTAR_AVISOS_PUBLICOS', params);
-
+  
   if (resultado && resultado.success) {
     return resultado.data || { datos: [], total: 0 };
   }
-
+  
+  console.error('Error en listarPublicos:', resultado);
   return { datos: [], total: 0 };
 };
-
