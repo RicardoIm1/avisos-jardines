@@ -405,7 +405,7 @@
         function registrarVisita(pagina) {
             const userAgent = navigator.userAgent;
             const referer = document.referrer;
-            const url = `URL_DE_TU_APPS_SCRIPT?accion=REGISTRAR_VISITA&pagina=${pagina}&user_agent=${encodeURIComponent(userAgent)}&referer=${encodeURIComponent(referer)}`;
+            const url = `https://script.google.com/macros/s/AKfycbyrZARiGvjxonyyVgvwH0cR0Zh-hReZWNqAchEdYgj81FxKZH0UGWU-9cFOv5fFLAtp/exec?accion=REGISTRAR_VISITA&pagina=${pagina}&user_agent=${encodeURIComponent(userAgent)}&referer=${encodeURIComponent(referer)}`;
             fetch(url).catch(e => console.warn('Error registrando visita:', e));
         }
 
