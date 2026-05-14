@@ -26,7 +26,14 @@ const Auth = {
 
   // 👤 Usuario actual
   getUsuario() {
-    return API.getUsuarioActual();
+    const raw = localStorage.getItem('usuario');
+
+    try {
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) {
+      localStorage.removeItem('usuario');
+      return null;
+    }
   },
 
   // ✅ ¿Hay sesión?
