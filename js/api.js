@@ -162,6 +162,7 @@ class API {
       const usuarioStr = localStorage.getItem('usuario');
       if (!usuarioStr) return null;
       const usuario = JSON.parse(usuarioStr);
+      
       // Verificar que no sea el string "undefined"
       if (usuario === 'undefined' || !usuario.email) return null;
       return usuario;
