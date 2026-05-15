@@ -891,12 +891,13 @@
       });
     }
 
-    // Función para subir imagen a Drive
+    // Función para subir imagen a Drive (con API key)
     async function subirImagenADrive(file, apiKey) {
       const base64 = await convertirABase64(file);
 
       const datos = {
         accion: 'SUBIR_IMAGEN_DRIVE',
+        api_key: apiKey,  // ← IMPORTANTE: agregar api_key aquí
         datos: {
           data: base64,
           nombre: file.name,
@@ -908,6 +909,9 @@
 
       const respuesta = await fetch(urlGAS, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(datos)
       });
 
@@ -975,14 +979,19 @@
     });
 
     // INTERCEPTAR EL ENVÍO DEL FORMULARIO
-    // Buscar el formulario y reemplazar su submit
     document.addEventListener('DOMContentLoaded', function () {
       const formAviso = document.getElementById('form-aviso');
       if (!formAviso) return;
 
-      // Guardar el submit original y reemplazarlo
       formAviso.addEventListener('submit', async function (e) {
         e.preventDefault();
+
+        // Verificar que el usuario esté logueado
+        const apiKey = localStorage.getItem('api_key');
+        if (!apiKey) {
+          API.mostrarError('❌ Debes iniciar sesión para publicar un aviso');
+          return;
+        }
 
         const fileInput = document.getElementById('upload-imagen');
         const imagenUrlInput = document.getElementById('imagen_url');
@@ -993,7 +1002,6 @@
         const botonOriginalText = botonSubmit?.innerHTML || 'Publicar aviso';
 
         try {
-          // Deshabilitar botón
           if (botonSubmit) {
             botonSubmit.disabled = true;
             botonSubmit.innerHTML = '📤 Procesando...';
@@ -1003,9 +1011,8 @@
 
           // Si hay un archivo seleccionado y no tiene URL, subirlo ahora
           if (file && !imagenUrl) {
-            API.mostrarExito('📸 Subiendo imagen a Drive...');
+            API.mostrarInfo('📸 Subiendo imagen a Drive...');
 
-            const apiKey = localStorage.getItem('api_key');
             imagenUrl = await subirImagenADrive(file, apiKey);
 
             if (imagenUrlInput) {
@@ -1052,10 +1059,11 @@
             throw new Error('La descripción es obligatoria');
           }
 
-          // Preparar datos para crear el aviso
+          // Preparar datos para crear el aviso (con API key)
           const datosAviso = {
             accion: 'CREAR',
             coleccion: 'AVISOS',
+            api_key: apiKey,  // ← IMPORTANTE: incluir api_key
             datos: {
               titulo: titulo,
               contenido: contenido,
@@ -1070,12 +1078,16 @@
             }
           };
 
-          const apiKey = localStorage.getItem('api_key');
           const urlGAS = 'https://script.google.com/macros/s/AKfycbx-p9dzp-hHMuQSxusyLTBNEkJWgitH5SBDeJEARsCPq3ChZunnZcf1EnSPvzT0MkIf/exec';
+
+          API.mostrarInfo('📝 Publicando aviso...');
 
           // Enviar aviso
           const respuesta = await fetch(urlGAS, {
             method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
             body: JSON.stringify(datosAviso)
           });
 
@@ -1090,14 +1102,13 @@
             if (imagenUrlInput) imagenUrlInput.value = '';
             if (fileInput) fileInput.value = '';
 
-            // Redirigir o recargar lista de avisos
+            // Cambiar a la pestaña de "Mis avisos"
             setTimeout(() => {
-              // Cambiar a la pestaña de "Mis avisos"
               const tabLista = document.querySelector('.filtro[data-tab="lista"]');
               if (tabLista) {
                 tabLista.click();
               }
-              // Recargar avisos
+              // Recargar avisos si existe la función
               if (typeof cargarMisAvisos === 'function') {
                 cargarMisAvisos();
               }
@@ -1119,7 +1130,6 @@
       });
     });
   </script>
-
 </body>
 
 </html>
