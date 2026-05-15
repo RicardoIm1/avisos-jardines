@@ -1016,6 +1016,66 @@
     });
   </script>
 
+    <script>
+    function convertirABase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+      });
+    }
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const uploadInput = document.getElementById('upload-imagen');
+      const imagenUrlInput = document.getElementById('imagen_url');
+      const vistaPrevia = document.getElementById('vista-previa');
+
+      if (!uploadInput) return;
+
+      uploadInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        if (file.size > 2 * 1024 * 1024) {
+          API.mostrarError('❌ La imagen no debe superar los 2MB');
+          uploadInput.value = '';
+          vistaPrevia.innerHTML = '';
+          return;
+        }
+
+        if (!file.type.startsWith('image/')) {
+          API.mostrarError('❌ Solo se permiten imágenes');
+          uploadInput.value = '';
+          vistaPrevia.innerHTML = '';
+          return;
+        }
+
+        const urlTemp = URL.createObjectURL(file);
+        vistaPrevia.innerHTML = `
+          <div style="position: relative; display: inline-block; margin-top: 10px;">
+            <img src="${urlTemp}" style="max-width: 100%; max-height: 150px; border-radius: 8px; border: 2px solid #ff8c42;">
+            <button type="button" id="eliminar-preview" style="position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">✕</button>
+          </div>
+        `;
+        
+        if (imagenUrlInput) imagenUrlInput.value = '';
+        
+        const eliminarBtn = document.getElementById('eliminar-preview');
+        if (eliminarBtn) {
+          eliminarBtn.addEventListener('click', () => {
+            uploadInput.value = '';
+            vistaPrevia.innerHTML = '';
+            if (imagenUrlInput) imagenUrlInput.value = '';
+            API.mostrarExito('🗑️ Imagen eliminada');
+          });
+        }
+      });
+    });
+  </script>
+
 </body>
 
 </html>
