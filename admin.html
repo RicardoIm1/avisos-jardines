@@ -887,7 +887,7 @@
   </script>
 
   <script>
-    // ENVÍO DEL FORMULARIO - CON PREVENCIÓN DE DUPLICADOS
+    // ENVÍO DEL FORMULARIO - VERSIÓN MEJORADA
     document.addEventListener('DOMContentLoaded', function () {
       const formAviso = document.getElementById('form-aviso');
       if (!formAviso) return;
@@ -901,115 +901,110 @@
 
       nuevoForm.addEventListener('submit', async function (e) {
         e.preventDefault();
-        e.stopPropagation();
 
-        // Si ya se está enviando, ignorar
-        if (enviando) {
-          console.log('⚠️ Ya hay un envío en proceso, ignorando...');
-          return;
-        }
+        if (enviando) return;
 
         const apiKey = localStorage.getItem('api_key');
         if (!apiKey) {
-          API.mostrarError('❌ Debes iniciar sesión para publicar un aviso');
+          API.mostrarError('❌ Debes iniciar sesión');
           return;
         }
-
-        const fileInput = document.getElementById('upload-imagen');
-        const file = fileInput?.files[0];
 
         const botonSubmit = nuevoForm.querySelector('.boton[type="submit"]');
         const botonOriginalText = botonSubmit?.innerHTML || 'Publicar aviso';
 
         try {
-          // Marcar como enviando
           enviando = true;
-
           if (botonSubmit) {
             botonSubmit.disabled = true;
             botonSubmit.innerHTML = '📤 Publicando...';
           }
 
-          // Obtener datos del formulario
-          const titulo = document.getElementById('titulo')?.value || '';
-          const contenido = document.getElementById('contenido')?.value || '';
-          const categoria = document.getElementById('categoria')?.value || 'varios';
-          const ubicacion = document.getElementById('ubicacion')?.value || '';
-          const contacto = document.getElementById('contacto')?.value || '';
-          const fecha_evento = document.getElementById('fecha_evento')?.value || '';
-          const video_url = document.getElementById('video_url')?.value || '';
-          const urgente = document.getElementById('urgente')?.checked || false;
-
-          // Validar campos obligatorios
-          if (!titulo.trim()) {
-            throw new Error('El título es obligatorio');
-          }
-          if (!contenido.trim()) {
-            throw new Error('La descripción es obligatoria');
-          }
-
-          let imagenUrl = '';
-
-          // Si hay imagen, procesarla a base64
-          if (file) {
-            API.mostrarExito('📸 Procesando imagen...');
-            imagenUrl = await convertirABase64(file);
-          }
-
-          // Preparar datos
+          // Recoger datos del formulario
           const datosAviso = {
             accion: 'CREAR_AVISO_CON_IMAGEN',
             api_key: apiKey,
-            titulo: titulo,
-            contenido: contenido,
-            categoria: categoria,
-            ubicacion: ubicacion,
-            contacto: contacto,
-            fecha_evento: fecha_evento,
-            imagen_base64: imagenUrl,
-            video_url: video_url,
-            urgente: urgente
+            titulo: document.getElementById('titulo')?.value || '',
+            contenido: document.getElementById('contenido')?.value || '',
+            categoria: document.getElementById('categoria')?.value || 'varios',
+            ubicacion: document.getElementById('ubicacion')?.value || '',
+            contacto: document.getElementById('contacto')?.value || '',
+            fecha_evento: document.getElementById('fecha_evento')?.value || '',
+            video_url: document.getElementById('video_url')?.value || '',
+            urgente: document.getElementById('urgente')?.checked || false
           };
 
+          // Validar campos requeridos
+          if (!datosAviso.titulo.trim() || !datosAviso.contenido.trim()) {
+            throw new Error('Completa todos los campos obligatorios');
+          }
+
+          // Procesar imagen si existe
+          const file = document.getElementById('upload-imagen')?.files[0];
+          if (file) {
+            API.mostrarExito('📸 Procesando imagen...');
+            datosAviso.imagen_base64 = await convertirABase64(file);
+          }
+
           const urlGAS = 'https://script.google.com/macros/s/AKfycbwnmmqVP_cDTOsn9N-ChbkLvOqSYaa_W12ds2z4l4WbGl8_z0n-_A_vU-Og-zskzTWc/exec';
+
+          // Intentar conexión con timeout
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 30000);
 
           API.mostrarExito('📝 Publicando aviso...');
 
           const respuesta = await fetch(urlGAS, {
             method: 'POST',
-            mode: 'no-cors',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(datosAviso)
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datosAviso),
+            signal: controller.signal
           });
 
-          // Limpiar formulario
-          nuevoForm.reset();
-          const vistaPrevia = document.getElementById('vista-previa');
-          if (vistaPrevia) vistaPrevia.innerHTML = '';
-          const imagenUrlInput = document.getElementById('imagen_url');
-          if (imagenUrlInput) imagenUrlInput.value = '';
-          if (fileInput) fileInput.value = '';
+          clearTimeout(timeoutId);
 
-          API.mostrarExito('✅ ¡Aviso publicado correctamente!');
+          if (!respuesta.ok) {
+            throw new Error(`Error HTTP: ${respuesta.status}`);
+          }
 
-          // Cambiar a la pestaña de "Mis avisos"
-          setTimeout(() => {
-            const tabLista = document.querySelector('.filtro[data-tab="lista"]');
-            if (tabLista) {
-              tabLista.click();
-            }
-            if (typeof cargarMisAvisos === 'function') {
-              cargarMisAvisos();
-            }
-          }, 1500);
+          const resultado = await respuesta.json();
+
+          if (resultado.success) {
+            API.mostrarExito('✅ ¡Aviso publicado correctamente!');
+            nuevoForm.reset();
+
+            // Limpiar vista previa
+            const vistaPrevia = document.getElementById('vista-previa');
+            if (vistaPrevia) vistaPrevia.innerHTML = '';
+
+            // Limpiar campo de URL de imagen
+            const imagenUrlInput = document.getElementById('imagen_url');
+            if (imagenUrlInput) imagenUrlInput.value = '';
+
+            // Limpiar input de archivo
+            const fileInput = document.getElementById('upload-imagen');
+            if (fileInput) fileInput.value = '';
+
+            // Cambiar a la pestaña de lista
+            setTimeout(() => {
+              const tabLista = document.querySelector('.filtro[data-tab="lista"]');
+              if (tabLista) tabLista.click();
+              if (typeof cargarMisAvisos === 'function') {
+                cargarMisAvisos();
+              }
+            }, 1500);
+          } else {
+            throw new Error(resultado.error || 'Error al publicar');
+          }
 
         } catch (error) {
           console.error('Error:', error);
-          API.mostrarError('❌ ' + error.message);
+          if (error.message === 'AbortError') {
+            API.mostrarError('❌ Tiempo de espera agotado. Intenta de nuevo.');
+          } else {
+            API.mostrarError('❌ ' + error.message);
+          }
         } finally {
-          // Liberar el bloqueo después de 2 segundos
           setTimeout(() => {
             enviando = false;
             if (botonSubmit) {
