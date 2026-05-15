@@ -881,73 +881,27 @@
   </script>
 
   <script>
-    // Función para convertir archivo a base64
-    function convertirABase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-        reader.readAsDataURL(file);
-      });
-    }
-
-    // Mostrar vista previa de la imagen seleccionada
-    document.addEventListener('DOMContentLoaded', function () {
-      const uploadInput = document.getElementById('upload-imagen');
-      const imagenUrlInput = document.getElementById('imagen_url');
-      const vistaPrevia = document.getElementById('vista-previa');
-
-      if (!uploadInput) return;
-
-      uploadInput.addEventListener('change', function (e) {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        if (file.size > 2 * 1024 * 1024) {
-          API.mostrarError('❌ La imagen no debe superar los 2MB');
-          uploadInput.value = '';
-          vistaPrevia.innerHTML = '';
-          return;
-        }
-
-        if (!file.type.startsWith('image/')) {
-          API.mostrarError('❌ Solo se permiten imágenes');
-          uploadInput.value = '';
-          vistaPrevia.innerHTML = '';
-          return;
-        }
-
-        const urlTemp = URL.createObjectURL(file);
-        vistaPrevia.innerHTML = `
-      <div style="position: relative; display: inline-block; margin-top: 10px;">
-        <img src="${urlTemp}" style="max-width: 100%; max-height: 150px; border-radius: 8px; border: 2px solid #ff8c42;">
-        <button type="button" id="eliminar-preview" style="position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">✕</button>
-      </div>
-    `;
-
-        if (imagenUrlInput) {
-          imagenUrlInput.value = '';
-        }
-
-        const eliminarBtn = document.getElementById('eliminar-preview');
-        if (eliminarBtn) {
-          eliminarBtn.addEventListener('click', () => {
-            uploadInput.value = '';
-            if (vistaPrevia) vistaPrevia.innerHTML = '';
-            if (imagenUrlInput) imagenUrlInput.value = '';
-            API.mostrarExito('🗑️ Imagen eliminada');
-          });
-        }
-      });
-    });
-
-    // ENVÍO DEL FORMULARIO - TODO EN UNA SOLA PETICIÓN
+    // ENVÍO DEL FORMULARIO - CON PREVENCIÓN DE DUPLICADOS
     document.addEventListener('DOMContentLoaded', function () {
       const formAviso = document.getElementById('form-aviso');
       if (!formAviso) return;
 
-      formAviso.addEventListener('submit', async function (e) {
+      // Variable para controlar si ya se está enviando
+      let enviando = false;
+
+      // Remover cualquier event listener anterior (por si acaso)
+      const nuevoForm = formAviso.cloneNode(true);
+      formAviso.parentNode.replaceChild(nuevoForm, formAviso);
+
+      nuevoForm.addEventListener('submit', async function (e) {
         e.preventDefault();
+        e.stopPropagation();
+
+        // Si ya se está enviando, ignorar
+        if (enviando) {
+          console.log('⚠️ Ya hay un envío en proceso, ignorando...');
+          return;
+        }
 
         const apiKey = localStorage.getItem('api_key');
         if (!apiKey) {
@@ -958,10 +912,13 @@
         const fileInput = document.getElementById('upload-imagen');
         const file = fileInput?.files[0];
 
-        const botonSubmit = formAviso.querySelector('.boton[type="submit"]');
+        const botonSubmit = nuevoForm.querySelector('.boton[type="submit"]');
         const botonOriginalText = botonSubmit?.innerHTML || 'Publicar aviso';
 
         try {
+          // Marcar como enviando
+          enviando = true;
+
           if (botonSubmit) {
             botonSubmit.disabled = true;
             botonSubmit.innerHTML = '📤 Publicando...';
@@ -987,15 +944,15 @@
 
           let imagenUrl = '';
 
-          // Si hay imagen, procesarla a base64 para enviarla junto con el aviso
+          // Si hay imagen, procesarla a base64
           if (file) {
             API.mostrarExito('📸 Procesando imagen...');
             imagenUrl = await convertirABase64(file);
           }
 
-          // Preparar datos para crear el aviso (TODO en uno)
+          // Preparar datos
           const datosAviso = {
-            accion: 'CREAR_AVISO_CON_IMAGEN',  // Nueva acción
+            accion: 'CREAR_AVISO_CON_IMAGEN',
             api_key: apiKey,
             titulo: titulo,
             contenido: contenido,
@@ -1003,7 +960,7 @@
             ubicacion: ubicacion,
             contacto: contacto,
             fecha_evento: fecha_evento,
-            imagen_base64: imagenUrl,  // La imagen en base64
+            imagen_base64: imagenUrl,
             video_url: video_url,
             urgente: urgente
           };
@@ -1012,7 +969,6 @@
 
           API.mostrarExito('📝 Publicando aviso...');
 
-          // Usar mode: 'no-cors' para evitar CORS
           const respuesta = await fetch(urlGAS, {
             method: 'POST',
             mode: 'no-cors',
@@ -1022,17 +978,15 @@
             body: JSON.stringify(datosAviso)
           });
 
-          // Con 'no-cors' no podemos leer la respuesta, pero asumimos éxito
-          // y limpiamos el formulario
-          API.mostrarExito('✅ ¡Aviso enviado! Se publicará en breve.');
-
           // Limpiar formulario
-          formAviso.reset();
+          nuevoForm.reset();
           const vistaPrevia = document.getElementById('vista-previa');
           if (vistaPrevia) vistaPrevia.innerHTML = '';
           const imagenUrlInput = document.getElementById('imagen_url');
           if (imagenUrlInput) imagenUrlInput.value = '';
           if (fileInput) fileInput.value = '';
+
+          API.mostrarExito('✅ ¡Aviso publicado correctamente!');
 
           // Cambiar a la pestaña de "Mis avisos"
           setTimeout(() => {
@@ -1049,10 +1003,14 @@
           console.error('Error:', error);
           API.mostrarError('❌ ' + error.message);
         } finally {
-          if (botonSubmit) {
-            botonSubmit.disabled = false;
-            botonSubmit.innerHTML = botonOriginalText;
-          }
+          // Liberar el bloqueo después de 2 segundos
+          setTimeout(() => {
+            enviando = false;
+            if (botonSubmit) {
+              botonSubmit.disabled = false;
+              botonSubmit.innerHTML = botonOriginalText;
+            }
+          }, 2000);
         }
       });
     });
