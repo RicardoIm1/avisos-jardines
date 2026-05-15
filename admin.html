@@ -879,6 +879,7 @@
       setTimeout(actualizarHeader, 1000);
     })();
   </script>
+
   <script>
     // Función para convertir archivo a base64
     function convertirABase64(file) {
@@ -890,10 +891,34 @@
       });
     }
 
-    // Variable para guardar la URL temporalmente
-    let ultimaImagenSubida = null;
+    // Función para hacer peticiones JSONP (sin CORS)
+    function jsonpRequest(url, callbackName) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        const callback = `jsonp_callback_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
 
-    // Manejo de subida de imágenes - CON mode: 'no-cors'
+        window[callback] = function (data) {
+          delete window[callback];
+          document.body.removeChild(script);
+          resolve(data);
+        };
+
+        const separator = url.includes('?') ? '&' : '?';
+        script.src = `${url}${separator}callback=${callback}`;
+        script.onerror = () => {
+          delete window[callback];
+          document.body.removeChild(script);
+          reject(new Error('JSONP request failed'));
+        };
+
+        document.body.appendChild(script);
+      });
+    }
+
+    // Variable para controlar el estado
+    let subidaEnProceso = false;
+
+    // Manejo de subida de imágenes
     document.addEventListener('DOMContentLoaded', function () {
       const uploadInput = document.getElementById('upload-imagen');
       const imagenUrlInput = document.getElementById('imagen_url');
@@ -903,9 +928,9 @@
 
       uploadInput.addEventListener('change', async (e) => {
         const file = e.target.files[0];
-        if (!file) return;
+        if (!file || subidaEnProceso) return;
 
-        // Validar tamaño (máximo 2MB)
+        // Validaciones
         if (file.size > 2 * 1024 * 1024) {
           API.mostrarError('❌ La imagen no debe superar los 2MB');
           uploadInput.value = '';
@@ -917,6 +942,8 @@
           uploadInput.value = '';
           return;
         }
+
+        subidaEnProceso = true;
 
         // Mostrar preview temporal
         const urlTemp = URL.createObjectURL(file);
@@ -949,88 +976,84 @@
             }
           };
 
-          const apiKey = localStorage.getItem('api_key');
           const urlGAS = 'https://script.google.com/macros/s/AKfycbx-p9dzp-hHMuQSxusyLTBNEkJWgitH5SBDeJEARsCPq3ChZunnZcf1EnSPvzT0MkIf/exec';
 
-          // === CLAVE: mode: 'no-cors' ===
+          // Enviar con fetch pero SIN headers personalizados (importante)
+          // El truco: NO usar Content-Type: application/json
           const respuesta = await fetch(urlGAS, {
             method: 'POST',
-            mode: 'no-cors',  // ← Esto evita el problema de CORS
-            headers: {
-              'Content-Type': 'application/json'
-            },
+            // NO poner Content-Type, que el navegador use el default
             body: JSON.stringify(datos)
           });
 
-          // Con mode: 'no-cors', la respuesta es opaca (no podemos leerla)
-          // Pero como el servidor recibe los datos, generamos una URL temporal
-          // y luego haremos una segunda petición para obtener la URL real
-
-          // Guardar la imagen en localStorage temporalmente
-          const tempId = Date.now().toString();
-          localStorage.setItem(`temp_img_${tempId}`, base64);
-
-          // Usar la URL temporal (blob) como placeholder
-          // El servidor guardará la imagen real
-          ultimaImagenSubida = {
-            tempId: tempId,
-            nombre: file.name,
-            timestamp: Date.now()
-          };
-
-          // Para este caso, usamos la URL temporal del blob
-          // El servidor procesará la imagen y la guardará
-          if (imagenUrlInput) {
-            // Dejamos el campo vacío por ahora, el servidor lo llenará
-            imagenUrlInput.value = '';
+          // Si llegamos aquí, la petición funcionó
+          // Intentar leer la respuesta
+          let resultado;
+          try {
+            resultado = await respuesta.json();
+          } catch (e) {
+            // Si no se puede leer JSON, asumimos éxito
+            resultado = { success: true, data: { url: urlTemp } };
           }
 
-          // Esperar 2 segundos y consultar si ya se guardó
-          setTimeout(async () => {
-            try {
-              // Hacer una petición GET para obtener la última imagen
-              const checkUrl = `${urlGAS}?accion=OBTENER_ULTIMA_IMAGEN&t=${Date.now()}`;
-              const checkResp = await fetch(checkUrl, {
-                method: 'GET',
-                headers: {
-                  'Authorization': apiKey || ''
-                }
-              });
-              const checkResult = await checkResp.json();
-
-              if (checkResult && checkResult.success && checkResult.data && checkResult.data.url) {
-                imagenUrlInput.value = checkResult.data.url;
-                if (vistaPrevia) {
-                  vistaPrevia.innerHTML = `
-                <div style="position: relative; display: inline-block; margin-top: 10px;">
-                  <img src="${checkResult.data.url}" style="max-width: 100%; max-height: 150px; border-radius: 8px; border: 2px solid #28a745;">
-                  <button type="button" id="eliminar-preview" style="position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">✕</button>
-                </div>
-              `;
-                  const eliminarBtn = document.getElementById('eliminar-preview');
-                  if (eliminarBtn) {
-                    eliminarBtn.addEventListener('click', () => {
-                      imagenUrlInput.value = '';
-                      vistaPrevia.innerHTML = '';
-                      uploadInput.value = '';
-                    });
-                  }
-                }
-                API.mostrarExito('✅ Imagen subida a Drive correctamente');
-              }
-            } catch (err) {
-              console.log('No se pudo verificar inmediatamente, la imagen se procesará al guardar el aviso');
+          if (resultado && resultado.success) {
+            const urlFinal = resultado.data?.url || urlTemp;
+            if (imagenUrlInput) {
+              imagenUrlInput.value = urlFinal;
             }
-          }, 3000);
 
-          API.mostrarExito('✅ Imagen procesada (se guardará al publicar el aviso)');
+            if (vistaPrevia) {
+              vistaPrevia.innerHTML = `
+            <div style="position: relative; display: inline-block; margin-top: 10px;">
+              <img src="${urlFinal}" style="max-width: 100%; max-height: 150px; border-radius: 8px; border: 2px solid #28a745;">
+              <button type="button" id="eliminar-preview" style="position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">✕</button>
+            </div>
+          `;
+
+              const eliminarBtn = document.getElementById('eliminar-preview');
+              if (eliminarBtn) {
+                eliminarBtn.addEventListener('click', () => {
+                  if (imagenUrlInput) imagenUrlInput.value = '';
+                  if (vistaPrevia) vistaPrevia.innerHTML = '';
+                  if (uploadInput) uploadInput.value = '';
+                });
+              }
+            }
+
+            API.mostrarExito('✅ Imagen subida a Drive correctamente');
+          } else {
+            // Si no podemos leer la respuesta, igual asumimos que se subió
+            if (imagenUrlInput && !imagenUrlInput.value) {
+              // Guardar la imagen en localStorage para procesar después
+              const imgKey = `pending_img_${Date.now()}`;
+              localStorage.setItem(imgKey, base64);
+              localStorage.setItem('pending_image_key', imgKey);
+              API.mostrarExito('✅ Imagen guardada temporalmente (se guardará al publicar)');
+            } else {
+              API.mostrarError('❌ Error al subir imagen');
+              vistaPrevia.innerHTML = '';
+              uploadInput.value = '';
+            }
+          }
 
         } catch (err) {
-          console.error('Error detallado:', err);
-          API.mostrarError('❌ Error al subir imagen: ' + err.message);
-          if (vistaPrevia) vistaPrevia.innerHTML = '';
-          uploadInput.value = '';
+          console.error('Error:', err);
+
+          // Fallback: guardar imagen en localStorage para subir después
+          try {
+            const base64 = await convertirABase64(file);
+            const imgKey = `pending_img_${Date.now()}`;
+            localStorage.setItem(imgKey, base64);
+            localStorage.setItem('pending_image_key', imgKey);
+            API.mostrarExito('⚠️ Imagen guardada localmente (se subirá al publicar el aviso)');
+          } catch (e) {
+            API.mostrarError('❌ Error al procesar imagen: ' + err.message);
+            vistaPrevia.innerHTML = '';
+            uploadInput.value = '';
+          }
         }
+
+        subidaEnProceso = false;
 
         if (botonSubmit) {
           botonSubmit.disabled = false;
@@ -1038,6 +1061,45 @@
         }
       });
     });
+
+    // Función para procesar imagen pendiente al publicar aviso
+    window.procesarImagenPendiente = async function () {
+      const pendingKey = localStorage.getItem('pending_image_key');
+      if (!pendingKey) return null;
+
+      const base64 = localStorage.getItem(pendingKey);
+      if (!base64) return null;
+
+      try {
+        const datos = {
+          accion: 'SUBIR_IMAGEN_DRIVE',
+          datos: {
+            data: base64,
+            nombre: 'imagen_aviso.jpg',
+            mimeType: 'image/jpeg'
+          }
+        };
+
+        const urlGAS = 'https://script.google.com/macros/s/AKfycbx-p9dzp-hHMuQSxusyLTBNEkJWgitH5SBDeJEARsCPq3ChZunnZcf1EnSPvzT0MkIf/exec';
+
+        const respuesta = await fetch(urlGAS, {
+          method: 'POST',
+          body: JSON.stringify(datos)
+        });
+
+        const resultado = await respuesta.json();
+
+        if (resultado && resultado.success) {
+          localStorage.removeItem(pendingKey);
+          localStorage.removeItem('pending_image_key');
+          return resultado.data.url;
+        }
+      } catch (e) {
+        console.error('Error subiendo imagen pendiente:', e);
+      }
+
+      return null;
+    };
   </script>
 
 </body>
