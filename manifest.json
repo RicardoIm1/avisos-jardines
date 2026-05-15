@@ -1,6 +1,6 @@
 {
-  "name": "Barrio",
-  "short_name": "Barrio",
+  "name": "El Barrio",
+  "short_name": "El Barrio",
   "description": "La red social de tu colonia. El barrio te respalda.",
   "start_url": "/barrio/index.html",
   "display": "standalone",
@@ -9,13 +9,13 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/icons/barrio-192.png",
+      "src": "/icons/barrio-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/barrio-512.png",
+      "src": "/icons/barrio-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
