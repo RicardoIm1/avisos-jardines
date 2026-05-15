@@ -417,20 +417,21 @@
         <div class="package-card">
           <div class="card-header">
             <div class="package-name">Plan Básico</div>
-            <div class="price">$249 <small>MXN</small></div>
-            <div style="font-size: 0.8rem; color: #2b6e2b;">3 meses · Ideal para empezar</div>
-            <div style="font-size: 0.7rem; color: #6c757d;">(Solo $83/mes)</div>
+            <div class="price">$99 <small>MXN/mes</small></div>
+            <div style="font-size: 0.8rem; color: #2b6e2b;">O $249 por 3 meses (ahorra $48)</div>
+            <div style="font-size: 0.7rem; color: #6c757d; margin-top: 4px;">Ideal para empezar</div>
           </div>
           <div class="card-features">
             <ul>
-              <li><span class="check">✓</span> Directorio básico por 90 días</li>
+              <li><span class="check">✓</span> Directorio básico</li>
               <li><span class="check">✓</span> Dirección y teléfono visibles</li>
               <li><span class="check">✓</span> Sin comisiones ocultas</li>
               <li><span class="check">✓</span> Ideal para negocios de casa</li>
             </ul>
           </div>
           <div class="card-footer">
-            <button class="btn-outline contratar-btn" data-paquete="Plan Básico - $249 (3 meses)">Lo quiero</button>
+            <button class="btn-outline contratar-btn" data-paquete="Plan Básico - $99/mes o $249 trimestral">Quiero más
+              información</button>
           </div>
         </div>
 
@@ -444,7 +445,8 @@
           <div class="card-features">
             <ul>
               <li><span class="check">✓</span> Perfil completo en directorio</li>
-              <li><span class="check">✓</span> <strong>Tu negocio visto por todos los vecinos</strong> mientras leen avisos</li>
+              <li><span class="check">✓</span> <strong>Tu negocio visto por todos los vecinos</strong> mientras leen
+                avisos</li>
               <li><span class="check">✓</span> <strong>1 oferta especial</strong> que aparece primero en el muro</li>
               <li><span class="check">✓</span> Te ayudamos con la foto de tu negocio</li>
             </ul>
@@ -466,7 +468,8 @@
             <ul>
               <li><span class="check">✓</span> Banner rotativo en la parte superior</li>
               <li><span class="check">✓</span> Perfil con galería de fotos + botón WhatsApp directo</li>
-              <li><span class="check">✓</span> <strong>3 ofertas especiales</strong> que aparecen primero en el muro</li>
+              <li><span class="check">✓</span> <strong>3 ofertas especiales</strong> que aparecen primero en el muro
+              </li>
               <li><span class="check">✓</span> 1 envío masivo por WhatsApp a vecinos interesados</li>
             </ul>
           </div>
@@ -497,7 +500,7 @@
           </div>
           <div class="card-footer">
             <button class="btn-primary contratar-btn"
-              data-paquete="Socio Comercial - $799 (Oferta de lanzamiento)">Quiero visibilidad total</button>
+              data-paquete="Plan Patrocinador - $799 (Oferta de lanzamiento)">Quiero visibilidad total</button>
           </div>
         </div>
       </div>
@@ -623,7 +626,8 @@
       <div class="confidence-grid">
         <div class="confidence-card">
           <div class="emoji-big">📈</div>
-          <strong>+25%</strong> de nuevos clientes en promedio para los Negocios que anunciaron con nosotros durante el primer mes"
+          <strong>+25%</strong> de nuevos clientes en promedio para los Negocios que anunciaron con nosotros durante el
+          primer mes
         </div>
         <div class="confidence-card">
           <div class="emoji-big">👥</div>
@@ -722,7 +726,20 @@
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         const paqueteInfo = btn.getAttribute('data-paquete') || btn.innerText;
-        const mensaje = `Hola, estoy interesado en el paquete "${paqueteInfo}" para anunciar mi negocio en la colonia. ¿Me pueden dar más información y formas de pago?`;
+
+        // --- MEJORA: Resumen de beneficios según el paquete ---
+        let beneficiosAdicionales = '';
+        if (paqueteInfo.includes('Plan Básico')) {
+          beneficiosAdicionales = ' Incluye directorio básico, dirección y teléfono visibles.';
+        } else if (paqueteInfo.includes('Vecino Anunciante')) {
+          beneficiosAdicionales = ' Incluye perfil completo en directorio, banner lateral destacado y 1 oferta especial en el muro.';
+        } else if (paqueteInfo.includes('Negocio Destacado')) {
+          beneficiosAdicionales = ' Incluye banner rotativo, perfil con galería de fotos, botón WhatsApp directo, 3 ofertas especiales y 1 envío masivo por WhatsApp.';
+        } else if (paqueteInfo.includes('Plan Patrocinador')) {
+          beneficiosAdicionales = ' Incluye banner exclusivo, perfil premium con video promocional, ofertas ilimitadas y logo como patrocinador en toda la plataforma.';
+        }
+
+        const mensaje = `Hola, estoy interesado en el paquete "${paqueteInfo}".${beneficiosAdicionales} ¿Me pueden dar más información y formas de pago?`;
         const numeroWhatsApp = "3222354331";
         const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
         window.open(url, '_blank');
