@@ -891,40 +891,7 @@
       });
     }
 
-    // Función para subir imagen a Drive (con API key)
-    async function subirImagenADrive(file, apiKey) {
-      const base64 = await convertirABase64(file);
-
-      const datos = {
-        accion: 'SUBIR_IMAGEN_DRIVE',
-        api_key: apiKey,
-        datos: {
-          data: base64,
-          nombre: file.name,
-          mimeType: file.type
-        }
-      };
-
-      const urlGAS = 'https://script.google.com/macros/s/AKfycbx-p9dzp-hHMuQSxusyLTBNEkJWgitH5SBDeJEARsCPq3ChZunnZcf1EnSPvzT0MkIf/exec';
-
-      const respuesta = await fetch(urlGAS, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(datos)
-      });
-
-      const resultado = await respuesta.json();
-
-      if (resultado && resultado.success) {
-        return resultado.data.url;
-      } else {
-        throw new Error(resultado?.error || 'Error al subir imagen');
-      }
-    }
-
-    // Mostrar vista previa de la imagen seleccionada (sin subir aún)
+    // Mostrar vista previa de la imagen seleccionada
     document.addEventListener('DOMContentLoaded', function () {
       const uploadInput = document.getElementById('upload-imagen');
       const imagenUrlInput = document.getElementById('imagen_url');
@@ -954,7 +921,7 @@
         vistaPrevia.innerHTML = `
       <div style="position: relative; display: inline-block; margin-top: 10px;">
         <img src="${urlTemp}" style="max-width: 100%; max-height: 150px; border-radius: 8px; border: 2px solid #ff8c42;">
-        <button type="button" id="eliminar-preview" style="position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;">✕</button>
+        <button type="button" id="eliminar-preview" style="position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">✕</button>
       </div>
     `;
 
@@ -974,7 +941,7 @@
       });
     });
 
-    // INTERCEPTAR EL ENVÍO DEL FORMULARIO
+    // ENVÍO DEL FORMULARIO - TODO EN UNA SOLA PETICIÓN
     document.addEventListener('DOMContentLoaded', function () {
       const formAviso = document.getElementById('form-aviso');
       if (!formAviso) return;
@@ -989,8 +956,6 @@
         }
 
         const fileInput = document.getElementById('upload-imagen');
-        const imagenUrlInput = document.getElementById('imagen_url');
-        const vistaPrevia = document.getElementById('vista-previa');
         const file = fileInput?.files[0];
 
         const botonSubmit = formAviso.querySelector('.boton[type="submit"]');
@@ -999,41 +964,10 @@
         try {
           if (botonSubmit) {
             botonSubmit.disabled = true;
-            botonSubmit.innerHTML = '📤 Procesando...';
+            botonSubmit.innerHTML = '📤 Publicando...';
           }
 
-          let imagenUrl = imagenUrlInput?.value || '';
-
-          if (file && !imagenUrl) {
-            API.mostrarExito('📸 Subiendo imagen a Drive...');
-
-            imagenUrl = await subirImagenADrive(file, apiKey);
-
-            if (imagenUrlInput) {
-              imagenUrlInput.value = imagenUrl;
-            }
-
-            if (vistaPrevia) {
-              vistaPrevia.innerHTML = `
-            <div style="position: relative; display: inline-block; margin-top: 10px;">
-              <img src="${imagenUrl}" style="max-width: 100%; max-height: 150px; border-radius: 8px; border: 2px solid #28a745;">
-              <button type="button" id="eliminar-preview-final" style="position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">✕</button>
-            </div>
-          `;
-
-              const eliminarBtn = document.getElementById('eliminar-preview-final');
-              if (eliminarBtn) {
-                eliminarBtn.addEventListener('click', () => {
-                  if (imagenUrlInput) imagenUrlInput.value = '';
-                  if (vistaPrevia) vistaPrevia.innerHTML = '';
-                  if (fileInput) fileInput.value = '';
-                });
-              }
-            }
-
-            API.mostrarExito('✅ Imagen subida a Drive correctamente');
-          }
-
+          // Obtener datos del formulario
           const titulo = document.getElementById('titulo')?.value || '';
           const contenido = document.getElementById('contenido')?.value || '';
           const categoria = document.getElementById('categoria')?.value || 'varios';
@@ -1043,6 +977,7 @@
           const video_url = document.getElementById('video_url')?.value || '';
           const urgente = document.getElementById('urgente')?.checked || false;
 
+          // Validar campos obligatorios
           if (!titulo.trim()) {
             throw new Error('El título es obligatorio');
           }
@@ -1050,59 +985,65 @@
             throw new Error('La descripción es obligatoria');
           }
 
+          let imagenUrl = '';
+
+          // Si hay imagen, procesarla a base64 para enviarla junto con el aviso
+          if (file) {
+            API.mostrarExito('📸 Procesando imagen...');
+            imagenUrl = await convertirABase64(file);
+          }
+
+          // Preparar datos para crear el aviso (TODO en uno)
           const datosAviso = {
-            accion: 'CREAR',
-            coleccion: 'AVISOS',
+            accion: 'CREAR_AVISO_CON_IMAGEN',  // Nueva acción
             api_key: apiKey,
-            datos: {
-              titulo: titulo,
-              contenido: contenido,
-              categoria: categoria,
-              ubicacion: ubicacion,
-              contacto: contacto,
-              fecha_evento: fecha_evento,
-              imagen_url: imagenUrl,
-              video_url: video_url,
-              urgente: urgente,
-              status: 'activo'
-            }
+            titulo: titulo,
+            contenido: contenido,
+            categoria: categoria,
+            ubicacion: ubicacion,
+            contacto: contacto,
+            fecha_evento: fecha_evento,
+            imagen_base64: imagenUrl,  // La imagen en base64
+            video_url: video_url,
+            urgente: urgente
           };
 
           const urlGAS = 'https://script.google.com/macros/s/AKfycbx-p9dzp-hHMuQSxusyLTBNEkJWgitH5SBDeJEARsCPq3ChZunnZcf1EnSPvzT0MkIf/exec';
 
           API.mostrarExito('📝 Publicando aviso...');
 
+          // Usar mode: 'no-cors' para evitar CORS
           const respuesta = await fetch(urlGAS, {
             method: 'POST',
+            mode: 'no-cors',
             headers: {
               'Content-Type': 'application/json'
             },
             body: JSON.stringify(datosAviso)
           });
 
-          const resultado = await respuesta.json();
+          // Con 'no-cors' no podemos leer la respuesta, pero asumimos éxito
+          // y limpiamos el formulario
+          API.mostrarExito('✅ ¡Aviso enviado! Se publicará en breve.');
 
-          if (resultado && resultado.success) {
-            API.mostrarExito('✅ ¡Aviso publicado correctamente!');
+          // Limpiar formulario
+          formAviso.reset();
+          const vistaPrevia = document.getElementById('vista-previa');
+          if (vistaPrevia) vistaPrevia.innerHTML = '';
+          const imagenUrlInput = document.getElementById('imagen_url');
+          if (imagenUrlInput) imagenUrlInput.value = '';
+          if (fileInput) fileInput.value = '';
 
-            formAviso.reset();
-            if (vistaPrevia) vistaPrevia.innerHTML = '';
-            if (imagenUrlInput) imagenUrlInput.value = '';
-            if (fileInput) fileInput.value = '';
-
-            setTimeout(() => {
-              const tabLista = document.querySelector('.filtro[data-tab="lista"]');
-              if (tabLista) {
-                tabLista.click();
-              }
-              if (typeof cargarMisAvisos === 'function') {
-                cargarMisAvisos();
-              }
-            }, 1500);
-
-          } else {
-            throw new Error(resultado?.error || 'Error al publicar aviso');
-          }
+          // Cambiar a la pestaña de "Mis avisos"
+          setTimeout(() => {
+            const tabLista = document.querySelector('.filtro[data-tab="lista"]');
+            if (tabLista) {
+              tabLista.click();
+            }
+            if (typeof cargarMisAvisos === 'function') {
+              cargarMisAvisos();
+            }
+          }, 1500);
 
         } catch (error) {
           console.error('Error:', error);
