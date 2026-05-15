@@ -891,34 +891,36 @@
       });
     }
 
-    // Función para hacer peticiones JSONP (sin CORS)
-    function jsonpRequest(url, callbackName) {
-      return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        const callback = `jsonp_callback_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+    // Función para subir imagen a Drive
+    async function subirImagenADrive(file, apiKey) {
+      const base64 = await convertirABase64(file);
 
-        window[callback] = function (data) {
-          delete window[callback];
-          document.body.removeChild(script);
-          resolve(data);
-        };
+      const datos = {
+        accion: 'SUBIR_IMAGEN_DRIVE',
+        datos: {
+          data: base64,
+          nombre: file.name,
+          mimeType: file.type
+        }
+      };
 
-        const separator = url.includes('?') ? '&' : '?';
-        script.src = `${url}${separator}callback=${callback}`;
-        script.onerror = () => {
-          delete window[callback];
-          document.body.removeChild(script);
-          reject(new Error('JSONP request failed'));
-        };
+      const urlGAS = 'https://script.google.com/macros/s/AKfycbx-p9dzp-hHMuQSxusyLTBNEkJWgitH5SBDeJEARsCPq3ChZunnZcf1EnSPvzT0MkIf/exec';
 
-        document.body.appendChild(script);
+      const respuesta = await fetch(urlGAS, {
+        method: 'POST',
+        body: JSON.stringify(datos)
       });
+
+      const resultado = await respuesta.json();
+
+      if (resultado && resultado.success) {
+        return resultado.data.url;
+      } else {
+        throw new Error(resultado?.error || 'Error al subir imagen');
+      }
     }
 
-    // Variable para controlar el estado
-    let subidaEnProceso = false;
-
-    // Manejo de subida de imágenes
+    // Mostrar vista previa de la imagen seleccionada (sin subir aún)
     document.addEventListener('DOMContentLoaded', function () {
       const uploadInput = document.getElementById('upload-imagen');
       const imagenUrlInput = document.getElementById('imagen_url');
@@ -926,180 +928,196 @@
 
       if (!uploadInput) return;
 
-      uploadInput.addEventListener('change', async (e) => {
+      uploadInput.addEventListener('change', function (e) {
         const file = e.target.files[0];
-        if (!file || subidaEnProceso) return;
+        if (!file) return;
 
         // Validaciones
         if (file.size > 2 * 1024 * 1024) {
           API.mostrarError('❌ La imagen no debe superar los 2MB');
           uploadInput.value = '';
+          vistaPrevia.innerHTML = '';
           return;
         }
 
         if (!file.type.startsWith('image/')) {
           API.mostrarError('❌ Solo se permiten imágenes');
           uploadInput.value = '';
+          vistaPrevia.innerHTML = '';
           return;
         }
 
-        subidaEnProceso = true;
-
-        // Mostrar preview temporal
+        // Mostrar vista previa LOCAL (sin subir aún)
         const urlTemp = URL.createObjectURL(file);
-        if (vistaPrevia) {
-          vistaPrevia.innerHTML = `
-        <div style="position: relative; display: inline-block; margin-top: 10px;">
-          <img src="${urlTemp}" style="max-width: 100%; max-height: 150px; border-radius: 8px;">
-          <div style="position: absolute; top: 5px; right: 5px; background: #ff8c42; color: white; border-radius: 50%; width: 25px; height: 25px; display: flex; align-items: center; justify-content: center;">⏳</div>
-        </div>
-      `;
+        vistaPrevia.innerHTML = `
+      <div style="position: relative; display: inline-block; margin-top: 10px;">
+        <img src="${urlTemp}" style="max-width: 100%; max-height: 150px; border-radius: 8px; border: 2px solid #ff8c42;">
+        <button type="button" id="eliminar-preview" style="position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center;">✕</button>
+      </div>
+    `;
+
+        // Limpiar el campo URL (la imagen se subirá al publicar)
+        if (imagenUrlInput) {
+          imagenUrlInput.value = '';
         }
 
-        const botonSubmit = document.querySelector('#form-aviso .boton[type="submit"]');
-        if (botonSubmit) {
-          botonSubmit.disabled = true;
-          botonSubmit.textContent = '📤 Subiendo imagen...';
+        // Botón para eliminar la imagen seleccionada
+        const eliminarBtn = document.getElementById('eliminar-preview');
+        if (eliminarBtn) {
+          eliminarBtn.addEventListener('click', () => {
+            uploadInput.value = '';
+            if (vistaPrevia) vistaPrevia.innerHTML = '';
+            if (imagenUrlInput) imagenUrlInput.value = '';
+            API.mostrarExito('🗑️ Imagen eliminada');
+          });
         }
+      });
+    });
+
+    // INTERCEPTAR EL ENVÍO DEL FORMULARIO
+    // Buscar el formulario y reemplazar su submit
+    document.addEventListener('DOMContentLoaded', function () {
+      const formAviso = document.getElementById('form-aviso');
+      if (!formAviso) return;
+
+      // Guardar el submit original y reemplazarlo
+      formAviso.addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const fileInput = document.getElementById('upload-imagen');
+        const imagenUrlInput = document.getElementById('imagen_url');
+        const vistaPrevia = document.getElementById('vista-previa');
+        const file = fileInput?.files[0];
+
+        const botonSubmit = formAviso.querySelector('.boton[type="submit"]');
+        const botonOriginalText = botonSubmit?.innerHTML || 'Publicar aviso';
 
         try {
-          // Convertir a base64
-          const base64 = await convertirABase64(file);
-
-          // Preparar datos
-          const datos = {
-            accion: 'SUBIR_IMAGEN_DRIVE',
-            datos: {
-              data: base64,
-              nombre: file.name,
-              mimeType: file.type
-            }
-          };
-
-          const urlGAS = 'https://script.google.com/macros/s/AKfycbx-p9dzp-hHMuQSxusyLTBNEkJWgitH5SBDeJEARsCPq3ChZunnZcf1EnSPvzT0MkIf/exec';
-
-          // Enviar con fetch pero SIN headers personalizados (importante)
-          // El truco: NO usar Content-Type: application/json
-          const respuesta = await fetch(urlGAS, {
-            method: 'POST',
-            // NO poner Content-Type, que el navegador use el default
-            body: JSON.stringify(datos)
-          });
-
-          // Si llegamos aquí, la petición funcionó
-          // Intentar leer la respuesta
-          let resultado;
-          try {
-            resultado = await respuesta.json();
-          } catch (e) {
-            // Si no se puede leer JSON, asumimos éxito
-            resultado = { success: true, data: { url: urlTemp } };
+          // Deshabilitar botón
+          if (botonSubmit) {
+            botonSubmit.disabled = true;
+            botonSubmit.innerHTML = '📤 Procesando...';
           }
 
-          if (resultado && resultado.success) {
-            const urlFinal = resultado.data?.url || urlTemp;
+          let imagenUrl = imagenUrlInput?.value || '';
+
+          // Si hay un archivo seleccionado y no tiene URL, subirlo ahora
+          if (file && !imagenUrl) {
+            API.mostrarExito('📸 Subiendo imagen a Drive...');
+
+            const apiKey = localStorage.getItem('api_key');
+            imagenUrl = await subirImagenADrive(file, apiKey);
+
             if (imagenUrlInput) {
-              imagenUrlInput.value = urlFinal;
+              imagenUrlInput.value = imagenUrl;
             }
 
+            // Actualizar vista previa con la URL real de Drive
             if (vistaPrevia) {
               vistaPrevia.innerHTML = `
             <div style="position: relative; display: inline-block; margin-top: 10px;">
-              <img src="${urlFinal}" style="max-width: 100%; max-height: 150px; border-radius: 8px; border: 2px solid #28a745;">
-              <button type="button" id="eliminar-preview" style="position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">✕</button>
+              <img src="${imagenUrl}" style="max-width: 100%; max-height: 150px; border-radius: 8px; border: 2px solid #28a745;">
+              <button type="button" id="eliminar-preview-final" style="position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">✕</button>
             </div>
           `;
 
-              const eliminarBtn = document.getElementById('eliminar-preview');
+              const eliminarBtn = document.getElementById('eliminar-preview-final');
               if (eliminarBtn) {
                 eliminarBtn.addEventListener('click', () => {
                   if (imagenUrlInput) imagenUrlInput.value = '';
                   if (vistaPrevia) vistaPrevia.innerHTML = '';
-                  if (uploadInput) uploadInput.value = '';
+                  if (fileInput) fileInput.value = '';
                 });
               }
             }
 
             API.mostrarExito('✅ Imagen subida a Drive correctamente');
-          } else {
-            // Si no podemos leer la respuesta, igual asumimos que se subió
-            if (imagenUrlInput && !imagenUrlInput.value) {
-              // Guardar la imagen en localStorage para procesar después
-              const imgKey = `pending_img_${Date.now()}`;
-              localStorage.setItem(imgKey, base64);
-              localStorage.setItem('pending_image_key', imgKey);
-              API.mostrarExito('✅ Imagen guardada temporalmente (se guardará al publicar)');
-            } else {
-              API.mostrarError('❌ Error al subir imagen');
-              vistaPrevia.innerHTML = '';
-              uploadInput.value = '';
+          }
+
+          // Obtener todos los datos del formulario
+          const titulo = document.getElementById('titulo')?.value || '';
+          const contenido = document.getElementById('contenido')?.value || '';
+          const categoria = document.getElementById('categoria')?.value || 'varios';
+          const ubicacion = document.getElementById('ubicacion')?.value || '';
+          const contacto = document.getElementById('contacto')?.value || '';
+          const fecha_evento = document.getElementById('fecha_evento')?.value || '';
+          const video_url = document.getElementById('video_url')?.value || '';
+          const urgente = document.getElementById('urgente')?.checked || false;
+
+          // Validar campos obligatorios
+          if (!titulo.trim()) {
+            throw new Error('El título es obligatorio');
+          }
+          if (!contenido.trim()) {
+            throw new Error('La descripción es obligatoria');
+          }
+
+          // Preparar datos para crear el aviso
+          const datosAviso = {
+            accion: 'CREAR',
+            coleccion: 'AVISOS',
+            datos: {
+              titulo: titulo,
+              contenido: contenido,
+              categoria: categoria,
+              ubicacion: ubicacion,
+              contacto: contacto,
+              fecha_evento: fecha_evento,
+              imagen_url: imagenUrl,
+              video_url: video_url,
+              urgente: urgente,
+              status: 'activo'
             }
+          };
+
+          const apiKey = localStorage.getItem('api_key');
+          const urlGAS = 'https://script.google.com/macros/s/AKfycbx-p9dzp-hHMuQSxusyLTBNEkJWgitH5SBDeJEARsCPq3ChZunnZcf1EnSPvzT0MkIf/exec';
+
+          // Enviar aviso
+          const respuesta = await fetch(urlGAS, {
+            method: 'POST',
+            body: JSON.stringify(datosAviso)
+          });
+
+          const resultado = await respuesta.json();
+
+          if (resultado && resultado.success) {
+            API.mostrarExito('✅ ¡Aviso publicado correctamente!');
+
+            // Limpiar formulario
+            formAviso.reset();
+            if (vistaPrevia) vistaPrevia.innerHTML = '';
+            if (imagenUrlInput) imagenUrlInput.value = '';
+            if (fileInput) fileInput.value = '';
+
+            // Redirigir o recargar lista de avisos
+            setTimeout(() => {
+              // Cambiar a la pestaña de "Mis avisos"
+              const tabLista = document.querySelector('.filtro[data-tab="lista"]');
+              if (tabLista) {
+                tabLista.click();
+              }
+              // Recargar avisos
+              if (typeof cargarMisAvisos === 'function') {
+                cargarMisAvisos();
+              }
+            }, 1500);
+
+          } else {
+            throw new Error(resultado?.error || 'Error al publicar aviso');
           }
 
-        } catch (err) {
-          console.error('Error:', err);
-
-          // Fallback: guardar imagen en localStorage para subir después
-          try {
-            const base64 = await convertirABase64(file);
-            const imgKey = `pending_img_${Date.now()}`;
-            localStorage.setItem(imgKey, base64);
-            localStorage.setItem('pending_image_key', imgKey);
-            API.mostrarExito('⚠️ Imagen guardada localmente (se subirá al publicar el aviso)');
-          } catch (e) {
-            API.mostrarError('❌ Error al procesar imagen: ' + err.message);
-            vistaPrevia.innerHTML = '';
-            uploadInput.value = '';
+        } catch (error) {
+          console.error('Error:', error);
+          API.mostrarError('❌ ' + error.message);
+        } finally {
+          if (botonSubmit) {
+            botonSubmit.disabled = false;
+            botonSubmit.innerHTML = botonOriginalText;
           }
-        }
-
-        subidaEnProceso = false;
-
-        if (botonSubmit) {
-          botonSubmit.disabled = false;
-          botonSubmit.textContent = 'Publicar aviso';
         }
       });
     });
-
-    // Función para procesar imagen pendiente al publicar aviso
-    window.procesarImagenPendiente = async function () {
-      const pendingKey = localStorage.getItem('pending_image_key');
-      if (!pendingKey) return null;
-
-      const base64 = localStorage.getItem(pendingKey);
-      if (!base64) return null;
-
-      try {
-        const datos = {
-          accion: 'SUBIR_IMAGEN_DRIVE',
-          datos: {
-            data: base64,
-            nombre: 'imagen_aviso.jpg',
-            mimeType: 'image/jpeg'
-          }
-        };
-
-        const urlGAS = 'https://script.google.com/macros/s/AKfycbx-p9dzp-hHMuQSxusyLTBNEkJWgitH5SBDeJEARsCPq3ChZunnZcf1EnSPvzT0MkIf/exec';
-
-        const respuesta = await fetch(urlGAS, {
-          method: 'POST',
-          body: JSON.stringify(datos)
-        });
-
-        const resultado = await respuesta.json();
-
-        if (resultado && resultado.success) {
-          localStorage.removeItem(pendingKey);
-          localStorage.removeItem('pending_image_key');
-          return resultado.data.url;
-        }
-      } catch (e) {
-        console.error('Error subiendo imagen pendiente:', e);
-      }
-
-      return null;
-    };
   </script>
 
 </body>
