@@ -569,18 +569,24 @@
           <input type="date" id="fecha_evento" name="fecha_evento">
         </div>
 
+        <!-- Campo de imagen -->
         <div class="campo">
-          <label for="imagen_url">URL de imagen (opcional)</label>
-          <input type="url" id="imagen_url" name="imagen_url" placeholder="https://ejemplo.com/imagen.jpg">
-          <div id="preview-nuevo" class="preview-container">
-            <img id="preview-imagen-nuevo" class="preview-imagen" alt="Vista previa">
+          <label>📸 Imagen (opcional):</label>
+          <div class="area-subida" id="area-subida-nuevo"
+            style="border: 2px dashed #ccc; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s;">
+            <div>📸 Haz clic o arrastra una imagen</div>
+            <small style="color: #666;">JPG, PNG, GIF (máx. 5MB)</small>
           </div>
+          <input type="file" id="imagen-nuevo" accept="image/*" style="display: none;">
+          <input type="hidden" id="imagen_url_nuevo" value="">
         </div>
 
-        <div class="campo">
-          <label>📸 Subir imagen (opcional)</label>
-          <input type="file" id="upload-imagen" accept="image/*" capture="environment">
-          <div id="vista-previa" style="margin-top: 10px;"></div>
+        <!-- Previsualización -->
+        <div id="preview-nuevo" style="display: none; margin-top: 10px;">
+          <img id="preview-imagen-nuevo" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
+          <button type="button" id="quitar-imagen-nuevo"
+            style="margin-top: 5px; background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">🗑️
+            Quitar imagen</button>
         </div>
 
         <div class="campo">
@@ -1019,52 +1025,118 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      const uploadInput = document.getElementById('upload-imagen');
-      const imagenUrlInput = document.getElementById('imagen_url');
-      const vistaPrevia = document.getElementById('vista-previa');
+        const uploadInput = document.getElementById('upload-imagen');
+        const imagenUrlInput = document.getElementById('imagen_url');
+        const vistaPrevia = document.getElementById('vista-previa');
+        
+        let archivoSeleccionado = null;
+        let subiendoImagen = false;
 
-      if (!uploadInput) return;
+        if (!uploadInput) return;
 
-      uploadInput.addEventListener('change', function (e) {
-        const file = e.target.files[0];
-        if (!file) return;
+        uploadInput.addEventListener('change', async function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
 
-        if (file.size > 2 * 1024 * 1024) {
-          API.mostrarError('❌ La imagen no debe superar los 2MB');
-          uploadInput.value = '';
-          vistaPrevia.innerHTML = '';
-          return;
-        }
+            // Validaciones
+            if (file.size > 5 * 1024 * 1024) {
+                API.mostrarError('❌ La imagen no debe superar los 5MB');
+                uploadInput.value = '';
+                vistaPrevia.innerHTML = '';
+                return;
+            }
 
-        if (!file.type.startsWith('image/')) {
-          API.mostrarError('❌ Solo se permiten imágenes');
-          uploadInput.value = '';
-          vistaPrevia.innerHTML = '';
-          return;
-        }
+            if (!file.type.startsWith('image/')) {
+                API.mostrarError('❌ Solo se permiten imágenes');
+                uploadInput.value = '';
+                vistaPrevia.innerHTML = '';
+                return;
+            }
 
-        const urlTemp = URL.createObjectURL(file);
-        vistaPrevia.innerHTML = `
-          <div style="position: relative; display: inline-block; margin-top: 10px;">
-            <img src="${urlTemp}" style="max-width: 100%; max-height: 150px; border-radius: 8px; border: 2px solid #ff8c42;">
-            <button type="button" id="eliminar-preview" style="position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">✕</button>
-          </div>
-        `;
+            archivoSeleccionado = file;
 
-        if (imagenUrlInput) imagenUrlInput.value = '';
+            // Mostrar previsualización local
+            const urlTemp = URL.createObjectURL(file);
+            vistaPrevia.innerHTML = `
+                <div style="position: relative; display: inline-block; margin-top: 10px;">
+                    <img src="${urlTemp}" style="max-width: 100%; max-height: 150px; border-radius: 8px; border: 2px solid #ff8c42;">
+                    <button type="button" id="eliminar-preview" style="position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer;">✕</button>
+                    <div id="subiendo-indicador" style="margin-top: 5px; font-size: 12px; color: #666;">⬆️ Subiendo imagen a Drive...</div>
+                </div>
+            `;
 
-        const eliminarBtn = document.getElementById('eliminar-preview');
-        if (eliminarBtn) {
-          eliminarBtn.addEventListener('click', () => {
-            uploadInput.value = '';
-            vistaPrevia.innerHTML = '';
+            // Limpiar URL anterior si existe
             if (imagenUrlInput) imagenUrlInput.value = '';
-            API.mostrarExito('🗑️ Imagen eliminada');
-          });
+
+            // SUBIR IMAGEN A DRIVE
+            await subirImagenADrive(file);
+
+            const eliminarBtn = document.getElementById('eliminar-preview');
+            if (eliminarBtn) {
+                eliminarBtn.addEventListener('click', () => {
+                    uploadInput.value = '';
+                    vistaPrevia.innerHTML = '';
+                    if (imagenUrlInput) imagenUrlInput.value = '';
+                    archivoSeleccionado = null;
+                    API.mostrarExito('🗑️ Imagen eliminada');
+                });
+            }
+        });
+
+        async function subirImagenADrive(file) {
+            subiendoImagen = true;
+            
+            try {
+                const apiKey = localStorage.getItem('api_key');
+                if (!apiKey) {
+                    API.mostrarError('No hay sesión activa. Inicia sesión nuevamente.');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('accion', 'SUBIR_IMAGEN_DRIVE');
+                formData.append('file', file);
+
+                const response = await fetch('https://script.google.com/macros/s/AKfycbw_0VjMCL3iwmJgRdA7G_e0mxSNo8y91xJ7cbP0apY0W4OqLWuZzG8p_9KlXKYUk9k/exec', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-API-Key': apiKey
+                    }
+                });
+
+                const resultado = await response.json();
+                console.log('📡 Respuesta subida imagen:', resultado);
+
+                const indicador = document.getElementById('subiendo-indicador');
+                if (indicador) indicador.style.display = 'none';
+
+                if (resultado.success && resultado.data && resultado.data.url) {
+                    // Guardar la URL de Drive en el campo oculto
+                    if (imagenUrlInput) {
+                        imagenUrlInput.value = resultado.data.url;
+                        API.mostrarExito('✅ Imagen subida correctamente a Drive');
+                        console.log('✅ URL guardada:', resultado.data.url);
+                    }
+                } else {
+                    const errorMsg = resultado.error || 'Error desconocido';
+                    API.mostrarError('❌ Error subiendo imagen: ' + errorMsg);
+                    // Limpiar previsualización
+                    vistaPrevia.innerHTML = '';
+                    uploadInput.value = '';
+                }
+                
+            } catch (error) {
+                console.error('Error al subir imagen:', error);
+                API.mostrarError('❌ Error de conexión al subir la imagen');
+                vistaPrevia.innerHTML = '';
+                uploadInput.value = '';
+            } finally {
+                subiendoImagen = false;
+            }
         }
-      });
     });
-  </script>
+</script>
 
 </body>
 
