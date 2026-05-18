@@ -118,5 +118,101 @@ function actualizarHeaderPorSesion() {
   }
 }
 
+// ========== NUEVA FUNCIÓN: RENDERIZAR TABLA DE ADMINISTRACIÓN ==========
+  renderizarTablaAdmin(avisos) {
+    const tablaCuerpo = document.getElementById('tabla-avisos-cuerpo');
+    if (!tablaCuerpo) {
+      console.error('❌ No se encontró el contenedor id="tabla-avisos-cuerpo" en el HTML');
+      return;
+    }
+
+    if (!avisos || avisos.length === 0) {
+      tablaCuerpo.innerHTML = `<tr><td colspan="6" class="text-center">No hay avisos que coincidan con los filtros.</td></tr>`;
+      return;
+    }
+
+    const usuarioActual = API.getUsuarioActual();
+    const esAdmin = usuarioActual && usuarioActual.rol === 'admin';
+
+    tablaCuerpo.innerHTML = avisos.map(aviso => {
+      // Control de imagen seguro: si no hay URL válida o viene rota de la hoja, pone un placeholder o emoji
+      const tieneImagen = aviso.imagen_url && aviso.imagen_url.startsWith('http');
+      const celdaImagen = tieneImagen 
+        ? `<img src="${aviso.imagen_url}" alt="Aviso" class="admin-preview-img" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">`
+        : `<span style="font-size: 1.5rem;" title="Sin imagen">🖼️❌</span>`;
+
+      // Etiquetas de estado visuales
+      let badgeClase = 'badge-pendiente';
+      if (aviso.status === 'activo' || aviso.status === 'aprobado') badgeClase = 'badge-activo';
+      if (aviso.status === 'rechazado') badgeClase = 'badge-rechazado';
+
+      // Construcción de botones condicionales si el usuario es Administrador
+      let accionesBotones = '';
+      if (esAdmin) {
+        if (aviso.status === 'pendiente') {
+          accionesBotones = `
+            <button class="btn-tabla btn-aprobar" onclick="UI.procesarAprobacion('${aviso.id}', 'aprobar')">✅ Aprobar</button>
+            <button class="btn-tabla btn-rechazar" onclick="UI.procesarAprobacion('${aviso.id}', 'rechazar')">❌ Rechazar</button>
+          `;
+        } else {
+          accionesBotones = `<span class="texto-bloqueado">Sin acciones</span>`;
+        }
+      } else {
+        accionesBotones = `<span class="texto-bloqueado">Solo lectura</span>`;
+      }
+
+      return `
+        <tr id="fila-aviso-${aviso.id}">
+          <td>${celdaImagen}</td>
+          <td><strong>${aviso.titulo || 'Sin título'}</strong><br><small style="color: #888;">${aviso.categoria}</small></td>
+          <td>${aviso.contacto || 'No provisto'}</td>
+          <td>${new Date(aviso.created_at).toLocaleDateString('es-MX')}</td>
+          <td><span class="badge-status ${badgeClase}">${aviso.status || 'pendiente'}</span></td>
+          <td>
+            <div class="acciones-tabla-flex">
+              ${accionesBotones}
+            </div>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  },
+
+  // ========== NUEVA FUNCIÓN: INTERCEPTOR DE CLICKS DE APROBACIÓN ==========
+  async procesarAprobacion(id, accion) {
+    const apiKey = localStorage.getItem('api_key');
+    if (!apiKey) {
+      this.mostrarError('Sesión expirada. Por favor vuelve a iniciar sesión.');
+      return;
+    }
+
+    try {
+      this.mostrarInfo(`Procesando solicitud en Google Sheets...`);
+      let resultado;
+
+      if (accion === 'aprobar') {
+        resultado = await API.aprobarAviso(id, apiKey);
+      } else {
+        resultado = await API.rechazarAviso(id, apiKey);
+      }
+
+      if (resultado && resultado.success) {
+        this.mostrarExito(`✅ Aviso ${accion === 'aprobar' ? 'aprobado' : 'rechazado'} correctamente.`);
+        
+        // Ejecuta la recarga de datos en caliente usando la función global de admin.js
+        if (typeof window.cargarMisAvisos === 'function') {
+          window.cargarMisAvisos();
+        } else if (typeof cargarMisAvisos === 'function') {
+          cargarMisAvisos();
+        }
+      } else {
+        this.mostrarError(`Error en servidor: ${resultado?.error || 'No se pudo cambiar el estado.'}`);
+      }
+    } catch (error) {
+      console.error(`❌ Fallo crítico al procesar ${accion}:`, error);
+      this.mostrarError(`Error de red al intentar conectar con la hoja de cálculo.`);
+    }
+  }
+
 // Exportar para usar en otras páginas si es necesario
 window.actualizarHeaderPorSesion = actualizarHeaderPorSesion;
