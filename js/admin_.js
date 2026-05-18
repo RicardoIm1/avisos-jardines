@@ -1,5 +1,4 @@
 // ==================== ADMINISTRACIÓN ====================
-// ==================== ADMINISTRACIÓN CORREGIDO ====================
 
 let paginaAdmin = 1;
 let avisosActuales = [];
