@@ -1014,7 +1014,7 @@
         async function cargarAvisosParaAdmin() {
             const tbody = document.getElementById('tabla-avisos-cuerpo');
             if (tbody) {
-                tbody.innerHTML = '<table><td colspan="6" style="text-align: center; padding: 15px;">🔄 Cargando avisos desde tu API...</tr></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 15px;">🔄 Cargando avisos desde tu API...</td></tr>';
             }
 
             try {
@@ -1027,14 +1027,15 @@
                 }
 
                 if (usuario.rol !== 'admin') {
-                    tbody.innerHTML = '<td><td colspan="6" style="text-align: center; padding: 15px; color: #ff8c42;">⛔ Acceso denegado. Solo administradores.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 15px; color: #ff8c42;">⛔ Acceso denegado. Solo administradores.</td></tr>';
                     return;
                 }
 
                 console.log('👤 Admin logueado:', usuario.email);
 
-                // ✅ Usar SOLO tu API, nada de fetch directo a Google Sheets
-                const respuesta = await API.peticion('LISTAR', { coleccion: 'AVISOS' }, apiKey);
+                // ✅ Usar LISTAR_MIS_AVISOS (esta acción SÍ existe en tu script)
+                // Para admin, LISTAR_MIS_AVISOS devuelve TODOS los avisos (porque el script detecta rol admin)
+                const respuesta = await API.peticion('LISTAR_MIS_AVISOS', {}, apiKey);
 
                 console.log('📡 Respuesta de la API:', respuesta);
 
@@ -1084,7 +1085,7 @@
                 }
             }
         }
-
+        
         // ==================== RENDERIZAR TABLA CON FILTROS ====================
         function renderizarTablaAvisos() {
             const tbody = document.getElementById('tabla-avisos-cuerpo');
