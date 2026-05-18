@@ -1013,35 +1013,75 @@
         // ==================== CARGAR AVISOS REALES DESDE TU API ====================
         async function cargarAvisosParaAdmin() {
             const tbody = document.getElementById('tabla-avisos-cuerpo');
-            if (tbody) tbody.innerHTML = '<tr><td colspan="6">Cargando desde Google Sheet...</td></tr>';
-
-            // ⚠️ CAMBIÁ ESTO por el ID de tu hoja de AVISOS
-            const SHEET_ID = '1s8w2Wb8uiQQMMrZn2TQYD5sVDbp-NdpnnQR8l-YTqXM';
-            const SHEET_NAME = 'AVISOS';
-            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
+            if (tbody) {
+                tbody.innerHTML = '<table><td colspan="6" style="text-align: center; padding: 15px;">🔄 Cargando avisos desde tu API...</tr></tr>';
+            }
 
             try {
-                const response = await fetch(url);
-                const text = await response.text();
-                const json = JSON.parse(text.substring(47).slice(0, -2));
-                const rows = json.table.rows;
-                const headers = json.table.cols.map(col => col.label);
+                const apiKey = localStorage.getItem('api_key');
+                const usuario = API.getUsuarioActual();
 
-                const avisos = rows.map(row => {
-                    let obj = {};
-                    headers.forEach((h, i) => {
-                        let val = row.c[i]?.v;
-                        if (h === 'id') val = val?.toString();
-                        obj[h] = val || '';
-                    });
-                    return obj;
-                }).filter(a => a.id);
+                if (!apiKey || !usuario) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 15px; color: #ff8c42;">⚠️ Necesitas iniciar sesión como administrador</td></tr>';
+                    return;
+                }
 
-                todosLosAvisos = avisos;
+                if (usuario.rol !== 'admin') {
+                    tbody.innerHTML = '<td><td colspan="6" style="text-align: center; padding: 15px; color: #ff8c42;">⛔ Acceso denegado. Solo administradores.</td></tr>';
+                    return;
+                }
+
+                console.log('👤 Admin logueado:', usuario.email);
+
+                // ✅ Usar SOLO tu API, nada de fetch directo a Google Sheets
+                const respuesta = await API.peticion('LISTAR', { coleccion: 'AVISOS' }, apiKey);
+
+                console.log('📡 Respuesta de la API:', respuesta);
+
+                let avisos = [];
+
+                if (respuesta && respuesta.success) {
+                    // Extraer avisos de la estructura correcta
+                    if (respuesta.data && respuesta.data.datos && Array.isArray(respuesta.data.datos)) {
+                        avisos = respuesta.data.datos;
+                    } else if (respuesta.data && Array.isArray(respuesta.data)) {
+                        avisos = respuesta.data;
+                    } else if (respuesta.datos && Array.isArray(respuesta.datos)) {
+                        avisos = respuesta.datos;
+                    }
+                } else {
+                    throw new Error(respuesta?.error || 'Error al obtener avisos');
+                }
+
+                if (!avisos || avisos.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 15px;">📭 No hay avisos registrados aún</td></tr>';
+                    todosLosAvisos = [];
+                    return;
+                }
+
+                // Normalizar los datos para la tabla
+                todosLosAvisos = avisos.map(aviso => ({
+                    id: aviso.id,
+                    titulo: aviso.titulo || 'Sin título',
+                    contenido: aviso.contenido || '',
+                    categoria: aviso.categoria || 'varios',
+                    status: aviso.status || 'pendiente',
+                    contacto: aviso.contacto || '',
+                    imagen_url: aviso.imagen_url || '',
+                    video_url: aviso.video_url || '',
+                    ubicacion: aviso.ubicacion || '',
+                    fecha_evento: aviso.fecha_evento || '',
+                    created_at: aviso.created_at
+                }));
+
+                console.log(`✅ Cargados ${todosLosAvisos.length} avisos desde la API`);
                 renderizarTablaAvisos();
-            } catch (err) {
-                console.error(err);
-                tbody.innerHTML = '<tr><td colspan="6">❌ No se pudo leer la hoja pública. Revisá que esté publicada como "Cualquier persona".</td></tr>';
+
+            } catch (error) {
+                console.error('❌ Error en cargarAvisosParaAdmin:', error);
+                if (tbody) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 15px; color: red;">❌ ${error.message || 'Error de conexión con la API'}</td></tr>`;
+                }
             }
         }
 
