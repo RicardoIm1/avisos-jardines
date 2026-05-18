@@ -858,6 +858,28 @@
                     <input type="hidden" id="user-categorias" value="todas">
                     <button type="submit" class="boton" style="margin-top: 10px;">👥 Crear Cuenta de Usuario</button>
                 </form>
+                <!-- Tabla de usuarios existentes -->
+                <div style="margin-top: 30px;">
+                    <h3 style="margin-bottom: 16px;">📋 Usuarios registrados</h3>
+                    <div class="admin-tabla-wrapper">
+                        <table class="tabla-admin">
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Nombre</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-usuarios-cuerpo">
+                                <tr>
+                                    <td colspan="5">Cargando usuarios...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1259,6 +1281,9 @@
             // Cargar avisos al iniciar
             setTimeout(cargarAvisosParaAdmin, 500);
 
+            // ✅ Cargar usuarios al iniciar (por si la pestaña de usuarios está visible)
+            setTimeout(cargarUsuariosAdmin, 500);
+
             // Configurar filtros
             const btnFiltros = document.getElementById('aplicar-filtros');
             const filtroCategoria = document.getElementById('filtro-categoria-admin');
@@ -1292,6 +1317,16 @@
             });
             document.getElementById('cancelar-editar')?.addEventListener('click', () => {
                 document.getElementById('modal-editar').style.display = 'none';
+            });
+
+            // ✅ Cuando se cambie de pestaña, recargar usuarios si es necesario
+            const tabs = document.querySelectorAll('.filtro');
+            tabs.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    if (this.dataset.tab === 'usuarios') {
+                        cargarUsuariosAdmin();
+                    }
+                });
             });
         });
 
@@ -1422,7 +1457,7 @@
 
         console.log('✅ Script de administración cargado - Conectado a API real');
     </script>
-    
+
     <script>
         // ==================== CARGAR USUARIOS ====================
         async function cargarUsuariosAdmin() {
