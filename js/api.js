@@ -179,8 +179,6 @@ class API {
 
   // ==================== MÉTODOS DE AVISOS ====================
 
-  // ==================== MÉTODOS DE AVISOS CORREGIDOS ====================
-
   // Listar avisos
   static async listar(coleccion, filtros = {}, paginacion = {}) {
     const apiKey = localStorage.getItem('api_key');
