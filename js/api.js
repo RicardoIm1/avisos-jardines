@@ -179,6 +179,8 @@ class API {
 
   // ==================== MÉTODOS DE AVISOS ====================
 
+  // ==================== MÉTODOS DE AVISOS CORREGIDOS ====================
+
   // Listar avisos
   static async listar(coleccion, filtros = {}, paginacion = {}) {
     const apiKey = localStorage.getItem('api_key');
@@ -191,14 +193,15 @@ class API {
       ...paginacion
     };
 
-    // Si NO es admin Y hay usuario logueado, filtrar por sus propios avisos (solo para colección AVISOS)
+    // Si NO es admin Y hay usuario logueado, filtrar por sus propios avisos
     if (coleccion === 'AVISOS' && !esAdmin && usuario) {
       params.created_by = usuario.id;
     }
 
-    // Agregar filtros adicionales (sobrescriben si es necesario)
+    // Agregar filtros adicionales (Aquí es crucial que admin.js envíe { estado: 'pendiente' } u otros)
     Object.assign(params, filtros);
 
+    // Mantenemos JSONP para listar ya que GET suele ser seguro para lecturas paginadas
     const resultado = await API.peticion('LISTAR', params, apiKey);
 
     if (resultado && resultado.success) {
@@ -212,17 +215,15 @@ class API {
     return { datos: [], total: 0 };
   }
 
-  // Crear aviso
+  // Crear aviso (Asegura que "datos" incluya la propiedad imagen_url correctamente)
   static async crearAviso(datos, apiKey) {
-    // Enviar los datos DENTRO de un objeto llamado "datos"
-    return await
-      API.post('CREAR', {
-        coleccion: 'AVISOS',
-        datos: datos
-      }, apiKey);
+    return await API.post('CREAR', {
+      coleccion: 'AVISOS',
+      datos: datos
+    }, apiKey);
   }
 
-  // Actualizar aviso
+  // Actualizar aviso (Migrado a estructura limpia para el backend)
   static async actualizarAviso(id, datos, apiKey) {
     return await API.post('ACTUALIZAR', {
       coleccion: 'AVISOS',
@@ -231,22 +232,28 @@ class API {
     }, apiKey);
   }
 
+  // Eliminar (Migrado a POST para evitar fallos de permisos por URL)
   static async eliminar(coleccion, id, apiKey) {
-    return await API.peticion('ELIMINAR', {
+    return await API.post('ELIMINAR', {
       coleccion: coleccion,
       id: id
     }, apiKey);
   }
 
-  // Aprobar aviso (admin)
+  // Aprobar aviso (¡Corregido a POST real para evitar truncado de datos!)
   static async aprobarAviso(id, apiKey) {
-    return await API.peticion('APROBAR_AVISO', { id: id }, apiKey);
+    return await API.post('APROBAR_AVISO', {
+      id: id
+    }, apiKey);
   }
 
-  // Rechazar aviso (admin)
+  // Rechazar aviso (¡Corregido a POST real!)
   static async rechazarAviso(id, apiKey) {
-    return await API.peticion('RECHAZAR_AVISO', { id: id }, apiKey);
+    return await API.post('RECHAZAR_AVISO', {
+      id: id
+    }, apiKey);
   }
+
 
   // ==================== MÉTODOS DE ESTADÍSTICAS ====================
 
@@ -421,14 +428,14 @@ API.listarPublicos = async function (filtros = {}, paginacion = {}) {
     ...filtros,
     ...paginacion
   };
-  
+
   // Usar peticion (JSONP) en lugar de post
   const resultado = await API.peticion('LISTAR_AVISOS_PUBLICOS', params);
-  
+
   if (resultado && resultado.success) {
     return resultado.data || { datos: [], total: 0 };
   }
-  
+
   console.error('Error en listarPublicos:', resultado);
   return { datos: [], total: 0 };
 };
