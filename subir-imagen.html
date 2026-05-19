@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Barrio - Subir imagen al mural</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: system-ui, 'Segoe UI', 'Roboto', sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            color: #1e2a3e;
+        }
+        .contenedor {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .tarjeta {
+            background: white;
+            border-radius: 32px;
+            padding: 28px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+        }
+        h1 {
+            font-size: 1.9rem;
+            margin: 0 0 0.25rem 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #0b3b2f;
+        }
+        .subtitulo {
+            color: #4a627a;
+            margin-bottom: 28px;
+            border-left: 4px solid #2ecc71;
+            padding-left: 16px;
+            font-weight: 500;
+        }
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            color: #1e4660;
+        }
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px dashed #bdd3e8;
+            border-radius: 24px;
+            background: #fefce8;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        button {
+            background: #0f6b4a;
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        button:hover {
+            background: #0a543a;
+            transform: scale(0.98);
+        }
+        .mensaje {
+            margin-top: 20px;
+            padding: 14px;
+            border-radius: 28px;
+            background: #e8f5e9;
+            color: #2e6b3e;
+            font-weight: 500;
+            text-align: center;
+        }
+        .error {
+            background: #ffe6e5;
+            color: #b13e3e;
+        }
+        .imagen-vista {
+            margin-top: 24px;
+            background: #f8fafc;
+            border-radius: 24px;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid #dee4ec;
+        }
+        .imagen-vista img {
+            max-width: 100%;
+            max-height: 260px;
+            border-radius: 20px;
+            box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+        }
+        .donacion-boton {
+            background: #f5b042;
+            margin-top: 16px;
+            box-shadow: none;
+            text-align: center;
+            display: inline-block;
+            width: auto;
+            padding: 12px 28px;
+            text-decoration: none;
+            color: #2c2c2c;
+        }
+        .donacion-boton:hover {
+            background: #e09d2c;
+        }
+        .footer-ayuda {
+            font-size: 0.85rem;
+            text-align: center;
+            color: #6c7e97;
+            margin-top: 28px;
+        }
+        hr {
+            margin: 20px 0;
+            border: none;
+            height: 1px;
+            background: linear-gradient(to right, #e0e7ef, transparent);
+        }
+    </style>
+</head>
+<body>
+<div class="contenedor">
+    <div class="tarjeta">
+        <h1>🏘️ Barrio · Mural vecinal</h1>
+        <div class="subtitulo">Comparte imágenes de tu comunidad (baches, reuniones, avisos, lo que quieras)</div>
+
+        <!-- FORMULARIO PARA SUBIR IMAGEN (usa API ImgBB) -->
+        <form id="formImagen">
+            <label>📸 Selecciona una foto del barrio</label>
+            <input type="file" id="archivoImagen" accept="image/jpeg, image/png, image/jpg, image/webp" required>
+            <button type="submit">🌿 Subir imagen al mural</button>
+        </form>
+
+        <div id="estadoSubida" class="mensaje" style="display: none;"></div>
+
+        <!-- Vista previa de la última imagen subida -->
+        <div id="areaImagen" class="imagen-vista" style="display: none;">
+            <strong>🖼️ Última imagen compartida:</strong><br><br>
+            <img id="imagenSubida" src="" alt="Foto del barrio">
+            <p id="linkImagen" style="font-size: 0.75rem; word-break: break-all; margin-top: 12px;"></p>
+        </div>
+
+        <hr>
+
+        <!-- APOYO ECONÓMICO: DONACIÓN VOLUNTARIA -->
+        <div style="text-align: center;">
+            <p style="margin-bottom: 10px;">❤️ Este sitio es gratuito gracias a vecinos como tú.<br> <strong>¿Nos ayudas con una cooperacha voluntaria?</strong></p>
+            <a id="botonDonar" href="#" target="_blank" class="donacion-boton">
+                ☕ Invítame un café (donación $20 MXN)
+            </a>
+            <p style="font-size: 0.7rem; margin-top: 12px;">No manejamos tus datos. El pago es seguro por Mercado Pago.</p>
+        </div>
+    </div>
+    <div class="footer-ayuda">
+        🌱 Cada imagen que subes construye comunidad. <br> Sin spam, sin publicidad invasiva. Entre vecinos nos apoyamos.
+    </div>
+</div>
+
+<script>
+    // --------------------------------------------------------------
+    // 1. CONFIGURACIÓN (cambia estos datos por los tuyos)
+    // --------------------------------------------------------------
+    const API_KEY_IMGBB = "TU_API_KEY_AQUI";          // ← OBTÉNLA EN IMGBB (registro gratis)
+    const LINK_MERCADO_PAGO = "LINK_DE_MERCADO_PAGO_AQUI";  // ← CREA UN BOTÓN DE DONACIÓN EN MERCADO PAGO
+    
+    // Asignar el link de donación al botón
+    const botonDonar = document.getElementById("botonDonar");
+    if (LINK_MERCADO_PAGO && LINK_MERCADO_PAGO !== "LINK_DE_MERCADO_PAGO_AQUI") {
+        botonDonar.href = LINK_MERCADO_PAGO;
+    } else {
+        botonDonar.href = "#";
+        botonDonar.style.opacity = "0.6";
+        botonDonar.title = "Configura el link de donación en el código";
+    }
+    
+    // --------------------------------------------------------------
+    // 2. SUBIR IMAGEN A IMGBB (Fácil, sin servidor propio)
+    // --------------------------------------------------------------
+    const formImagen = document.getElementById("formImagen");
+    const archivoInput = document.getElementById("archivoImagen");
+    const estadoDiv = document.getElementById("estadoSubida");
+    const areaImagenDiv = document.getElementById("areaImagen");
+    const imagenSubida = document.getElementById("imagenSubida");
+    const linkImagenSpan = document.getElementById("linkImagen");
+
+    formImagen.addEventListener("submit", async function(evento) {
+        evento.preventDefault();
+        
+        // Validar que haya API key
+        if (API_KEY_IMGBB === "TU_API_KEY_AQUI") {
+            mostrarMensaje("⚠️ Primero obtén tu API Key gratis en ImgBB (está en el código). Es fácil: te toma 2 minutos.", true);
+            return;
+        }
+        
+        const archivo = archivoInput.files[0];
+        if (!archivo) {
+            mostrarMensaje("📁 Selecciona una imagen antes de subir.", true);
+            return;
+        }
+        
+        // Prepara formulario para enviar a ImgBB
+        const formData = new FormData();
+        formData.append("key", API_KEY_IMGBB);
+        formData.append("image", archivo);
+        
+        mostrarMensaje("📡 Subiendo imagen... por favor espera unos segundos", false);
+        
+        try {
+            const respuesta = await fetch("https://api.imgbb.com/1/upload", {
+                method: "POST",
+                body: formData
+            });
+            const datos = await respuesta.json();
+            
+            if (datos.success) {
+                const urlImagen = datos.data.url;
+                const urlDisplay = datos.data.display_url || urlImagen;
+                
+                // Mostrar imagen en la página
+                imagenSubida.src = urlDisplay;
+                linkImagenSpan.innerHTML = `🔗 <a href="${urlImagen}" target="_blank">Ver imagen pública</a> (cópiala si quieres)`;
+                areaImagenDiv.style.display = "block";
+                
+                mostrarMensaje("✅ ¡Imagen guardada exitosamente! Los vecinos pueden verla.", false);
+                
+                // LIMPIAR el input para poder subir otra imagen después
+                archivoInput.value = "";
+                
+                // Opcional: podrías guardar la URL en tu base de datos de Barrio (Firebase, JSON, etc.)
+                console.log("URL de la imagen:", urlImagen);
+                // Aquí puedes agregar después el código para guardar el link junto al anuncio del vecino
+            } else {
+                console.error(datos);
+                mostrarMensaje("❌ Error al subir la imagen: " + (datos.error?.message || "Intenta con otra foto"), true);
+            }
+        } catch (error) {
+            console.error(error);
+            mostrarMensaje("❌ Problema de red. Revisa tu conexión o intenta más tarde.", true);
+        }
+    });
+    
+    function mostrarMensaje(texto, esError) {
+        estadoDiv.textContent = texto;
+        estadoDiv.style.display = "block";
+        if (esError) {
+            estadoDiv.classList.add("error");
+        } else {
+            estadoDiv.classList.remove("error");
+        }
+        // Ocultar mensaje automático a los 5 segundos (excepto errores graves)
+        setTimeout(() => {
+            if (estadoDiv.textContent === texto) {
+                estadoDiv.style.display = "none";
+            }
+        }, 5000);
+    }
+</script>
+</body>
+</html>
