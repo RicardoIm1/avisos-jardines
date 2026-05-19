@@ -1352,18 +1352,24 @@
             const file = e.target.files[0];
             if (!file) return;
 
+            // Mostrar preview local
+            const previewContainer = document.getElementById('preview-editar');
+            const previewImg = document.getElementById('preview-imagen-editar');
+            const readerLocal = new FileReader();
+            readerLocal.onload = (ev) => {
+                previewImg.src = ev.target.result;
+                previewContainer.style.display = 'block';
+            };
+            readerLocal.readAsDataURL(file);
+
             try {
-                const url = await window.subirImagenADrive(file);
+                const url = await subirImagenImgBB(file);  // ✅ Usar la función correcta
                 document.getElementById('edit-imagen_url').value = url;
-                const previewImg = document.getElementById('preview-imagen-editar');
-                if (previewImg) {
-                    previewImg.src = url;
-                    document.getElementById('preview-editar').style.display = 'block';
-                }
                 if (API.mostrarExito) API.mostrarExito('✅ Imagen subida correctamente');
             } catch (error) {
                 console.error('Error al subir imagen:', error);
                 if (API.mostrarError) API.mostrarError('❌ Error: ' + error.message);
+                previewContainer.style.display = 'none';
             }
         });
 
