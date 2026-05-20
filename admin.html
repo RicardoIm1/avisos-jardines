@@ -662,6 +662,15 @@
             color: var(--color-texto-claro);
         }
     </style>
+    <style>
+        #tab-usuarios-btn {
+            display: none;
+        }
+
+        #tab-usuarios-btn[style*="block"] {
+            display: block !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -1413,6 +1422,7 @@
 
     <script>
         // ==================== CARGAR USUARIOS ====================
+        // ==================== CARGAR USUARIOS ====================
         async function cargarUsuariosAdmin() {
             const tablaUsuarios = document.getElementById('tabla-usuarios-cuerpo');
             if (!tablaUsuarios) return;
@@ -1423,10 +1433,14 @@
 
                 if (!apiKey || usuario?.rol !== 'admin') {
                     console.warn('No autorizado para ver usuarios');
+                    tablaUsuarios.innerHTML = '<tr><td colspan="5">⚠️ Solo administradores pueden ver esta sección</td></tr>';
                     return;
                 }
 
-                // Usar LISTAR_USUARIOS (debe existir en tu script)
+                // Mostrar loading
+                tablaUsuarios.innerHTML = '<tr><td colspan="5">🔄 Cargando usuarios...</td></tr>';
+
+                // Usar LISTAR_USUARIOS
                 const respuesta = await API.peticion('LISTAR_USUARIOS', {}, apiKey);
 
                 console.log('Usuarios respuesta:', respuesta);
@@ -1438,29 +1452,48 @@
                         usuarios = respuesta.data.datos;
                     } else if (respuesta.datos && Array.isArray(respuesta.datos)) {
                         usuarios = respuesta.datos;
+                    } else if (Array.isArray(respuesta.data)) {
+                        usuarios = respuesta.data;
                     }
                 }
 
-                if (usuarios.length === 0) {
-                    tablaUsuarios.innerHTML = '<tr><td colspan="5">No hay usuarios registrados</td></tr>';
+                if (!usuarios || usuarios.length === 0) {
+                    tablaUsuarios.innerHTML = '<tr><td colspan="5">📭 No hay usuarios registrados</td></tr>';
                     return;
                 }
 
-                tablaUsuarios.innerHTML = usuarios.map(user => `
-      <tr>
-        <td>${escapeHTML(user.email || '')}</td>
-        <td>${escapeHTML(user.nombre || '')}</td>
-        <td><span class="rol-badge ${user.rol === 'admin' ? 'rol-admin' : 'rol-usuario'}">${user.rol || 'usuario'}</span></td>
-        <td>${user.activo === 'TRUE' ? '✅ Activo' : '❌ Inactivo'}</td>
-        <td>
-          <button class="accion-btn" style="background:#dc3545;color:white;" onclick="eliminarUsuario('${user.id}')">🗑️</button>
-        </td>
-      </tr>
-    `).join('');
+                // Función simple de escape
+                const escapeHtml = (str) => {
+                    if (!str) return '';
+                    return String(str).replace(/[&<>]/g, function (m) {
+                        if (m === '&') return '&amp;';
+                        if (m === '<') return '&lt;';
+                        if (m === '>') return '&gt;';
+                        return m;
+                    });
+                };
+
+                tablaUsuarios.innerHTML = usuarios.map(user => {
+                    const email = escapeHtml(user.email || '');
+                    const nombre = escapeHtml(user.nombre || email.split('@')[0]);
+                    const rol = user.rol === 'admin' ? 'admin' : 'usuario';
+                    const activo = user.activo === 'TRUE' || user.activo === true ? '✅ Activo' : '❌ Inactivo';
+
+                    return `
+            <tr>
+                <td data-label="Email">${email}</td>
+                <td data-label="Nombre">${nombre}</td>
+                <td data-label="Rol"><span class="rol-badge ${rol === 'admin' ? 'rol-admin' : 'rol-usuario'}">${rol}</span></td>
+                <td data-label="Estado">${activo}</td>
+                <td data-label="Acciones">
+                    <button class="accion-btn" style="background:#dc3545;color:white;" onclick="eliminarUsuario('${user.id}')">🗑️ Eliminar</button>
+                </td>
+            </tr>
+        `}).join('');
 
             } catch (error) {
                 console.error('Error cargando usuarios:', error);
-                tablaUsuarios.innerHTML = `<td><td colspan="5">❌ Error: ${error.message}</td></tr>`;
+                tablaUsuarios.innerHTML = `<tr><td colspan="5">❌ Error: ${error.message}</td></tr>`;
             }
         }
 

@@ -332,7 +332,7 @@
     });
   </script>
 
-  <script>
+  <!-- <script>
     // Respaldo: Forzar actualización del header después de todo
     (function () {
       function forzarActualizarHeader() {
@@ -402,6 +402,35 @@
       // También ejecutar después de que el header se cargue (fetch)
       setTimeout(forzarActualizarHeader, 500);
       setTimeout(forzarActualizarHeader, 1000);
+    })();
+  </script> -->
+  <script>
+    // Forzar actualización del header en login/registro
+    (function () {
+      // Esperar a que cargue el header
+      setTimeout(function () {
+        if (typeof actualizarHeaderPorSesion === 'function') {
+          actualizarHeaderPorSesion();
+        } else if (window.actualizarHeaderPorSesion) {
+          window.actualizarHeaderPorSesion();
+        } else {
+          // Si la función no existe, recargar el header manualmente
+          const headerContainer = document.getElementById('header-container');
+          if (headerContainer) {
+            fetch('/barrio/common/header.html?v=' + Date.now())
+              .then(res => res.text())
+              .then(html => {
+                headerContainer.innerHTML = html;
+                // Reintentar después de cargar
+                setTimeout(() => {
+                  if (window.actualizarHeaderPorSesion) {
+                    window.actualizarHeaderPorSesion();
+                  }
+                }, 100);
+              });
+          }
+        }
+      }, 200);
     })();
   </script>
 </body>
