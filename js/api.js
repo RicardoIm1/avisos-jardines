@@ -196,11 +196,26 @@ class API {
     try {
       const usuarioStr = localStorage.getItem('usuario');
       if (!usuarioStr) return null;
+
+      // ✅ Protección contra datos corruptos
+      const trimmed = usuarioStr.trim();
+      if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+        console.warn('⚠️ Usuario corrupto detectado, limpiando...', usuarioStr);
+        localStorage.removeItem('usuario');
+        return null;
+      }
+
       const usuario = JSON.parse(usuarioStr);
-      if (usuario === 'undefined' || !usuario.email) return null;
+      if (!usuario || typeof usuario !== 'object') {
+        localStorage.removeItem('usuario');
+        return null;
+      }
+
+      if (!usuario.email) return null;
       return usuario;
     } catch (e) {
       console.error('Error parsing usuario:', e);
+      localStorage.removeItem('usuario');
       return null;
     }
   }
