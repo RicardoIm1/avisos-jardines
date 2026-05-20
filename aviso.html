@@ -49,13 +49,29 @@
     }
 
     .article-title {
-      font-size: 2.8rem;
+      font-size: 2rem;
       font-weight: 800;
       line-height: 1.2;
       margin: 0.5rem 0 1rem;
       color: #1a2a3a;
-      letter-spacing: -0.5px;
-      font-family: 'Georgia', 'Times New Roman', Times, serif;
+    }
+
+    .featured-video-container {
+      position: relative;
+      background: #000;
+      width: 100%;
+    }
+
+    .featured-video {
+      width: 100%;
+      max-height: 500px;
+      object-fit: contain;
+      background: #000;
+    }
+
+    .featured-image-container {
+      position: relative;
+      background: #1a1a2e;
     }
 
     .featured-image {
@@ -63,11 +79,6 @@
       max-height: 500px;
       object-fit: cover;
       display: block;
-    }
-
-    .featured-image-container {
-      position: relative;
-      background: #1a1a2e;
     }
 
     .article-meta {
@@ -96,44 +107,42 @@
     }
 
     .gallery-section {
-      margin: 2rem 0;
+      margin: 1.5rem 0;
     }
 
     .gallery-title {
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid #f5b042;
-      display: inline-block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.8rem;
+      color: #666;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
     }
 
     .gallery {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 0.8rem;
     }
 
     .gallery-item {
-      background: white;
-      border: 1px solid #e9ecef;
+      background: #f8f9fa;
       border-radius: 12px;
-      padding: 0.5rem;
+      overflow: hidden;
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
+      aspect-ratio: 1 / 1;
     }
 
-    .gallery-item:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .gallery-item img,
-    .gallery-item video {
+    .gallery-item img {
       width: 100%;
-      height: 120px;
+      height: 100%;
       object-fit: cover;
-      border-radius: 8px;
+      transition: transform 0.2s;
+    }
+
+    .gallery-item:hover img {
+      transform: scale(1.05);
     }
 
     .lightbox {
@@ -213,12 +222,22 @@
       background: #3498db;
     }
 
+    .btn-action.liked {
+      background: #ff4757;
+      border-color: #ff4757;
+    }
+
+    .btn-action.disliked {
+      background: #7f8c8d;
+      border-color: #7f8c8d;
+    }
+
     .btn-action:hover {
       transform: translateY(-2px);
       filter: brightness(1.05);
     }
 
-    /* ===== ESTADÍSTICAS MEJORADAS ===== */
+    /* Estadísticas - solo íconos y números */
     .stats-row {
       display: flex;
       gap: 1.5rem;
@@ -226,15 +245,13 @@
       padding: 0.8rem 1.2rem;
       background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 100%);
       border-radius: 16px;
-      font-size: 0.9rem;
       border: 1px solid #e9ecef;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
     }
 
     .stat-item {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.3rem;
       color: #495057;
       font-weight: 500;
     }
@@ -250,61 +267,7 @@
     }
 
     .stat-label {
-      color: #6c757d;
-      font-size: 0.8rem;
-    }
-
-    /* Like y Dislike buttons */
-    .like-btn,
-    .dislike-btn {
-      background: transparent;
-      border: 1px solid #e9ecef;
-      color: #495057;
-      transition: all 0.2s;
-    }
-
-    .like-btn.liked {
-      background: #ff4757;
-      border-color: #ff4757;
-      color: white;
-    }
-
-    .dislike-btn.disliked {
-      background: #7f8c8d;
-      border-color: #7f8c8d;
-      color: white;
-    }
-
-    .like-btn:hover {
-      transform: translateY(-2px);
-      background: #ff6b81;
-      border-color: #ff6b81;
-      color: white;
-    }
-
-    .dislike-btn:hover {
-      transform: translateY(-2px);
-      background: #95a5a6;
-      border-color: #95a5a6;
-      color: white;
-    }
-
-    /* ===== ============ ===== */
-
-    .loading-state {
-      text-align: center;
-      padding: 4rem 2rem;
-      color: #6c757d;
-      font-size: 1.1rem;
-    }
-
-    .error-message {
-      background: #fef2e8;
-      border-left: 4px solid #c0392b;
-      padding: 1.2rem;
-      margin: 2rem;
-      border-radius: 8px;
-      color: #c0392b;
+      display: none;
     }
 
     .comments-panel {
@@ -427,36 +390,53 @@
       transform: translateX(-50%) translateY(0);
     }
 
+    .loading-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #6c757d;
+      font-size: 1.1rem;
+    }
+
+    .error-message {
+      background: #fef2e8;
+      border-left: 4px solid #c0392b;
+      padding: 1.2rem;
+      margin: 2rem;
+      border-radius: 8px;
+      color: #c0392b;
+    }
+
     @media (max-width: 768px) {
       .aviso-paper {
         margin: 1rem;
       }
-
       .article-title {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
       }
-
       .article-header,
       .article-body {
         padding: 1.2rem;
       }
-
       .article-meta {
         gap: 1rem;
         font-size: 0.7rem;
       }
-
       .gallery {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 0.5rem;
       }
-
-      .comments-panel {
-        max-width: 100%;
-      }
-
       .stats-row {
         gap: 1rem;
         flex-wrap: wrap;
+      }
+      .featured-video {
+        max-height: 300px;
+      }
+      .featured-image {
+        max-height: 300px;
+      }
+      .comments-panel {
+        max-width: 100%;
       }
     }
   </style>
@@ -492,9 +472,9 @@
   <script src="/barrio/js/api.js"></script>
   <script src="/barrio/js/ui.js"></script>
   <script src="/barrio/js/auth.js"></script>
-  <script src="/barrio/js/multimedia.js"></script>
 
   <script>
+    // ========== FUNCIONES UTILITARIAS ==========
     function escapeHTML(str) {
       if (str === null || str === undefined) return '';
       return String(str).replace(/[&<>]/g, function (m) {
@@ -537,6 +517,7 @@
       }
       lightbox.classList.add('active');
     }
+
     function cerrarLightbox() {
       document.getElementById('lightbox').classList.remove('active');
       document.getElementById('lightbox-content').innerHTML = '';
@@ -549,29 +530,79 @@
       } catch (e) { console.warn('Error registrando vista:', e); }
     }
 
-    // Función para dar like
+    async function registrarClickWhatsApp(id) {
+      try { await API.peticion('REGISTRAR_CLICK_WHATSAPP', { id: id }); }
+      catch (e) { console.warn('Error registrando click WhatsApp:', e); }
+    }
+
+    // ========== POLLING PARA TIEMPO REAL ==========
+    let pollingInterval = null;
+    let ultimosDatos = { likes: 0, dislikes: 0, comentarios: 0, vistas: 0 };
+
+    async function obtenerActualizacionesEnTiempoReal() {
+      if (!avisoActual || !avisoActual.id) return;
+      try {
+        const apiKey = localStorage.getItem('api_key');
+        const resultado = await API.peticion('OBTENER_ESTADISTICAS', { id: avisoActual.id }, apiKey);
+        if (resultado && resultado.success) {
+          const datos = resultado.data;
+          if (datos.likes !== ultimosDatos.likes) {
+            const likesSpan = document.querySelector('.likes-count');
+            if (likesSpan) likesSpan.textContent = datos.likes;
+            ultimosDatos.likes = datos.likes;
+          }
+          if (datos.dislikes !== ultimosDatos.dislikes) {
+            const dislikesSpan = document.querySelector('.dislikes-count');
+            if (dislikesSpan) dislikesSpan.textContent = datos.dislikes;
+            ultimosDatos.dislikes = datos.dislikes;
+          }
+          if (datos.vistas !== ultimosDatos.vistas) {
+            const vistasSpan = document.querySelector('.vistas-count');
+            if (vistasSpan) vistasSpan.textContent = datos.vistas;
+            ultimosDatos.vistas = datos.vistas;
+          }
+          if (datos.comentarios !== ultimosDatos.comentarios && datos.comentarios > ultimosDatos.comentarios) {
+            cargarComentarios(avisoActual.id);
+            ultimosDatos.comentarios = datos.comentarios;
+          } else if (datos.comentarios !== ultimosDatos.comentarios) {
+            ultimosDatos.comentarios = datos.comentarios;
+          }
+        }
+      } catch (error) {
+        console.warn('Error en polling:', error);
+      }
+    }
+
+    function iniciarPolling() {
+      if (pollingInterval) clearInterval(pollingInterval);
+      const likesSpan = document.querySelector('.likes-count');
+      const dislikesSpan = document.querySelector('.dislikes-count');
+      const vistasSpan = document.querySelector('.vistas-count');
+      const comentariosSpan = document.querySelector('.comments-count');
+      ultimosDatos = {
+        likes: likesSpan ? parseInt(likesSpan.textContent) || 0 : 0,
+        dislikes: dislikesSpan ? parseInt(dislikesSpan.textContent) || 0 : 0,
+        vistas: vistasSpan ? parseInt(vistasSpan.textContent) || 0 : 0,
+        comentarios: comentariosSpan ? parseInt(comentariosSpan.textContent) || 0 : 0
+      };
+      pollingInterval = setInterval(() => { obtenerActualizacionesEnTiempoReal(); }, 5000);
+    }
+
+    function detenerPolling() {
+      if (pollingInterval) { clearInterval(pollingInterval); pollingInterval = null; }
+    }
+
+    // ========== LIKE Y DISLIKE ==========
     async function darLike(avisoId) {
       const apiKey = localStorage.getItem('api_key');
-      if (!apiKey) {
-        showToast('🔐 Inicia sesión para dar like', 1500);
-        return;
-      }
-
+      if (!apiKey) { showToast('🔐 Inicia sesión para dar like', 1500); return; }
       try {
-        const resultado = await API.peticion('VOTAR_AVISO', {
-          aviso_id: avisoId,
-          tipo: 'positivo'
-        }, apiKey);
-
+        const resultado = await API.peticion('VOTAR_AVISO', { aviso_id: avisoId, tipo: 'positivo' }, apiKey);
         if (resultado && resultado.success) {
           const likesSpan = document.querySelector('.likes-count');
-          const nuevosLikes = resultado.data?.likes || resultado.likes;
-          if (likesSpan) likesSpan.textContent = nuevosLikes;
-
-          // Marcar botón como liked
+          if (likesSpan) likesSpan.textContent = resultado.data?.likes || resultado.likes;
           const likeBtn = document.querySelector('.like-btn');
           if (likeBtn) likeBtn.classList.add('liked');
-
           showToast('👍 Like registrado', 1500);
         } else {
           showToast('❌ ' + (resultado?.error || 'No se pudo'), 1500);
@@ -582,29 +613,16 @@
       }
     }
 
-    // Función para dar dislike
     async function darDislike(avisoId) {
       const apiKey = localStorage.getItem('api_key');
-      if (!apiKey) {
-        showToast('🔐 Inicia sesión para dar dislike', 1500);
-        return;
-      }
-
+      if (!apiKey) { showToast('🔐 Inicia sesión para dar dislike', 1500); return; }
       try {
-        const resultado = await API.peticion('VOTAR_AVISO', {
-          aviso_id: avisoId,
-          tipo: 'negativo'
-        }, apiKey);
-
+        const resultado = await API.peticion('VOTAR_AVISO', { aviso_id: avisoId, tipo: 'negativo' }, apiKey);
         if (resultado && resultado.success) {
           const dislikesSpan = document.querySelector('.dislikes-count');
-          const nuevosDislikes = resultado.data?.dislikes || resultado.dislikes;
-          if (dislikesSpan) dislikesSpan.textContent = nuevosDislikes;
-
-          // Marcar botón como disliked
+          if (dislikesSpan) dislikesSpan.textContent = resultado.data?.dislikes || resultado.dislikes;
           const dislikeBtn = document.querySelector('.dislike-btn');
           if (dislikeBtn) dislikeBtn.classList.add('disliked');
-
           showToast('👎 Dislike registrado', 1500);
         } else {
           showToast('❌ ' + (resultado?.error || 'No se pudo'), 1500);
@@ -615,20 +633,8 @@
       }
     }
 
-    window.darLike = darLike;
-    window.darDislike = darDislike;
-
+    // ========== COMENTARIOS ==========
     let currentAvisoIdForComments = null;
-    window.abrirComentarios = function (id, event) {
-      if (event) event.stopPropagation();
-      currentAvisoIdForComments = id;
-      document.getElementById('comments-panel').classList.add('open');
-      cargarComentarios(id);
-    };
-    window.cerrarPanelComentarios = function () {
-      document.getElementById('comments-panel').classList.remove('open');
-      currentAvisoIdForComments = null;
-    };
 
     async function cargarComentarios(avisoId) {
       const commentsList = document.getElementById('comments-list');
@@ -642,9 +648,9 @@
           } else {
             commentsList.innerHTML = resultado.data.map(com => `
               <div class="comment-item">
-                <div class="comment-author">${escapeHTML(com.autor || 'Anónimo')}</div>
-                <div class="comment-text">${escapeHTML(com.texto)}</div>
-                <div class="comment-date">${formatearFecha(com.fecha)}</div>
+                <div class="comment-author">${escapeHTML(com.autor || com.usuario_nombre || 'Anónimo')}</div>
+                <div class="comment-text">${escapeHTML(com.texto || com.comentario)}</div>
+                <div class="comment-date">${formatearFecha(com.fecha || com.created_at)}</div>
               </div>
             `).join('');
           }
@@ -678,6 +684,7 @@
           if (comentariosSpan) {
             let actual = parseInt(comentariosSpan.textContent) || 0;
             comentariosSpan.textContent = actual + 1;
+            ultimosDatos.comentarios = actual + 1;
           }
         } else {
           showToast('❌ Error al enviar comentario', 1500);
@@ -688,133 +695,79 @@
       }
     };
 
+    window.abrirComentarios = function (id, event) {
+      if (event) event.stopPropagation();
+      currentAvisoIdForComments = id;
+      document.getElementById('comments-panel').classList.add('open');
+      cargarComentarios(id);
+    };
+
+    window.cerrarPanelComentarios = function () {
+      document.getElementById('comments-panel').classList.remove('open');
+      currentAvisoIdForComments = null;
+    };
+
+    // ========== VARIABLES GLOBALES ==========
     const AVISO_ID = new URLSearchParams(window.location.search).get('id');
     let avisoActual = null;
     let usuarioActual = null;
-    let multimediaManager = null;
-    let comentariosCount = 0;
-    let vistasCount = 0;
-    let likesCount = 0;
-    let dislikesCount = 0;
 
-    async function cargarAviso() {
-      const container = document.getElementById('aviso-container');
-      if (!AVISO_ID) {
-        container.innerHTML = `<div class="error-message">❌ No se especificó ningún aviso</div>`;
-        return;
-      }
-
-      container.innerHTML = '<div class="loading-state">📰 Cargando aviso...</div>';
-
-      try {
-        usuarioActual = API.getUsuarioActual();
-
-        // 🚀 NUEVO: Cargar SOLO el aviso necesario, no todos
-        // Código NUEVO (bueno)
-        const resultado = await API.peticion('LISTAR_AVISOS_PUBLICOS', {});
-        let aviso = null;
-        if (resultado && resultado.success && resultado.data && resultado.data.datos) {
-          aviso = resultado.data.datos.find(a => String(a.id) === String(AVISO_ID));
-        }
-
-        // Fallback: si no vino en datos.datos, buscar en estructura alternativa
-        if (!aviso && resultado && resultado.success && resultado.data) {
-          if (Array.isArray(resultado.data)) {
-            aviso = resultado.data.find(a => String(a.id) === String(AVISO_ID));
-          } else if (resultado.data.datos) {
-            aviso = resultado.data.datos.find(a => String(a.id) === String(AVISO_ID));
-          }
-        }
-
-        if (!aviso) {
-          container.innerHTML = `<div class="error-message">❌ Aviso no encontrado</div>`;
-          return;
-        }
-
-        avisoActual = aviso;
-
-        // Obtener estadísticas completas del aviso
-        likesCount = parseInt(aviso.intereses) || 0;
-        dislikesCount = parseInt(aviso.votos_negativos) || 0;
-        vistasCount = parseInt(aviso.vistas) || 0;
-        comentariosCount = parseInt(aviso.comentarios_count) || 0;
-
-        // Registrar vista
-        registrarVista(AVISO_ID);
-
-        renderizarAvisoConEstadisticas();
-
-        // Cargar comentarios en segundo plano
-        cargarComentariosEnSegundoPlano(AVISO_ID);
-
-      } catch (error) {
-        console.error('Error cargando aviso:', error);
-        container.innerHTML = `<div class="error-message">❌ Error al cargar el aviso: ${escapeHTML(error.message)}</div>`;
-      }
-    }
-    async function cargarEstadisticasCompletas(avisoId) {
-      try {
-        const apiKey = localStorage.getItem('api_key');
-        const resultado = await API.peticion('OBTENER_ESTADISTICAS', { id: avisoId }, apiKey);
-        if (resultado && resultado.success) {
-          vistasCount = resultado.data.vistas || 0;
-          likesCount = resultado.data.likes || 0;
-          dislikesCount = resultado.data.dislikes || 0;
-          comentariosCount = resultado.data.comentarios || 0;
-        } else {
-          vistasCount = avisoActual?.vistas || 0;
-          likesCount = avisoActual?.likes || 0;
-          dislikesCount = avisoActual?.dislikes || 0;
-          comentariosCount = avisoActual?.comentarios || 0;
-        }
-      } catch (e) {
-        console.warn('Error cargando estadísticas:', e);
-        vistasCount = avisoActual?.vistas || 0;
-        likesCount = avisoActual?.likes || 0;
-        dislikesCount = avisoActual?.dislikes || 0;
-        comentariosCount = avisoActual?.comentarios || 0;
-      }
-    }
-
-    async function cargarComentariosEnSegundoPlano(avisoId) {
-      try {
-        const resultado = await API.peticion('LISTAR_COMENTARIOS', { avisoId: avisoId });
-        if (resultado && resultado.success && Array.isArray(resultado.data)) {
-          comentariosCount = resultado.data.length;
-          const comentariosSpan = document.querySelector('.comments-count');
-          if (comentariosSpan) comentariosSpan.textContent = comentariosCount;
-        }
-      } catch (e) {
-        console.warn('Error cargando comentarios:', e);
-      }
-    }
-
-    function renderizarAvisoConEstadisticas() {
+    // ========== RENDERIZADO PRINCIPAL ==========
+    function renderizarAviso() {
       if (!avisoActual) return;
+
       let fechaTexto = 'Fecha no disponible';
       if (avisoActual.created_at) {
         try { fechaTexto = new Date(avisoActual.created_at).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }); }
         catch (e) { fechaTexto = String(avisoActual.created_at); }
       }
+
       const esUrgente = avisoActual.destacado === 'TRUE' || avisoActual.categoria === 'urgente';
       const esPendiente = avisoActual.status === 'pendiente';
       const esAdmin = usuarioActual && usuarioActual.rol === 'admin';
       const esPropietario = usuarioActual && String(usuarioActual.id) === String(avisoActual.created_by);
       const puedeEditar = esAdmin || esPropietario;
-      const categoriaLegible = { 'urgente': 'URGENTE', 'escuelas': 'ESCUELAS', 'servicios': 'SERVICIOS', 'comercios': 'COMERCIOS', 'eventos': 'EVENTOS', 'gobierno': 'GOBIERNO', 'varios': 'VARIOS' }[avisoActual.categoria] || avisoActual.categoria || 'GENERAL';
-      let categoriaClase = ''; let categoriaTexto = categoriaLegible;
+
+      const categoriaLegible = {
+        'urgente': 'URGENTE', 'escuelas': 'ESCUELAS', 'servicios': 'SERVICIOS',
+        'comercios': 'COMERCIOS', 'eventos': 'EVENTOS', 'gobierno': 'GOBIERNO', 'varios': 'VARIOS'
+      }[avisoActual.categoria] || avisoActual.categoria || 'GENERAL';
+
+      let categoriaClase = '', categoriaTexto = categoriaLegible;
       if (esUrgente) { categoriaClase = 'urgente'; categoriaTexto = '⚠️ URGENTE'; }
       else if (esPendiente) { categoriaClase = 'pendiente'; categoriaTexto = '⏳ PENDIENTE DE APROBACIÓN'; }
 
-      let imagenDestacada = null, imagenesGaleria = [];
-      if (avisoActual.imagen_url?.trim()) {
-        imagenDestacada = avisoActual.imagen_url;
+      // ========== MULTIMEDIA: VIDEO + GALERÍA ==========
+      let videoUrl = null;
+      let imagenesGaleria = [];
+
+      if (avisoActual.video_url && avisoActual.video_url.trim() !== '') {
+        videoUrl = avisoActual.video_url;
+        if (videoUrl.includes('youtube.com/watch?v=')) {
+          const videoId = videoUrl.split('v=')[1].split('&')[0];
+          videoUrl = `https://www.youtube.com/embed/${videoId}`;
+        } else if (videoUrl.includes('youtu.be/')) {
+          const videoId = videoUrl.split('youtu.be/')[1].split('?')[0];
+          videoUrl = `https://www.youtube.com/embed/${videoId}`;
+        }
       }
+
+      if (avisoActual.imagen_url && avisoActual.imagen_url.trim() !== '') {
+        if (avisoActual.imagen_url.includes(',')) {
+          imagenesGaleria = avisoActual.imagen_url.split(',').map(u => u.trim()).filter(u => u);
+        } else {
+          imagenesGaleria = [avisoActual.imagen_url.trim()];
+        }
+      }
+
+      const likes = parseInt(avisoActual.intereses) || 0;
+      const dislikes = parseInt(avisoActual.votos_negativos) || 0;
+      const comentarios = parseInt(avisoActual.comentarios_count) || 0;
+      const vistas = parseInt(avisoActual.vistas) || 0;
 
       const tieneContacto = avisoActual.contacto && typeof avisoActual.contacto === 'string' && avisoActual.contacto.trim();
       const numero = tieneContacto ? String(avisoActual.contacto).replace(/[^0-9]/g, '') : '';
       const mensaje = encodeURIComponent(`Hola, vi tu aviso "${avisoActual.titulo}" en BARRIO. Me interesa.`);
-      const container = document.getElementById('aviso-container');
 
       let html = `
         <div class="article-header">
@@ -822,45 +775,65 @@
           <h1 class="article-title">${escapeHTML(avisoActual.titulo || 'Sin título')}</h1>
           <div class="article-meta">
             <span>📅 ${escapeHTML(fechaTexto)}</span>
-            <span>👤 Por: ${escapeHTML(avisoActual.created_by || 'Vecino')}</span>
+            <span>👤 ${escapeHTML(avisoActual.created_by || 'Vecino')}</span>
             <span>🏷️ ${escapeHTML(categoriaLegible)}</span>
           </div>
         </div>
-        ${imagenDestacada ? `<div class="featured-image-container"><img src="${escapeHTML(imagenDestacada)}" class="featured-image" onclick="abrirLightbox('${escapeHTML(imagenDestacada)}', 'imagen')"></div>` : ''}
-        <div class="article-body">
-          <div class="article-content">${formatearContenido(avisoActual.contenido)}</div>
       `;
+
+      // Video prioritario o imagen destacada
+      if (videoUrl) {
+        html += `
+          <div class="featured-video-container">
+            <video controls autoplay class="featured-video" poster="${imagenesGaleria[0] || ''}">
+              <source src="${escapeHTML(videoUrl)}" type="video/mp4">
+              Tu navegador no soporta videos.
+            </video>
+          </div>
+        `;
+      } else if (imagenesGaleria.length > 0) {
+        html += `
+          <div class="featured-image-container">
+            <img src="${escapeHTML(imagenesGaleria[0])}" class="featured-image" onclick="abrirLightbox('${escapeHTML(imagenesGaleria[0])}', 'imagen')">
+          </div>
+        `;
+      }
+
+      html += `<div class="article-body">`;
+      html += `<div class="article-content">${formatearContenido(avisoActual.contenido)}</div>`;
 
       if (avisoActual.ubicacion) {
         html += `<p><strong>📍 Ubicación:</strong> ${escapeHTML(avisoActual.ubicacion)}</p>`;
       }
 
-      // SECCIÓN DE ESTADÍSTICAS - CON LIKES Y DISLIKES
+      // Estadísticas (solo íconos y números)
       html += `
         <div class="stats-row">
-          <div class="stat-item">
-            <span class="stat-icon">👁️</span>
-            <span class="stat-value vistas-count">${vistasCount}</span>
-            <span class="stat-label">vistas</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-icon">❤️</span>
-            <span class="stat-value likes-count">${likesCount}</span>
-            <span class="stat-label">me gusta</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-icon">👎</span>
-            <span class="stat-value dislikes-count">${dislikesCount}</span>
-            <span class="stat-label">no me gusta</span>
-          </div>
-          <div class="stat-item comentarios">
-            <span class="stat-icon">💬</span>
-            <span class="stat-value comments-count">${comentariosCount}</span>
-            <span class="stat-label">comentarios</span>
-          </div>
+          <div class="stat-item"><span class="stat-icon">👁️</span><span class="stat-value vistas-count">${vistas}</span></div>
+          <div class="stat-item"><span class="stat-icon">❤️</span><span class="stat-value likes-count">${likes}</span></div>
+          <div class="stat-item"><span class="stat-icon">👎</span><span class="stat-value dislikes-count">${dislikes}</span></div>
+          <div class="stat-item"><span class="stat-icon">💬</span><span class="stat-value comments-count">${comentarios}</span></div>
         </div>
       `;
 
+      // Galería de imágenes adicionales
+      if (imagenesGaleria.length > 1) {
+        const imagenesAdicionales = imagenesGaleria.slice(1);
+        html += `
+          <div class="gallery-section">
+            <div class="gallery-title">📸 Galería de imágenes</div>
+            <div class="gallery">
+              ${imagenesAdicionales.map(img => `
+                <div class="gallery-item" onclick="abrirLightbox('${escapeHTML(img)}', 'imagen')">
+                  <img src="${escapeHTML(img)}" loading="lazy">
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      // Botones de acción
       html += `<div class="article-actions">`;
       if (puedeEditar) {
         html += `<a href="/barrio/admin.html" class="btn-action back">← Volver al panel</a>`;
@@ -869,44 +842,53 @@
       } else {
         html += `<a href="/barrio/index.html" class="btn-action back">← Volver al inicio</a>`;
       }
-      html += `<button class="btn-action like-btn" onclick="darLike('${avisoActual.id}')">❤️ Me gusta</button>`;
-      html += `<button class="btn-action dislike-btn" onclick="darDislike('${avisoActual.id}')">👎 No me gusta</button></button>`;
+      html += `<button class="btn-action like-btn" onclick="darLike('${avisoActual.id}')">❤️ Like</button>`;
+      html += `<button class="btn-action dislike-btn" onclick="darDislike('${avisoActual.id}')">👎 Dislike</button>`;
       html += `<button class="btn-action comment" onclick="abrirComentarios('${avisoActual.id}', event)">💬 Comentar</button>`;
       if (tieneContacto) {
         html += `<a href="https://wa.me/52${numero}?text=${mensaje}" class="btn-action" target="_blank" onclick="registrarClickWhatsApp('${avisoActual.id}')">📱 WhatsApp</a>`;
       }
-      html += `</div></div></div>`;
-      container.innerHTML = html;
+      html += `</div></div>`;
 
-      // Verificar el estado de like y dislike del usuario
-      /* verificarEstadoReacciones(); */
+      document.getElementById('aviso-container').innerHTML = html;
+
+      // Iniciar polling para tiempo real
+      iniciarPolling();
     }
 
-    async function verificarEstadoReacciones() {
+    async function cargarAviso() {
+      const container = document.getElementById('aviso-container');
+      if (!AVISO_ID) {
+        container.innerHTML = `<div class="error-message">❌ No se especificó ningún aviso</div>`;
+        return;
+      }
+      container.innerHTML = '<div class="loading-state">📰 Cargando aviso...</div>';
       try {
-        const apiKey = localStorage.getItem('api_key');
-        if (!apiKey) return;
-
-        const resultado = await API.peticion('VERIFICAR_REACCIONES', { id: AVISO_ID }, apiKey);
-        if (resultado && resultado.success) {
-          const likeBtn = document.querySelector('.like-btn');
-          const dislikeBtn = document.querySelector('.dislike-btn');
-
-          if (resultado.data.liked && likeBtn) {
-            likeBtn.classList.add('liked');
-          }
-          if (resultado.data.disliked && dislikeBtn) {
-            dislikeBtn.classList.add('disliked');
+        usuarioActual = API.getUsuarioActual();
+        const resultado = await API.peticion('LISTAR_AVISOS_PUBLICOS', {});
+        let aviso = null;
+        if (resultado && resultado.success && resultado.data && resultado.data.datos) {
+          aviso = resultado.data.datos.find(a => String(a.id) === String(AVISO_ID));
+        }
+        if (!aviso && resultado && resultado.success && resultado.data) {
+          if (Array.isArray(resultado.data)) {
+            aviso = resultado.data.find(a => String(a.id) === String(AVISO_ID));
+          } else if (resultado.data.datos) {
+            aviso = resultado.data.datos.find(a => String(a.id) === String(AVISO_ID));
           }
         }
-      } catch (e) {
-        console.warn('Error verificando reacciones:', e);
+        if (!aviso) {
+          container.innerHTML = `<div class="error-message">❌ Aviso no encontrado</div>`;
+          return;
+        }
+        avisoActual = aviso;
+        registrarVista(AVISO_ID);
+        renderizarAviso();
+        cargarComentarios(AVISO_ID);
+      } catch (error) {
+        console.error('Error cargando aviso:', error);
+        container.innerHTML = `<div class="error-message">❌ Error al cargar el aviso: ${escapeHTML(error.message)}</div>`;
       }
-    }
-
-    async function registrarClickWhatsApp(id) {
-      try { await API.peticion('REGISTRAR_CLICK_WHATSAPP', { id: id }); }
-      catch (e) { console.warn('Error registrando click WhatsApp:', e); }
     }
 
     window.irAEditar = (id) => window.location.href = `/barrio/admin.html?editar=${id}`;
@@ -920,12 +902,14 @@
       } catch (e) { alert('❌ Error al eliminar'); }
     };
 
-    window.registrarClickWhatsApp = registrarClickWhatsApp;
-    window.abrirLightbox = abrirLightbox;
-    window.cerrarLightbox = cerrarLightbox;
+    // Exponer funciones globales
     window.darLike = darLike;
     window.darDislike = darDislike;
+    window.abrirLightbox = abrirLightbox;
+    window.cerrarLightbox = cerrarLightbox;
+    window.registrarClickWhatsApp = registrarClickWhatsApp;
 
+    // Header y limpieza al salir
     document.addEventListener('DOMContentLoaded', function () {
       fetch('/barrio/common/header.html').then(res => res.ok ? res.text() : Promise.reject()).then(html => {
         document.getElementById('header-container').innerHTML = html;
@@ -934,25 +918,7 @@
       cargarAviso();
     });
 
-    (function () {
-      function forzarActualizarHeader() {
-        const usuarioStr = localStorage.getItem('usuario'), apiKey = localStorage.getItem('api_key');
-        const loginLink = document.getElementById('login-link'), userArea = document.getElementById('user-area'), userNameSpan = document.getElementById('user-name'), perfilLink = document.getElementById('perfil-link'), cerrarBtn = document.getElementById('cerrar-sesion');
-        if (!loginLink) { setTimeout(forzarActualizarHeader, 200); return; }
-        if (usuarioStr && apiKey) {
-          try {
-            const usuario = JSON.parse(usuarioStr);
-            loginLink.style.display = 'none'; userArea.style.display = 'flex';
-            if (userNameSpan) userNameSpan.textContent = `👋 ${usuario.nombre || usuario.email || 'Usuario'}`;
-            if (perfilLink) perfilLink.onclick = (e) => { e.preventDefault(); window.location.href = '/barrio/perfil.html'; };
-            if (cerrarBtn) { const nuevoCerrar = cerrarBtn.cloneNode(true); cerrarBtn.parentNode.replaceChild(nuevoCerrar, cerrarBtn); nuevoCerrar.addEventListener('click', (e) => { e.preventDefault(); localStorage.removeItem('usuario'); localStorage.removeItem('api_key'); window.location.href = '/barrio/index.html'; }); }
-          } catch (e) { console.error(e); }
-        } else { loginLink.style.display = 'inline-flex'; userArea.style.display = 'none'; }
-      }
-      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', forzarActualizarHeader);
-      else setTimeout(forzarActualizarHeader, 100);
-      setTimeout(forzarActualizarHeader, 500); setTimeout(forzarActualizarHeader, 1000);
-    })();
+    window.addEventListener('beforeunload', () => { detenerPolling(); });
   </script>
 </body>
 
