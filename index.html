@@ -559,6 +559,8 @@
             fetchpriority="high" decoding="async"
             onerror="this.onerror=null; this.src='/barrio/img/fallback-banner.png'; console.warn('⚠️ Banner principal no encontrado');">
     </picture>
+        <aside><h3>hola aside</h3></aside>
+
     <main class="contenedor">
         <div style="display: flex; justify-content: center; width: 100%;">
             <button id="btnProbarNotificacion" class="btn-login">
@@ -579,6 +581,7 @@
         <div id="loading-trigger" class="loading-trigger" style="display: none;">📡 Cargando más avisos...</div>
         <div id="paginacion" class="paginacion"></div>
     </main>
+    <aside><h3>hola aside</h3></aside>
 
     <div id="footer-container"></div>
     <div id="toast" class="toast-notification"></div>
@@ -918,7 +921,7 @@
                 contenedor.innerHTML = '<p class="error">❌ Error al cargar comentarios</p>';
             }
         }
-        
+
         window.enviarComentario = async function () {
             const input = document.getElementById('comment-input');
             const texto = input.value.trim();
