@@ -1496,100 +1496,10 @@
         };
     </script>
 
-    <!-- <script>
-        // ========== SUBIR IMAGEN A IMGBB ==========
-        async function subirImagenImgBB(file) {
-            const API_KEY_IMGBB = "e62413ac76628956dbce8a7658610d1a";
-            const formData = new FormData();
-            formData.append("key", API_KEY_IMGBB);
-            formData.append("image", file);
-
-            const res = await fetch("https://api.imgbb.com/1/upload", { method: "POST", body: formData });
-            const data = await res.json();
-            if (data.success) return data.data.url;
-            throw new Error(data.error?.message || "Error subiendo imagen");
-        }
-
-        // ========== SUBIR VIDEO A CATBOX (gratis, hasta 200MB) ==========
-        async function subirVideoCatbox(file) {
-            const formData = new FormData();
-            formData.append("reqtype", "fileupload");
-            formData.append("fileToUpload", file);
-
-            const res = await fetch("https://catbox.moe/user/api.php", { method: "POST", body: formData });
-            const url = await res.text();
-            if (url.startsWith("http")) return url;
-            throw new Error("Error subiendo video a Catbox");
-        }
-
-        // ========== CONFIGURAR INPUT MULTIMEDIA ==========
-        const inputMultimedia = document.getElementById('archivo-multimedia');
-        const btnImagen = document.getElementById('btn-seleccionar-imagen');
-        const btnVideo = document.getElementById('btn-seleccionar-video');
-        const vistaPrevia = document.getElementById('vista-previa-multimedia');
-        const campoImagenUrl = document.getElementById('imagen_url');
-        const campoVideoUrl = document.getElementById('video_url');
-
-        let tipoSeleccionado = '';
-
-        btnImagen.addEventListener('click', () => {
-            tipoSeleccionado = 'imagen';
-            inputMultimedia.accept = 'image/*';
-            inputMultimedia.click();
-        });
-
-        btnVideo.addEventListener('click', () => {
-            tipoSeleccionado = 'video';
-            inputMultimedia.accept = 'video/*';
-            inputMultimedia.click();
-        });
-
-        inputMultimedia.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            // Limpiar campos anteriores
-            campoImagenUrl.value = '';
-            campoVideoUrl.value = '';
-
-            // Mostrar preview local
-            vistaPrevia.innerHTML = `<p>🔄 Subiendo archivo... por favor espera</p>`;
-            const urlLocal = URL.createObjectURL(file);
-
-            if (tipoSeleccionado === 'imagen') {
-                vistaPrevia.innerHTML = `<img src="${urlLocal}" style="max-width:100%; max-height:180px; border-radius:12px;">`;
-                try {
-                    const urlFinal = await subirImagenImgBB(file);
-                    campoImagenUrl.value = urlFinal;
-                    vistaPrevia.innerHTML += `<p style="color:green; font-size:12px;">✅ Imagen lista</p>`;
-                    if (API.mostrarExito) API.mostrarExito('✅ Imagen subida correctamente');
-                } catch (err) {
-                    vistaPrevia.innerHTML += `<p style="color:red;">❌ Error: ${err.message}</p>`;
-                    if (API.mostrarError) API.mostrarError(err.message);
-                }
-            }
-            else if (tipoSeleccionado === 'video') {
-                vistaPrevia.innerHTML = `<video src="${urlLocal}" controls style="max-width:100%; max-height:180px; border-radius:12px;"></video>`;
-                try {
-                    const urlFinal = await subirVideoCatbox(file);
-                    campoVideoUrl.value = urlFinal;
-                    vistaPrevia.innerHTML += `<p style="color:green; font-size:12px;">✅ Video listo: <a href="${urlFinal}" target="_blank">ver</a></p>`;
-                    if (API.mostrarExito) API.mostrarExito('✅ Video subido correctamente');
-                } catch (err) {
-                    vistaPrevia.innerHTML += `<p style="color:red;">❌ Error: ${err.message}</p>`;
-                    if (API.mostrarError) API.mostrarError(err.message);
-                }
-            }
-
-            // Limpiar el input para permitir otra subida
-            setTimeout(() => { inputMultimedia.value = ''; }, 1000);
-        });
-    </script> -->
-
     <script>
         // ========== CONFIGURACIÓN CLOUDINARY ==========
         const CLOUDINARY_CLOUD_NAME = "dwnmdkido";
-        const CLOUDINARY_UPLOAD_PRESET = "barrio_uploads";  // ← El nombre que le diste al preset
+        const CLOUDINARY_UPLOAD_PRESET = "barrio_uploads";
 
         // ========== SUBIR IMAGEN A IMGBB (sigue igual) ==========
         async function subirImagenImgBB(file) {
