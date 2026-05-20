@@ -728,8 +728,10 @@
                 contenedor.innerHTML = '<p>Cargando comentarios...</p>';
 
                 // Obtener comentarios de la API
+                /* const respuesta = await API.peticion('LISTAR_COMENTARIOS', {
+                    datos: { aviso_id: avisoId }
+                }, apiKey); */
                 const respuesta = await API.peticion('LISTAR_COMENTARIOS', avisoId, apiKey);
-
                 console.log('Comentarios respuesta:', respuesta);
 
                 let comentarios = [];
