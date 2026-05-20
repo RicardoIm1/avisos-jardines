@@ -237,7 +237,6 @@
       filter: brightness(1.05);
     }
 
-    /* Estadísticas - solo íconos y números */
     .stats-row {
       display: flex;
       gap: 1.5rem;
@@ -641,15 +640,25 @@
       if (!commentsList) return;
       commentsList.innerHTML = '<div class="cargando">💬 Cargando comentarios...</div>';
       try {
-        const resultado = await API.peticion('LISTAR_COMENTARIOS', { avisoId: avisoId });
-        if (resultado && resultado.success && Array.isArray(resultado.data)) {
-          if (resultado.data.length === 0) {
+        // ✅ CORREGIDO: enviar solo el ID, no un objeto
+        const resultado = await API.peticion('LISTAR_COMENTARIOS', avisoId);
+        console.log('Comentarios respuesta:', resultado);
+        
+        if (resultado && resultado.success) {
+          let comentarios = [];
+          if (resultado.data && Array.isArray(resultado.data)) {
+            comentarios = resultado.data;
+          } else if (resultado.datos && Array.isArray(resultado.datos)) {
+            comentarios = resultado.datos;
+          }
+          
+          if (comentarios.length === 0) {
             commentsList.innerHTML = '<div style="text-align:center; color:#888;">📝 No hay comentarios aún. ¡Sé el primero!</div>';
           } else {
-            commentsList.innerHTML = resultado.data.map(com => `
+            commentsList.innerHTML = comentarios.map(com => `
               <div class="comment-item">
-                <div class="comment-author">${escapeHTML(com.autor || com.usuario_nombre || 'Anónimo')}</div>
-                <div class="comment-text">${escapeHTML(com.texto || com.comentario)}</div>
+                <div class="comment-author">${escapeHTML(com.autor || com.usuario_nombre || com.usuario_email || 'Anónimo')}</div>
+                <div class="comment-text">${escapeHTML(com.texto || com.comentario || com.contenido)}</div>
                 <div class="comment-date">${formatearFecha(com.fecha || com.created_at)}</div>
               </div>
             `).join('');
@@ -668,14 +677,20 @@
       const texto = input.value.trim();
       if (!texto) { showToast('✏️ Escribe un comentario primero', 1500); return; }
       if (!currentAvisoIdForComments) { showToast('❌ Error: No se identificó el aviso', 1500); return; }
+      
+      const apiKey = localStorage.getItem('api_key');
+      if (!apiKey) { showToast('🔐 Inicia sesión para comentar', 1500); return; }
+      
       const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
       const autor = usuario.nombre || usuario.email || 'Anónimo';
+      
       try {
         const resultado = await API.peticion('AGREGAR_COMENTARIO', {
           avisoId: currentAvisoIdForComments,
           texto: texto,
           autor: autor
-        });
+        }, apiKey);
+        
         if (resultado && resultado.success) {
           input.value = '';
           showToast('💬 Comentario enviado', 1500);
@@ -684,10 +699,9 @@
           if (comentariosSpan) {
             let actual = parseInt(comentariosSpan.textContent) || 0;
             comentariosSpan.textContent = actual + 1;
-            ultimosDatos.comentarios = actual + 1;
           }
         } else {
-          showToast('❌ Error al enviar comentario', 1500);
+          showToast('❌ ' + (resultado?.error || 'Error al enviar comentario'), 1500);
         }
       } catch (e) {
         console.error('Error enviando comentario:', e);
