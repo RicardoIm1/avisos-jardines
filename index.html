@@ -716,35 +716,68 @@
             currentAvisoIdForComments = null;
         };
 
+        // ==================== CARGAR COMENTARIOS ====================
         async function cargarComentarios(avisoId) {
-            const commentsList = document.getElementById('comments-list');
-            if (!commentsList) return;
-            commentsList.innerHTML = '<div class="cargando">💬 Cargando comentarios...</div>';
+            const contenedor = document.getElementById('comentarios-container');
+            if (!contenedor) return;
+
             try {
-                const resultado = await API.peticion('LISTAR_COMENTARIOS', { avisoId: avisoId });
-                if (resultado && resultado.success && Array.isArray(resultado.data)) {
-                    if (resultado.data.length === 0) {
-                        commentsList.innerHTML = '<div style="text-align:center; color:#888;">📝 No hay comentarios aún. ¡Sé el primero!</div>';
-                    } else {
-                        commentsList.innerHTML = resultado.data.map(com => `
-                            <div class="comment-item">
-                                <div class="comment-author">${escapeHtml(com.autor || 'Anónimo')}</div>
-                                <div class="comment-text">${escapeHtml(com.texto)}</div>
-                                <div class="comment-date">${formatearFecha(com.fecha)}</div>
-                            </div>
-                        `).join('');
+                const apiKey = localStorage.getItem('api_key');
+
+                // Mostrar loading
+                contenedor.innerHTML = '<p>Cargando comentarios...</p>';
+
+                // Obtener comentarios de la API
+                const respuesta = await API.peticion('LISTAR_COMENTARIOS', {
+                    aviso_id: avisoId
+                }, apiKey);
+
+                console.log('Comentarios respuesta:', respuesta);
+
+                let comentarios = [];
+
+                if (respuesta && respuesta.success) {
+                    if (respuesta.data && respuesta.data.datos && Array.isArray(respuesta.data.datos)) {
+                        comentarios = respuesta.data.datos;
+                    } else if (respuesta.datos && Array.isArray(respuesta.datos)) {
+                        comentarios = respuesta.datos;
+                    } else if (Array.isArray(respuesta.data)) {
+                        comentarios = respuesta.data;
                     }
-                    const card = document.querySelector(`.aviso-card[data-id="${avisoId}"]`);
-                    if (card) {
-                        const commentStat = card.querySelector('.comments-stat .stat-value');
-                        if (commentStat) commentStat.textContent = resultado.data.length;
-                    }
-                } else {
-                    commentsList.innerHTML = '<div style="text-align:center; color:#888;">💬 No hay comentarios aún</div>';
                 }
-            } catch (e) {
-                console.error('Error cargando comentarios:', e);
-                commentsList.innerHTML = '<div style="text-align:center; color:#e74c3c;">❌ Error al cargar comentarios</div>';
+
+                if (!comentarios || comentarios.length === 0) {
+                    contenedor.innerHTML = '<p class="sin-comentarios">💬 No hay comentarios aún. Sé el primero en comentar.</p>';
+                    return;
+                }
+
+                // Función de escape
+                const escapeHTML = (str) => {
+                    if (!str) return '';
+                    return String(str).replace(/[&<>]/g, m => {
+                        if (m === '&') return '&amp;';
+                        if (m === '<') return '&lt;';
+                        if (m === '>') return '&gt;';
+                        return m;
+                    });
+                };
+
+                // Mostrar comentarios
+                contenedor.innerHTML = comentarios.map(com => `
+            <div class="comentario">
+                <div class="comentario-header">
+                    <strong>${escapeHTML(com.usuario_nombre || com.usuario_email || 'Anónimo')}</strong>
+                    <small>${new Date(com.created_at).toLocaleDateString('es-MX')}</small>
+                </div>
+                <div class="comentario-contenido">
+                    ${escapeHTML(com.comentario || com.texto || com.contenido)}
+                </div>
+            </div>
+        `).join('');
+
+            } catch (error) {
+                console.error('Error cargando comentarios:', error);
+                contenedor.innerHTML = '<p class="error">❌ Error al cargar comentarios</p>';
             }
         }
 
