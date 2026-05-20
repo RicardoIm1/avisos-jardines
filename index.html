@@ -723,15 +723,11 @@
 
             try {
                 const apiKey = localStorage.getItem('api_key');
-
-                // Mostrar loading
                 contenedor.innerHTML = '<p>Cargando comentarios...</p>';
 
-                // Obtener comentarios de la API
-                /* const respuesta = await API.peticion('LISTAR_COMENTARIOS', {
-                    datos: { aviso_id: avisoId }
-                }, apiKey); */
+                // ✅ CAMBIO IMPORTANTE: enviar solo el ID, no un objeto
                 const respuesta = await API.peticion('LISTAR_COMENTARIOS', avisoId, apiKey);
+
                 console.log('Comentarios respuesta:', respuesta);
 
                 let comentarios = [];
@@ -751,7 +747,6 @@
                     return;
                 }
 
-                // Función de escape
                 const escapeHTML = (str) => {
                     if (!str) return '';
                     return String(str).replace(/[&<>]/g, m => {
@@ -762,18 +757,25 @@
                     });
                 };
 
-                // Mostrar comentarios
-                contenedor.innerHTML = comentarios.map(com => `
+                contenedor.innerHTML = comentarios.map(com => {
+                    // Determinar el nombre del autor
+                    const autor = com.usuario_nombre || com.autor || com.usuario_email || com.email || 'Anónimo';
+                    // Determinar el texto del comentario
+                    const texto = com.comentario || com.texto || com.contenido || com.mensaje || '';
+                    // Determinar la fecha
+                    const fecha = com.fecha || com.created_at || com.timestamp;
+
+                    return `
             <div class="comentario">
                 <div class="comentario-header">
-                    <strong>${escapeHTML(com.usuario_nombre || com.usuario_email || 'Anónimo')}</strong>
-                    <small>${new Date(com.created_at).toLocaleDateString('es-MX')}</small>
+                    <strong>${escapeHTML(autor)}</strong>
+                    <small>${fecha ? new Date(fecha).toLocaleDateString('es-MX') : 'Reciente'}</small>
                 </div>
                 <div class="comentario-contenido">
-                    ${escapeHTML(com.comentario || com.texto || com.contenido)}
+                    ${escapeHTML(texto)}
                 </div>
-            </div>
-        `).join('');
+            </div>`;
+                }).join('');
 
             } catch (error) {
                 console.error('Error cargando comentarios:', error);
