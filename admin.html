@@ -1297,13 +1297,6 @@
                 });
             }
 
-            if (filtroCategoria) {
-                filtroCategoria.addEventListener('change', function () {
-                    filtroCategoriaActual = this.value;
-                    renderizarTablaAvisos();
-                });
-            }
-
             // Modal: cerrar
             document.getElementById('cerrar-modal')?.addEventListener('click', () => {
                 document.getElementById('modal-editar').style.display = 'none';
