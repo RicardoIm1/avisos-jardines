@@ -1450,7 +1450,7 @@
         }
 
         // Footer
-        fetch('/barrio/common/footer.html')
+        fetch('/barrio/common/footer-admin.html')
             .then(response => response.ok ? response.text() : Promise.reject())
             .then(data => {
                 const footerContainer = document.getElementById('footer-container');

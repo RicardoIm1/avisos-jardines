@@ -1,0 +1,760 @@
+<footer class="footer dashboard-footer">
+    <div class="contenedor">
+        <!-- DASHBOARD HEADER -->
+        <div class="dashboard-header">
+            <div class="dashboard-titulo">
+                <span class="dashboard-icon">📊</span>
+                <h3>Panel de Estadísticas</h3>
+                <span class="dashboard-badge" id="userRoleBadge">Usuario</span>
+            </div>
+            <div class="dashboard-fecha">
+                <span id="fechaActual"></span>
+            </div>
+        </div>
+
+        <!-- DASHBOARD CARDS -->
+        <div class="dashboard-grid" id="dashboardGrid">
+            <!-- Tarjeta Total Avisos -->
+            <div class="stat-card">
+                <div class="stat-icon">📰</div>
+                <div class="stat-info">
+                    <h4>Total Avisos</h4>
+                    <div class="stat-number" id="totalAvisos">0</div>
+                    <span class="stat-label">avisos publicados</span>
+                </div>
+            </div>
+
+            <!-- Tarjeta Activos -->
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-info">
+                    <h4>Avisos Activos</h4>
+                    <div class="stat-number" id="avisosActivos">0</div>
+                    <span class="stat-label">en circulación</span>
+                </div>
+            </div>
+
+            <!-- Tarjeta Pendientes (solo admin) -->
+            <div class="stat-card pending-card" id="pendingCard" style="display: none;">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-info">
+                    <h4>Pendientes</h4>
+                    <div class="stat-number" id="avisosPendientes">0</div>
+                    <span class="stat-label">por aprobar</span>
+                </div>
+            </div>
+
+            <!-- Tarjeta Categorías -->
+            <div class="stat-card">
+                <div class="stat-icon">📁</div>
+                <div class="stat-info">
+                    <h4>Categorías</h4>
+                    <div class="stat-number" id="totalCategorias">0</div>
+                    <span class="stat-label">en uso</span>
+                </div>
+            </div>
+
+            <!-- Tarjeta Interacción -->
+            <div class="stat-card">
+                <div class="stat-icon">👁️</div>
+                <div class="stat-info">
+                    <h4>Total Visitas</h4>
+                    <div class="stat-number" id="totalVisitas">0</div>
+                    <span class="stat-label">visualizaciones</span>
+                </div>
+            </div>
+
+            <!-- Tarjeta Engagement -->
+            <div class="stat-card">
+                <div class="stat-icon">💬</div>
+                <div class="stat-info">
+                    <h4>Interacciones</h4>
+                    <div class="stat-number" id="totalInteracciones">0</div>
+                    <span class="stat-label">me gusta + comentarios</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRÁFICO DE AVISOS POR CATEGORÍA (SOLO ADMIN) -->
+        <div class="dashboard-chart" id="chartCategorias" style="display: none;">
+            <div class="chart-header">
+                <h4>📊 Distribución por Categoría</h4>
+                <button class="chart-toggle" onclick="toggleChartView()">📈 Vista detallada</button>
+            </div>
+            <div class="chart-bars" id="chartBars">
+                <!-- Barras generadas dinámicamente -->
+            </div>
+            <div class="chart-stats-mini" id="chartStatsMini"></div>
+        </div>
+
+        <!-- TABLA DE ÚLTIMOS AVISOS -->
+        <div class="dashboard-recent">
+            <div class="recent-header">
+                <h4>📋 Últimos Avisos Publicados</h4>
+                <button class="refresh-btn" onclick="refreshDashboardData()" title="Actualizar datos">
+                    🔄 Actualizar
+                </button>
+            </div>
+            <div class="recent-table-wrapper">
+                <table class="recent-table" id="recentTable">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Categoría</th>
+                            <th>Fecha</th>
+                            <th>Visitas</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentTableBody">
+                        <tr>
+                            <td colspan="5" style="text-align: center;">Cargando datos...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- FOOTER ORIGINAL (CONTENIDO INFORMATIVO) -->
+        <div class="footer-contenido" style="margin-top: 40px;">
+            <!-- Columna 1: Información -->
+            <div class="footer-columna">
+                <h4>Sobre Nosotros</h4>
+                <div>
+                    <p><strong>El Barrio</strong> es la red social y herramienta de organización donde los vecinos de Puerto
+                        Vallarta publican avisos, ofrecen servicios y mejoran su comunidad. Es gratis, local y de confianza.
+                    </p>
+                </div>
+                <div class="footer-creditos">
+                    <span>Por</span>
+                    <a href="https://ricardoim1.github.io/jeronimoricardo/" target="_blank" class="autor-enlace">Ricardo</a>
+                    <span>y</span>
+                    <a href="https://ricardoim1.github.io/jeronimoricardo/mimi/" target="_blank"
+                        class="autor-enlace">Mimi</a>
+                </div>
+            </div>
+
+            <!-- Columna 2: Enlaces rápidos -->
+            <div class="footer-columna">
+                <h4>Enlaces Rápidos</h4>
+                <ul class="footer-links">
+                    <li><a href="index.html">🏠 Inicio</a></li>
+                    <li><a href="registro.html">👤 <strong>Registro</strong></a></li>
+                    <li><a href="admin.html">⚙️ Administración</a></li>
+                </ul>
+            </div>
+
+            <!-- Columna 3: Categorías -->
+            <div class="footer-columna">
+                <h4>📋 Categorías</h4>
+                <ul class="footer-links">
+                    <li><a href="#" onclick="aplicarCategoria('urgente'); return false;">🚨 Urgentes</a></li>
+                    <li><a href="#" onclick="aplicarCategoria('escuelas'); return false;">🏫 Escuelas</a></li>
+                    <li><a href="#" onclick="aplicarCategoria('servicios'); return false;">🛠️ Servicios</a></li>
+                    <li><a href="#" onclick="aplicarCategoria('comercios'); return false;">🛒 Comercios</a></li>
+                    <li><a href="#" onclick="aplicarCategoria('eventos'); return false;">📅 Eventos</a></li>
+                    <li><a href="#" onclick="aplicarCategoria('gobierno'); return false;">🏛️ Gobierno</a></li>
+                    <li><a href="#" onclick="aplicarCategoria('varios'); return false;">📢 Varios</a></li>
+                </ul>
+                <p style="margin-top: 0.8rem;">
+                    <a href="#" onclick="abrirModalCategorias(); return false;"
+                        style="display: inline-flex; align-items: center; gap: 0.3rem; background: #2c7da0; color: white; padding: 0.3rem 0.8rem; border-radius: 2rem; text-decoration: none; font-size: 0.7rem;">
+                        ❓ ¿Qué va en cada categoría?
+                    </a>
+                </p>
+            </div>
+
+            <!-- Columna 4: Contacto y Soporte -->
+            <div class="footer-columna">
+                <h4>Soporte y Contacto</h4>
+                <ul class="footer-links">
+                    <li>📍 Colonia Jardines, Puerto Vallarta, Jal.</li>
+                    <li class="margin-top-id"><a href="faqs.html">📣 Anunciarse en El Barrio</a></li>
+                    <li><a href="confianza.html">👑 Centro de Confianza</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Copyright y Legales -->
+        <div class="footer-copyright">
+            <div class="footer-copyright-flex">
+                <p id="copyright-year">&copy; 2026 - El Barrio. Todos los derechos reservados.</p>
+                <div class="legal-links">
+                    <a href="terminos.html">🤝 Términos</a>
+                    <a href="cookies.html">🍪 Cookies</a>
+                    <a href="legal.html">📜 Aviso Legal</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+    /* ========== DASHBOARD FOOTER ESTYLES ========== */
+    .dashboard-footer {
+        background: linear-gradient(135deg, #0f0f1a 0%, #1a1a2e 100%);
+        margin-top: 60px;
+        padding-top: 30px;
+    }
+
+    /* Dashboard Header */
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid rgba(245, 176, 66, 0.3);
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .dashboard-titulo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .dashboard-icon {
+        font-size: 2rem;
+    }
+
+    .dashboard-titulo h3 {
+        color: #f5b042;
+        font-size: 1.5rem;
+        margin: 0;
+    }
+
+    .dashboard-badge {
+        background: rgba(245, 176, 66, 0.2);
+        color: #f5b042;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        border: 1px solid rgba(245, 176, 66, 0.4);
+    }
+
+    .dashboard-fecha {
+        color: #888;
+        font-size: 0.85rem;
+    }
+
+    /* Dashboard Grid Cards */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(245, 176, 66, 0.3);
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+    }
+
+    .stat-info h4 {
+        color: #aaa;
+        font-size: 0.8rem;
+        margin: 0 0 5px 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .stat-number {
+        color: #f5b042;
+        font-size: 1.8rem;
+        font-weight: bold;
+        line-height: 1;
+        margin: 5px 0;
+    }
+
+    .stat-label {
+        color: #777;
+        font-size: 0.7rem;
+    }
+
+    .pending-card {
+        border-left: 3px solid #ff9800;
+    }
+
+    /* Dashboard Chart */
+    .dashboard-chart {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .chart-header h4 {
+        color: #f5b042;
+        margin: 0;
+    }
+
+    .chart-toggle {
+        background: rgba(245, 176, 66, 0.2);
+        border: 1px solid #f5b042;
+        color: #f5b042;
+        padding: 5px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 0.75rem;
+        transition: all 0.3s;
+    }
+
+    .chart-toggle:hover {
+        background: #f5b042;
+        color: #1a1a2e;
+    }
+
+    .chart-bars {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .bar-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .bar-label {
+        width: 120px;
+        font-size: 0.85rem;
+        color: #ccc;
+    }
+
+    .bar-container {
+        flex: 1;
+        height: 28px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 14px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #f5b042, #ff8c42);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 10px;
+        color: #1a1a2e;
+        font-size: 0.7rem;
+        font-weight: bold;
+        transition: width 0.5s ease;
+    }
+
+    .bar-count {
+        min-width: 40px;
+        text-align: right;
+        font-size: 0.8rem;
+        color: #f5b042;
+        font-weight: bold;
+    }
+
+    .chart-stats-mini {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 0.75rem;
+        color: #888;
+        text-align: center;
+    }
+
+    /* Recent Posts Table */
+    .dashboard-recent {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .recent-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .recent-header h4 {
+        color: #f5b042;
+        margin: 0;
+    }
+
+    .refresh-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: #ccc;
+        padding: 5px 12px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 0.75rem;
+        transition: all 0.3s;
+    }
+
+    .refresh-btn:hover {
+        background: rgba(245, 176, 66, 0.2);
+        color: #f5b042;
+    }
+
+    .recent-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .recent-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+    }
+
+    .recent-table th {
+        text-align: left;
+        padding: 12px 10px;
+        background: rgba(245, 176, 66, 0.1);
+        color: #f5b042;
+        font-weight: 600;
+    }
+
+    .recent-table td {
+        padding: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        color: #bbb;
+    }
+
+    .recent-table tr:hover td {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: bold;
+    }
+
+    .status-active {
+        background: rgba(76, 175, 80, 0.2);
+        color: #4caf50;
+    }
+
+    .status-pending {
+        background: rgba(255, 152, 0, 0.2);
+        color: #ff9800;
+    }
+
+    .status-inactive {
+        background: rgba(244, 67, 54, 0.2);
+        color: #f44336;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .dashboard-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .stat-card {
+            padding: 15px;
+        }
+        
+        .stat-number {
+            font-size: 1.4rem;
+        }
+        
+        .bar-label {
+            width: 100px;
+            font-size: 0.75rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .dashboard-titulo {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+
+<script>
+    // ========== DASHBOARD FUNCTIONS ==========
+    let currentUserRole = 'user'; // 'user' o 'admin'
+    let chartDetailedView = false;
+
+    // Detectar si es admin (basado en localStorage o variable global)
+    function detectUserRole() {
+        const userData = localStorage.getItem('currentUser');
+        if (userData) {
+            try {
+                const user = JSON.parse(userData);
+                if (user.role === 'admin' || user.isAdmin === true) {
+                    currentUserRole = 'admin';
+                    document.getElementById('userRoleBadge').innerHTML = '👑 Administrador';
+                    document.getElementById('userRoleBadge').style.background = 'rgba(255, 193, 7, 0.2)';
+                    document.getElementById('pendingCard').style.display = 'flex';
+                    document.getElementById('chartCategorias').style.display = 'block';
+                } else {
+                    currentUserRole = 'user';
+                    document.getElementById('userRoleBadge').innerHTML = '👤 Usuario';
+                }
+            } catch(e) {
+                currentUserRole = 'user';
+            }
+        }
+    }
+
+    // Formatear fecha
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    // Obtener todos los avisos (del localStorage)
+    function getAllNotices() {
+        const stored = localStorage.getItem('avisos');
+        if (stored) {
+            try {
+                return JSON.parse(stored);
+            } catch(e) {
+                return [];
+            }
+        }
+        return [];
+    }
+
+    // Obtener avisos según el rol
+    function getUserNotices() {
+        const allNotices = getAllNotices();
+        if (currentUserRole === 'admin') {
+            return allNotices;
+        } else {
+            const userData = localStorage.getItem('currentUser');
+            if (userData) {
+                const user = JSON.parse(userData);
+                return allNotices.filter(aviso => aviso.userId === user.id || aviso.userEmail === user.email);
+            }
+            return [];
+        }
+    }
+
+    // Calcular estadísticas
+    function calculateStats(notices) {
+        const total = notices.length;
+        const activos = notices.filter(a => a.estado === 'activo' || a.estado !== 'inactivo').length;
+        const pendientes = notices.filter(a => a.estado === 'pendiente' || !a.estado).length;
+        
+        // Categorías únicas en uso
+        const categoriasSet = new Set(notices.map(a => a.categoria).filter(c => c));
+        const totalCategorias = categoriasSet.size;
+        
+        // Visitas totales
+        const totalVisitas = notices.reduce((sum, a) => sum + (parseInt(a.visitas) || 0), 0);
+        
+        // Interacciones (likes + comentarios)
+        const totalInteracciones = notices.reduce((sum, a) => {
+            const likes = parseInt(a.likes) || 0;
+            const comentarios = (a.comentarios && Array.isArray(a.comentarios)) ? a.comentarios.length : 0;
+            return sum + likes + comentarios;
+        }, 0);
+        
+        return { total, activos, pendientes, totalCategorias, totalVisitas, totalInteracciones };
+    }
+
+    // Estadísticas por categoría
+    function getStatsByCategory(notices) {
+        const categories = ['urgente', 'escuelas', 'servicios', 'comercios', 'eventos', 'gobierno', 'varios'];
+        const stats = {};
+        categories.forEach(cat => {
+            stats[cat] = notices.filter(a => a.categoria === cat).length;
+        });
+        return stats;
+    }
+
+    // Actualizar tarjetas
+    function updateCards(stats) {
+        document.getElementById('totalAvisos').innerText = stats.total;
+        document.getElementById('avisosActivos').innerText = stats.activos;
+        if (currentUserRole === 'admin') {
+            document.getElementById('avisosPendientes').innerText = stats.pendientes;
+        }
+        document.getElementById('totalCategorias').innerText = stats.totalCategorias;
+        document.getElementById('totalVisitas').innerText = stats.totalVisitas.toLocaleString();
+        document.getElementById('totalInteracciones').innerText = stats.totalInteracciones.toLocaleString();
+    }
+
+    // Renderizar gráfico de barras
+    function renderChart(notices) {
+        const stats = getStatsByCategory(notices);
+        const maxValue = Math.max(...Object.values(stats), 1);
+        const categoryNames = {
+            'urgente': '🚨 Urgente',
+            'escuelas': '🏫 Escuelas',
+            'servicios': '🛠️ Servicios',
+            'comercios': '🛒 Comercios',
+            'eventos': '📅 Eventos',
+            'gobierno': '🏛️ Gobierno',
+            'varios': '📢 Varios'
+        };
+        
+        let barsHtml = '';
+        let totalWithNotices = 0;
+        
+        for (const [key, value] of Object.entries(stats)) {
+            if (value > 0) totalWithNotices++;
+            const percentage = (value / maxValue) * 100;
+            barsHtml += `
+                <div class="bar-item">
+                    <div class="bar-label">${categoryNames[key]}</div>
+                    <div class="bar-container">
+                        <div class="bar-fill" style="width: ${percentage}%;">
+                            ${chartDetailedView && value > 0 ? value : ''}
+                        </div>
+                    </div>
+                    <div class="bar-count">${value}</div>
+                </div>
+            `;
+        }
+        
+        document.getElementById('chartBars').innerHTML = barsHtml || '<p style="color:#888;">No hay datos suficientes</p>';
+        
+        const topCategory = Object.entries(stats).sort((a,b) => b[1] - a[1])[0];
+        if (topCategory && topCategory[1] > 0) {
+            document.getElementById('chartStatsMini').innerHTML = `📌 Categoría con más avisos: ${categoryNames[topCategory[0]]} (${topCategory[1]} avisos)`;
+        } else {
+            document.getElementById('chartStatsMini').innerHTML = '📌 Publica tu primer aviso para ver estadísticas';
+        }
+    }
+
+    // Renderizar últimos avisos
+    function renderRecentNotices(notices) {
+        const recent = [...notices].sort((a,b) => {
+            const dateA = new Date(a.fecha || a.createdAt || 0);
+            const dateB = new Date(b.fecha || b.createdAt || 0);
+            return dateB - dateA;
+        }).slice(0, 5);
+        
+        const tbody = document.getElementById('recentTableBody');
+        
+        if (recent.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No hay avisos publicados</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = recent.map(aviso => {
+            let statusClass = 'status-active';
+            let statusText = 'Activo';
+            if (aviso.estado === 'pendiente' || !aviso.estado) {
+                statusClass = 'status-pending';
+                statusText = 'Pendiente';
+            } else if (aviso.estado === 'inactivo') {
+                statusClass = 'status-inactive';
+                statusText = 'Inactivo';
+            }
+            
+            const fecha = formatDate(aviso.fecha || aviso.createdAt || new Date());
+            const titulo = aviso.titulo?.substring(0, 40) + (aviso.titulo?.length > 40 ? '...' : '') || 'Sin título';
+            const categoriaIcon = {
+                'urgente': '🚨', 'escuelas': '🏫', 'servicios': '🛠️',
+                'comercios': '🛒', 'eventos': '📅', 'gobierno': '🏛️', 'varios': '📢'
+            }[aviso.categoria] || '📋';
+            
+            return `
+                <tr>
+                    <td>${categoriaIcon} ${titulo}</td>
+                    <td>${aviso.categoria || 'General'}</td>
+                    <td>${fecha}</td>
+                    <td>${parseInt(aviso.visitas) || 0}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    // Función principal de actualización
+    function refreshDashboardData() {
+        const notices = getUserNotices();
+        const stats = calculateStats(notices);
+        updateCards(stats);
+        
+        if (currentUserRole === 'admin') {
+            renderChart(notices);
+        }
+        
+        renderRecentNotices(notices);
+        
+        // Actualizar fecha
+        const now = new Date();
+        document.getElementById('fechaActual').innerHTML = `📅 ${now.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
+    }
+
+    // Alternar vista del gráfico
+    function toggleChartView() {
+        chartDetailedView = !chartDetailedView;
+        const notices = getUserNotices();
+        renderChart(notices);
+        const btn = document.querySelector('.chart-toggle');
+        if (btn) {
+            btn.innerHTML = chartDetailedView ? '📊 Vista compacta' : '📈 Vista detallada';
+        }
+    }
+
+    // Inicializar dashboard
+    function initDashboard() {
+        detectUserRole();
+        refreshDashboardData();
+        
+        // Actualizar automáticamente cada 30 segundos
+        setInterval(refreshDashboardData, 30000);
+    }
+
+    // Actualizar copyright
+    document.getElementById('copyright-year').innerHTML = `&copy; ${new Date().getFullYear()} - El Barrio. Todos los derechos reservados.`;
+
+    // Iniciar cuando el DOM esté listo
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    } else {
+        initDashboard();
+    }
+</script>
