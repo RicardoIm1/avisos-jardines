@@ -787,6 +787,16 @@
             <button class="filtro" data-tab="usuarios" id="tab-usuarios-btn" style="display: none;">👥 Usuarios</button>
         </div>
 
+        <!-- Buscador Universal -->
+        <div class="buscador-universal">
+            <div class="buscador-input-wrapper">
+                <span class="buscador-icon">🔍</span>
+                <input type="text" id="buscadorAdmin" class="buscador-universal-input"
+                    placeholder="Buscar en avisos y usuarios... (título, contenido, email, teléfono, ID)">
+                <button id="limpiarBusqueda" class="buscador-limpiar" style="display: none;">✕</button>
+            </div>
+        </div>
+
         <!-- Pestaña: Nuevo aviso -->
         <div id="tab-nuevo" class="tab activo">
             <form id="form-aviso" class="formulario" style="max-width: 100%;">
@@ -856,19 +866,6 @@
 
         <!-- Pestaña: Lista de avisos -->
         <div id="tab-lista" class="tab">
-
-            <!-- Controles de filtrado -->
-            <div class="admin-filtros-flex">
-                <!-- Buscador Universal -->
-                <div class="buscador-universal">
-                    <div class="buscador-input-wrapper">
-                        <span class="buscador-icon">🔍</span>
-                        <input type="text" id="buscadorAdmin" class="buscador-universal-input"
-                            placeholder="Buscar en avisos y usuarios... (título, contenido, email, teléfono, ID)">
-                        <button id="limpiarBusqueda" class="buscador-limpiar" style="display: none;">✕</button>
-                    </div>
-                </div>
-            </div>
 
             <!-- Tabla de avisos -->
             <div class="admin-tabla-wrapper">
