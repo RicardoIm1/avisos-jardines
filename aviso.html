@@ -832,7 +832,7 @@
             html += `
         <div class="stats-row">
           <div class="stat-item"><span class="stat-icon">👁️</span><span class="stat-value vistas-count">${vistas}</span></div>
-          <div class="stat-item"><span class="stat-icon">❤️</span><span class="stat-value likes-count">${likes}</span></div>
+          <div class="stat-item"><span class="stat-icon">👍</span><span class="stat-value likes-count">${likes}</span></div>
           <div class="stat-item"><span class="stat-icon">👎</span><span class="stat-value dislikes-count">${dislikes}</span></div>
           <div class="stat-item"><span class="stat-icon">💬</span><span class="stat-value comments-count">${comentarios}</span></div>
         </div>
@@ -864,7 +864,7 @@
             } else {
                 html += `<a href="/barrio/index.html" class="btn-action back">← Volver al inicio</a>`;
             }
-            html += `<button class="btn-action like-btn" onclick="darLike('${avisoActual.id}')">❤️ Like</button>`;
+            html += `<button class="btn-action like-btn" onclick="darLike('${avisoActual.id}')">👍 Like</button>`;
             html += `<button class="btn-action dislike-btn" onclick="darDislike('${avisoActual.id}')">👎 Dislike</button>`;
             html += `<button class="btn-action comment" onclick="abrirComentarios('${avisoActual.id}', event)">💬 Comentar</button>`;
             if (tieneContacto) {

@@ -844,7 +844,7 @@
             <span class="stat-label">vistas</span>
           </div>
           <div class="stat-item">
-            <span class="stat-icon">❤️</span>
+            <span class="stat-icon">👍</span>
             <span class="stat-value likes-count">${likesCount}</span>
             <span class="stat-label">me gusta</span>
           </div>
@@ -869,7 +869,7 @@
       } else {
         html += `<a href="/barrio/index.html" class="btn-action back">← Volver al inicio</a>`;
       }
-      html += `<button class="btn-action like-btn" onclick="darLike('${avisoActual.id}')">❤️ Me gusta</button>`;
+      html += `<button class="btn-action like-btn" onclick="darLike('${avisoActual.id}')">👍 Me gusta</button>`;
       html += `<button class="btn-action dislike-btn" onclick="darDislike('${avisoActual.id}')">👎 No me gusta</button></button>`;
       html += `<button class="btn-action comment" onclick="abrirComentarios('${avisoActual.id}', event)">💬 Comentar</button>`;
       if (tieneContacto) {

@@ -288,7 +288,7 @@ function renderizarAvisos(avisos, pagina, totalPaginas) {
               💬 ${clicksWhatsApp}
             </span>
             <span class="stat-item like-btn" onclick="event.stopPropagation(); registrarInteres('${aviso.id}', this)" title="Me interesa">
-              ❤️ ${intereses}
+              👍 ${intereses}
             </span>
             <span class="stat-item" onclick="event.stopPropagation(); mostrarPanelComentarios('${aviso.id}', '${escapeHTML(aviso.titulo)}')" title="Comentarios">
               💬
