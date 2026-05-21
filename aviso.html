@@ -719,13 +719,18 @@
                     if (comentarios.length === 0) {
                         commentsList.innerHTML = '<div style="text-align:center; color:#888;">📝 No hay comentarios aún. ¡Sé el primero!</div>';
                     } else {
-                        commentsList.innerHTML = comentarios.map(com => `
+                        commentsList.innerHTML = comentarios.map(com => {
+                            // ✅ Detectar la fecha en cualquier campo posible
+                            let fechaComentario = com.fecha || com.created_at || com.timestamp || com.fechacreacion;
+
+                            return `
               <div class="comment-item">
-                <div class="comment-author">${escapeHTML(com.autor || com.usuario_nombre || com.usuario_email || 'Anónimo')}</div>
-                <div class="comment-text">${escapeHTML(com.texto || com.comentario || com.contenido)}</div>
-                <div class="comment-date">${formatearFecha(com.fecha || com.created_at)}</div>
-              </div>
-            `).join('');
+            <div class="comment-author">${escapeHTML(com.autor || com.usuario_nombre || com.usuario_email || 'Anónimo')}</div>
+            <div class="comment-text">${escapeHTML(com.texto || com.comentario || com.contenido)}</div>
+            <div class="comment-date">${formatearFecha(fechaComentario)}</div>
+        </div>
+    `;
+                        }).join('');
                     }
                 } else {
                     commentsList.innerHTML = '<div style="text-align:center; color:#888;">💬 No hay comentarios aún</div>';
