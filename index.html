@@ -1145,6 +1145,42 @@
             }
         }
 
+        // ========== ACTUALIZAR VISTAS EN TIEMPO REAL EN EL INDEX ==========
+        async function actualizarVistasEnTiempoReal() {
+            try {
+                const apiKey = localStorage.getItem('api_key');
+                // Obtener estadísticas actualizadas de todos los avisos visibles
+                const cards = document.querySelectorAll('.aviso-card');
+                if (cards.length === 0) return;
+
+                // Obtener IDs de los avisos visibles
+                const ids = Array.from(cards).map(card => card.getAttribute('data-id'));
+
+                // Consultar vistas actualizadas para estos avisos
+                for (const id of ids) {
+                    try {
+                        const resultado = await API.peticion('OBTENER_ESTADISTICAS', { id: id }, apiKey);
+                        if (resultado && resultado.success && resultado.data) {
+                            const vistasSpan = document.querySelector(`.aviso-card[data-id="${id}"] .vistas-count`);
+                            if (vistasSpan) {
+                                const nuevasVistas = resultado.data.vistas || resultado.data.visitas || 0;
+                                vistasSpan.textContent = nuevasVistas;
+                            }
+                        }
+                    } catch (e) { console.warn(`Error actualizando vistas del aviso ${id}:`, e); }
+                }
+            } catch (error) {
+                console.warn('Error actualizando vistas:', error);
+            }
+        }
+
+        // Iniciar actualización periódica de vistas (cada 60 segundos)
+        setInterval(() => {
+            if (!document.hidden) {
+                actualizarVistasEnTiempoReal();
+            }
+        }, 60000);
+
         function getIconoCategoria(cat) {
             const iconos = { urgente: '⚠️', escuelas: '🏫', servicios: '🛠️', comercios: '🛒', eventos: '📅', gobierno: '🏛️', varios: '📢' };
             return iconos[cat] || '📄';
