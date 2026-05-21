@@ -864,13 +864,8 @@
                     <div class="buscador-input-wrapper">
                         <span class="buscador-icon">🔍</span>
                         <input type="text" id="buscadorAdmin" class="buscador-universal-input"
-                            placeholder="Buscar en avisos y usuarios... (título, contenido, email, teléfono, ID, categoría)">
+                            placeholder="Buscar en avisos y usuarios... (título, contenido, email, teléfono, ID)">
                         <button id="limpiarBusqueda" class="buscador-limpiar" style="display: none;">✕</button>
-                    </div>
-                    <div class="buscador-filtros">
-                        <span class="filtro-busqueda activo" data-tipo="todos">📋 Todos</span>
-                        <span class="filtro-busqueda" data-tipo="avisos">📰 Avisos</span>
-                        <span class="filtro-busqueda" data-tipo="usuarios">👥 Usuarios</span>
                     </div>
                 </div>
             </div>
@@ -1855,16 +1850,13 @@
         });
     </script>
 
-    <script>
-        // ========== BUSCADOR UNIVERSAL ==========
+    <script>// ========== BUSCADOR UNIVERSAL ==========
         let busquedaActual = '';
-        let busquedaTipo = 'todos'; // 'todos', 'avisos', 'usuarios'
         let avisosOriginales = [];
         let usuariosOriginales = [];
 
-        function buscarEnAvisos(aviso, textoBusqueda) {
-            const termino = textoBusqueda.toLowerCase();
-            // Campos a buscar en avisos
+        function buscarEnAviso(aviso, termino) {
+            const texto = termino.toLowerCase();
             const campos = [
                 aviso.titulo,
                 aviso.contenido,
@@ -1877,43 +1869,37 @@
                 aviso.status,
                 aviso.fecha_evento
             ];
-            return campos.some(campo => campo && campo.toString().toLowerCase().includes(termino));
+            return campos.some(campo => campo && campo.toString().toLowerCase().includes(texto));
         }
 
-        function buscarEnUsuarios(usuario, textoBusqueda) {
-            const termino = textoBusqueda.toLowerCase();
-            // Campos a buscar en usuarios
+        function buscarEnUsuario(usuario, termino) {
+            const texto = termino.toLowerCase();
             const campos = [
                 usuario.email,
                 usuario.nombre,
                 usuario.rol,
                 usuario.id,
                 usuario.telefono,
-                usuario.direccion,
-                usuario.categorias
+                usuario.direccion
             ];
-            return campos.some(campo => campo && campo.toString().toLowerCase().includes(termino));
+            return campos.some(campo => campo && campo.toString().toLowerCase().includes(texto));
         }
 
         function aplicarBusqueda() {
-            const busquedaInput = document.getElementById('buscadorAdmin');
-            const textoBusqueda = busquedaInput.value.trim();
-            busquedaActual = textoBusqueda;
+            const input = document.getElementById('buscadorAdmin');
+            const texto = input.value.trim();
+            busquedaActual = texto;
 
-            // Mostrar/ocultar botón limpiar
             const limpiarBtn = document.getElementById('limpiarBusqueda');
-            if (limpiarBtn) {
-                limpiarBtn.style.display = textoBusqueda ? 'block' : 'none';
-            }
+            if (limpiarBtn) limpiarBtn.style.display = texto ? 'block' : 'none';
 
-            if (!textoBusqueda) {
+            if (!texto) {
                 // Restaurar datos originales
-                if (busquedaTipo === 'todos' || busquedaTipo === 'avisos') {
+                if (avisosOriginales.length) {
                     todosLosAvisos = [...avisosOriginales];
                     renderizarTablaAvisos();
                 }
-                if (busquedaTipo === 'todos' || busquedaTipo === 'usuarios') {
-                    // Recargar usuarios originales
+                if (usuariosOriginales.length) {
                     cargarUsuariosAdmin();
                 }
                 const resultadosDiv = document.getElementById('resultados-busqueda');
@@ -1921,94 +1907,73 @@
                 return;
             }
 
-            // Filtrar según el tipo seleccionado
-            let resultadosAvisos = 0;
-            let resultadosUsuarios = 0;
-
-            if (busquedaTipo === 'todos' || busquedaTipo === 'avisos') {
-                const avisosFiltrados = avisosOriginales.filter(aviso => buscarEnAvisos(aviso, textoBusqueda));
+            // Buscar en avisos
+            if (avisosOriginales.length) {
+                const avisosFiltrados = avisosOriginales.filter(a => buscarEnAviso(a, texto));
                 todosLosAvisos = [...avisosFiltrados];
                 renderizarTablaAvisos();
-                resultadosAvisos = avisosFiltrados.length;
             }
 
-            if (busquedaTipo === 'todos' || busquedaTipo === 'usuarios') {
-                // Filtrar usuarios en la tabla
-                const tablaUsuarios = document.getElementById('tabla-usuarios-cuerpo');
-                if (tablaUsuarios) {
-                    const usuarios = usuariosOriginales.length ? usuariosOriginales : [];
-                    const usuariosFiltrados = usuarios.filter(usuario => buscarEnUsuarios(usuario, textoBusqueda));
-                    resultadosUsuarios = usuariosFiltrados.length;
-
-                    if (usuariosFiltrados.length === 0) {
-                        tablaUsuarios.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 20px;">🔍 No se encontraron usuarios que coincidan con "${escapeHTML(textoBusqueda)}"</td></tr>`;
-                    } else {
-                        const escapeHtml = (str) => {
-                            if (!str) return '';
-                            return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;'));
-                        };
-                        tablaUsuarios.innerHTML = usuariosFiltrados.map(user => `
-                    <tr>
-                        <td data-label="Email">${escapeHtml(user.email || '')}</td>
-                        <td data-label="Nombre">${escapeHtml(user.nombre || '')}</td>
-                        <td data-label="Rol"><span class="rol-badge ${user.rol === 'admin' ? 'rol-admin' : 'rol-usuario'}">${user.rol || 'usuario'}</span></td>
-                        <td data-label="Estado">${user.activo === 'TRUE' ? '✅ Activo' : '❌ Inactivo'}</td>
-                        <td data-label="Acciones">
-                            <button class="accion-btn" style="background:#dc3545;color:white;" onclick="eliminarUsuario('${user.id}')">🗑️ Eliminar</button>
+            // Buscar en usuarios (solo si la pestaña está visible)
+            const tabUsuarios = document.getElementById('tab-usuarios');
+            if (tabUsuarios && tabUsuarios.style.display !== 'none') {
+                if (usuariosOriginales.length) {
+                    const usuariosFiltrados = usuariosOriginales.filter(u => buscarEnUsuario(u, texto));
+                    const tablaUsuarios = document.getElementById('tabla-usuarios-cuerpo');
+                    if (tablaUsuarios) {
+                        if (usuariosFiltrados.length === 0) {
+                            tablaUsuarios.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px;">🔍 No se encontraron usuarios que coincidan con "${escapeHTML(texto)}"</td><table>`;
+                        } else {
+                            const escapeHtml = (str) => {
+                                if (!str) return '';
+                                return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : (m === '<' ? '&lt;' : '&gt;'));
+                            };
+                            tablaUsuarios.innerHTML = usuariosFiltrados.map(user => `
+                        <tr>
+                            <td data-label="Email">${escapeHtml(user.email || '')}</td>
+                            <td data-label="Nombre">${escapeHtml(user.nombre || '')}</td>
+                            <td data-label="Rol"><span class="rol-badge ${user.rol === 'admin' ? 'rol-admin' : 'rol-usuario'}">${user.rol || 'usuario'}</span></td>
+                            <td data-label="Estado">${user.activo === 'TRUE' ? '✅ Activo' : '❌ Inactivo'}</td>
+                            <td data-label="Acciones">
+                                <button class="accion-btn" style="background:#dc3545;color:white;" onclick="eliminarUsuario('${user.id}')">🗑️ Eliminar</button>
+                            </td>
                         </td>
-                    </tr>
-                `).join('');
+                    `).join('');
+                        }
                     }
                 }
             }
 
-            // Mostrar resumen de resultados
+            // Mostrar resumen
             const resultadosDiv = document.getElementById('resultados-busqueda');
             if (resultadosDiv) {
-                let mensaje = '';
-                if (busquedaTipo === 'todos') {
-                    mensaje = `🔍 ${resultadosAvisos} avisos y ${resultadosUsuarios} usuarios encontrados para "${escapeHTML(textoBusqueda)}"`;
-                } else if (busquedaTipo === 'avisos') {
-                    mensaje = `🔍 ${resultadosAvisos} avisos encontrados para "${escapeHTML(textoBusqueda)}"`;
-                } else {
-                    mensaje = `🔍 ${resultadosUsuarios} usuarios encontrados para "${escapeHTML(textoBusqueda)}"`;
-                }
-                resultadosDiv.innerHTML = `<span>${mensaje}</span>`;
+                resultadosDiv.innerHTML = `<span>🔍 ${todosLosAvisos.length} avisos encontrados para "${escapeHTML(texto)}"</span>`;
                 resultadosDiv.style.display = 'block';
             }
         }
 
         function limpiarBusqueda() {
-            const busquedaInput = document.getElementById('buscadorAdmin');
-            if (busquedaInput) {
-                busquedaInput.value = '';
+            const input = document.getElementById('buscadorAdmin');
+            if (input) {
+                input.value = '';
                 aplicarBusqueda();
             }
         }
 
         function inicializarBuscador() {
             // Guardar copias originales
-            avisosOriginales = [...todosLosAvisos];
+            if (todosLosAvisos.length) {
+                avisosOriginales = [...todosLosAvisos];
+            }
 
-            // Configurar evento de búsqueda
-            const busquedaInput = document.getElementById('buscadorAdmin');
-            if (busquedaInput) {
-                busquedaInput.addEventListener('input', aplicarBusqueda);
-                busquedaInput.addEventListener('keyup', (e) => {
+            // Configurar evento
+            const input = document.getElementById('buscadorAdmin');
+            if (input) {
+                input.addEventListener('input', aplicarBusqueda);
+                input.addEventListener('keyup', (e) => {
                     if (e.key === 'Escape') limpiarBusqueda();
                 });
             }
-
-            // Configurar filtros de tipo
-            const filtros = document.querySelectorAll('.filtro-busqueda');
-            filtros.forEach(filtro => {
-                filtro.addEventListener('click', () => {
-                    filtros.forEach(f => f.classList.remove('activo'));
-                    filtro.classList.add('activo');
-                    busquedaTipo = filtro.dataset.tipo;
-                    aplicarBusqueda();
-                });
-            });
 
             // Botón limpiar
             const limpiarBtn = document.getElementById('limpiarBusqueda');
@@ -2017,50 +1982,61 @@
             }
         }
 
-        // Agregar el div de resultados después de las pestañas
-        function agregarResultadosDiv() {
-            const adminTabs = document.getElementById('admin-tabs');
-            if (adminTabs && !document.getElementById('resultados-busqueda')) {
-                const resultadosDiv = document.createElement('div');
-                resultadosDiv.id = 'resultados-busqueda';
-                resultadosDiv.className = 'resultados-busqueda';
-                adminTabs.insertAdjacentElement('afterend', resultadosDiv);
+        // Modificar cargarAvisosParaAdmin para guardar originales
+        const originalCargarAvisos = cargarAvisosParaAdmin;
+        window.cargarAvisosParaAdmin = async function () {
+            await originalCargarAvisos();
+            if (todosLosAvisos.length) {
+                avisosOriginales = [...todosLosAvisos];
             }
-        }
+            inicializarBuscador();
+        };
 
-        // Modificar cargarUsuariosAdmin para guardar copia original
-        const originalCargarUsuariosAdmin = cargarUsuariosAdmin;
+        // Modificar cargarUsuariosAdmin para guardar originales
+        const originalCargarUsuarios = cargarUsuariosAdmin;
         window.cargarUsuariosAdmin = async function () {
-            await originalCargarUsuariosAdmin();
-            // Guardar copia de usuarios originales después de cargar
-            const tablaUsuarios = document.getElementById('tabla-usuarios-cuerpo');
-            if (tablaUsuarios && usuariosOriginales.length === 0) {
-                // Extraer usuarios de la tabla
-                const filas = tablaUsuarios.querySelectorAll('tr');
-                usuariosOriginales = [];
-                // Esto es aproximado, idealmente obtenerlos de la API
+            await originalCargarUsuarios();
+            // Guardar usuarios de la tabla
+            setTimeout(() => {
+                const tabla = document.getElementById('tabla-usuarios-cuerpo');
+                if (tabla && !usuariosOriginales.length) {
+                    const filas = tabla.querySelectorAll('tr');
+                    const usuarios = [];
+                    for (let i = 0; i < filas.length; i++) {
+                        const celdas = filas[i].querySelectorAll('td');
+                        if (celdas.length >= 5) {
+                            usuarios.push({
+                                email: celdas[0]?.textContent || '',
+                                nombre: celdas[1]?.textContent || '',
+                                rol: celdas[2]?.textContent?.includes('admin') ? 'admin' : 'usuario',
+                                activo: celdas[3]?.textContent?.includes('Activo') ? 'TRUE' : 'FALSE',
+                                id: celdas[4]?.querySelector('button')?.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || ''
+                            });
+                        }
+                    }
+                    usuariosOriginales = usuarios;
+                }
+            }, 500);
+        };
+
+        // Agregar div de resultados
+        function agregarResultadosDiv() {
+            if (!document.getElementById('resultados-busqueda')) {
+                const wrapper = document.querySelector('.buscador-universal');
+                if (wrapper) {
+                    const div = document.createElement('div');
+                    div.id = 'resultados-busqueda';
+                    div.className = 'resultados-busqueda';
+                    wrapper.appendChild(div);
+                }
             }
         }
 
-        // Inicializar cuando se cargan los avisos
-        function inicializarConAvisos() {
-            setTimeout(() => {
-                avisosOriginales = [...todosLosAvisos];
-                inicializarBuscador();
-                agregarResultadosDiv();
-            }, 1000);
-        }
-
-        // Llamar después de cargar avisos
-        if (typeof cargarAvisosParaAdmin === 'function') {
-            const originalCargarAvisos = cargarAvisosParaAdmin;
-            window.cargarAvisosParaAdmin = async function () {
-                await originalCargarAvisos();
-                avisosOriginales = [...todosLosAvisos];
-                inicializarBuscador();
-                agregarResultadosDiv();
-            };
-        }
+        // Inicializar
+        setTimeout(() => {
+            agregarResultadosDiv();
+            inicializarBuscador();
+        }, 1000);
     </script>
 </body>
 
