@@ -565,7 +565,7 @@
             font-size: 14px;
             color: #ff9999;
             text-shadow: 0 0 4px #ff4444;
-            animation: canicaRodante 5s ease-in-out infinite;
+            animation: canicaUniforme 5s linear infinite;
             pointer-events: none;
             z-index: 3;
             width: 6px;
@@ -573,32 +573,32 @@
             line-height: 1;
         }
 
-        /* Delays negativos = diferentes puntos de inicio */
+        /* Delays diferentes para cada canica */
         .aviso-card.aviso-destacado:nth-child(6n+1)::before {
-            animation-delay: -0s;
+            animation-delay: 0s;
         }
 
         .aviso-card.aviso-destacado:nth-child(6n+2)::before {
-            animation-delay: -1s;
+            animation-delay: 0.8s;
         }
 
         .aviso-card.aviso-destacado:nth-child(6n+3)::before {
-            animation-delay: -2s;
+            animation-delay: 1.6s;
         }
 
         .aviso-card.aviso-destacado:nth-child(6n+4)::before {
-            animation-delay: -3s;
+            animation-delay: 2.4s;
         }
 
         .aviso-card.aviso-destacado:nth-child(6n+5)::before {
-            animation-delay: -4s;
+            animation-delay: 3.2s;
         }
 
         .aviso-card.aviso-destacado:nth-child(6n+6)::before {
-            animation-delay: -5s;
+            animation-delay: 4s;
         }
 
-        @keyframes canicaRodante {
+        @keyframes canicaUniforme {
             0% {
                 top: 0%;
                 transform: scale(1);
@@ -606,27 +606,27 @@
             }
 
             25% {
-                top: 35%;
-                transform: scale(1.2);
-                text-shadow: 0 0 8px #ff3333;
+                top: 25%;
+                transform: scale(1.1);
+                text-shadow: 0 0 6px #ff4444;
                 color: #ff4444;
             }
 
             50% {
-                top: 70%;
+                top: 50%;
                 transform: scale(1);
                 text-shadow: 0 0 6px #ff6666;
             }
 
             75% {
-                top: 95%;
-                transform: scale(0.9);
-                text-shadow: 0 0 3px #ff8888;
+                top: 75%;
+                transform: scale(0.95);
+                text-shadow: 0 0 4px #ff8888;
                 color: #ff8888;
             }
 
             100% {
-                top: 0%;
+                top: 98%;
                 transform: scale(1);
                 text-shadow: 0 0 2px #ff6666;
             }
