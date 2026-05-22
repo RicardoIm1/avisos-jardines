@@ -752,7 +752,7 @@
 
         window.verAviso = function (id) {
             console.log('Abriendo aviso con ID:', id);
-            registrarVista(id);
+            // ✅ No registrar vista aquí - solo al cargar aviso.html
             window.location.href = `/barrio/aviso.html?id=${id}`;
         };
 
