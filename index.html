@@ -573,37 +573,41 @@
             line-height: 1;
         }
 
-        @keyframes canicaRodante {
+        @keyframes canicaRebote {
             0% {
-                top: 0%;
+                top: 2%;
                 transform: scale(1);
-                text-shadow: 0 0 2px #ff6666;
+                text-shadow: 0 0 2px #ff9999;
             }
 
-            25% {
-                top: 35%;
-                transform: scale(1.2);
-                text-shadow: 0 0 8px #ff3333;
-                color: #ff4444;
+            30% {
+                top: 45%;
+                transform: scale(1.15);
+                text-shadow: 0 0 10px #ff3333;
+                color: #ff2222;
             }
 
-            50% {
-                top: 70%;
+            60% {
+                top: 85%;
                 transform: scale(1);
                 text-shadow: 0 0 6px #ff6666;
             }
 
-            75% {
-                top: 95%;
-                transform: scale(0.9);
-                text-shadow: 0 0 3px #ff8888;
-                color: #ff8888;
+            80% {
+                top: 98%;
+                transform: scale(0.85);
+                text-shadow: 0 0 3px #ffaaaa;
+                color: #ffaaaa;
+            }
+
+            90% {
+                top: 85%;
+                transform: scale(1.05);
             }
 
             100% {
-                top: 0%;
+                top: 2%;
                 transform: scale(1);
-                text-shadow: 0 0 2px #ff6666;
             }
         }
     </style>
