@@ -548,14 +548,6 @@
         }
     </style>
     <style>
-        /* Base del borde rojo */
-        .aviso-card.aviso-destacado {
-            border-left: 6px solid #dc3545 !important;
-            border-radius: 20px !important;
-            position: relative;
-            overflow: hidden;
-        }
-
         /* La canica atrapada en el borde */
         .aviso-card.aviso-destacado::before {
             content: '●';
@@ -565,7 +557,7 @@
             font-size: 14px;
             color: #ff9999;
             text-shadow: 0 0 4px #ff4444;
-            animation: canicaUniforme 5s linear infinite;
+            animation: canicaSubeYBaja 4s ease-in-out infinite alternate;
             pointer-events: none;
             z-index: 3;
             width: 6px;
@@ -573,62 +565,18 @@
             line-height: 1;
         }
 
-        /* Delays diferentes para cada canica */
-        .aviso-card.aviso-destacado:nth-child(6n+1)::before {
-            animation-delay: 0s;
-        }
-
-        .aviso-card.aviso-destacado:nth-child(6n+2)::before {
-            animation-delay: 0.8s;
-        }
-
-        .aviso-card.aviso-destacado:nth-child(6n+3)::before {
-            animation-delay: 1.6s;
-        }
-
-        .aviso-card.aviso-destacado:nth-child(6n+4)::before {
-            animation-delay: 2.4s;
-        }
-
-        .aviso-card.aviso-destacado:nth-child(6n+5)::before {
-            animation-delay: 3.2s;
-        }
-
-        .aviso-card.aviso-destacado:nth-child(6n+6)::before {
-            animation-delay: 4s;
-        }
-
-        @keyframes canicaUniforme {
+        @keyframes canicaSubeYBaja {
             0% {
-                top: 0%;
+                top: 2%;
                 transform: scale(1);
                 text-shadow: 0 0 2px #ff6666;
-            }
-
-            25% {
-                top: 25%;
-                transform: scale(1.1);
-                text-shadow: 0 0 6px #ff4444;
-                color: #ff4444;
-            }
-
-            50% {
-                top: 50%;
-                transform: scale(1);
-                text-shadow: 0 0 6px #ff6666;
-            }
-
-            75% {
-                top: 75%;
-                transform: scale(0.95);
-                text-shadow: 0 0 4px #ff8888;
-                color: #ff8888;
             }
 
             100% {
-                top: 98%;
+                top: 94%;
                 transform: scale(1);
-                text-shadow: 0 0 2px #ff6666;
+                text-shadow: 0 0 6px #ff4444;
+                color: #ff4444;
             }
         }
     </style>
