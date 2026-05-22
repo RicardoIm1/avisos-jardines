@@ -566,40 +566,39 @@
             height: 30px;
             background: rgba(255, 150, 150, 0.9);
             border-radius: 3px;
-            animation: kittBorde 5s ease-in-out infinite;
+            animation: kittBorde 6s ease-in-out infinite;
             pointer-events: none;
             z-index: 3;
         }
 
-        @keyframes kittBorde {
+        @keyframes kittCalmado {
             0% {
                 top: 0%;
-                opacity: 0.5;
-                box-shadow: 0 0 3px #ff6b6b;
+                opacity: 0.2;
             }
 
-            25% {
-                top: 30%;
-                opacity: 1;
-                box-shadow: 0 0 8px #ff4444;
+            10% {
+                opacity: 0.8;
             }
 
-            50% {
-                top: 70%;
-                opacity: 1;
-                box-shadow: 0 0 8px #ff4444;
+            45% {
+                top: 90%;
+                opacity: 0.8;
             }
 
-            75% {
-                top: 95%;
-                opacity: 1;
-                box-shadow: 0 0 8px #ff4444;
+            55% {
+                top: 90%;
+                opacity: 0.8;
+            }
+
+            90% {
+                top: 0%;
+                opacity: 0.8;
             }
 
             100% {
                 top: 0%;
-                opacity: 0.5;
-                box-shadow: 0 0 3px #ff6b6b;
+                opacity: 0.2;
             }
         }
     </style>
