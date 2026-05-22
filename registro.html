@@ -252,7 +252,7 @@
 
         <div class="campo">
           <label>¿Qué oficio o profesión tienes? *</label>
-          <select id="oficio">
+          <select id="oficio" required>
             <option value="" disabled selected>Selecciona una opción</option>
             <option value="Electricista">⚡ Electricista</option>
             <option value="Plomero">🔧 Plomero</option>
@@ -263,7 +263,8 @@
             <option value="Pintor">🎨 Pintor</option>
             <option value="Albañil">🧱 Albañil</option>
             <option value="Panadero">🍞 Panadero</option>
-            <option value="Comida casera">🍲 Comida casera</option <option value="Otro">📝 Otro</option>
+            <option value="Comida casera">🍲 Comida casera</option>
+            <option value="Otro">📝 Otro</option>
           </select>
         </div>
 
@@ -453,6 +454,34 @@
         });
       }
     }); // ← Cierre del addEventListener
+  </script>
+
+  <script>
+    // Forzar la funcionalidad de "Otro" oficio
+    (function () {
+      const oficioSelect = document.getElementById('oficio');
+      const otroContainer = document.getElementById('otroOficioContainer');
+
+      if (oficioSelect && otroContainer) {
+        // Función para mostrar/ocultar el campo "Otro"
+        function toggleOtroOficio() {
+          if (oficioSelect.value === 'Otro') {
+            otroContainer.style.display = 'block';
+            document.getElementById('otroOficio').required = true;
+          } else {
+            otroContainer.style.display = 'none';
+            document.getElementById('otroOficio').required = false;
+            document.getElementById('otroOficio').value = '';
+          }
+        }
+
+        // Ejecutar al cargar
+        toggleOtroOficio();
+
+        // Ejecutar cuando cambie la selección
+        oficioSelect.addEventListener('change', toggleOtroOficio);
+      }
+    })();
   </script>
 
 </body>
