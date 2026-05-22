@@ -549,14 +549,13 @@
     </style>
 
     <style>
-        /* Efecto KITT lento y elegante solo en el borde */
+        /* Base para todos los avisos destacados */
         .aviso-card.aviso-destacado {
-            border-left: 8px solid #dc3545 !important;
+            border-left: 6px solid #dc3545 !important;
             border-radius: 20px !important;
             position: relative;
         }
 
-        /* Luz que viaja lentamente por el borde */
         .aviso-card.aviso-destacado::before {
             content: '';
             position: absolute;
@@ -566,35 +565,218 @@
             height: 25px;
             background: rgba(255, 100, 100, 0.8);
             border-radius: 3px;
-            animation: kittLento 5s ease-in-out infinite;
             pointer-events: none;
             z-index: 3;
         }
 
-        @keyframes kittLento {
+        /* Ritmo 1 - Rápido y enérgico */
+        .aviso-card.aviso-destacado:nth-child(6n+1)::before {
+            animation: kittRapido 3s ease-in-out infinite;
+        }
+
+        /* Ritmo 2 - Lento y elegante */
+        .aviso-card.aviso-destacado:nth-child(6n+2)::before {
+            animation: kittLento 7s ease-in-out infinite;
+        }
+
+        /* Ritmo 3 - Medio constante */
+        .aviso-card.aviso-destacado:nth-child(6n+3)::before {
+            animation: kittMedio 5s ease-in-out infinite;
+        }
+
+        /* Ritmo 4 - Muy lento, relajado */
+        .aviso-card.aviso-destacado:nth-child(6n+4)::before {
+            animation: kittMuyLento 9s ease-in-out infinite;
+        }
+
+        /* Ritmo 5 - Acelerando y frenando */
+        .aviso-card.aviso-destacado:nth-child(6n+5)::before {
+            animation: kittAcelera 4s ease-in-out infinite;
+        }
+
+        /* Ritmo 6 - Pausado, se detiene un momento */
+        .aviso-card.aviso-destacado:nth-child(6n+6)::before {
+            animation: kittPausado 10s ease-in-out infinite;
+        }
+
+        /* ========== KEYFRAMES ========== */
+        @keyframes kittRapido {
             0% {
                 top: 0%;
                 opacity: 0.3;
             }
 
-            15% {
+            20% {
                 opacity: 1;
                 box-shadow: 0 0 6px #ff6666;
             }
 
-            50% {
-                top: 85%;
-                opacity: 1;
-                box-shadow: 0 0 6px #ff6666;
-            }
-
-            65% {
+            80% {
+                top: 90%;
                 opacity: 1;
             }
 
             100% {
                 top: 0%;
                 opacity: 0.3;
+            }
+        }
+
+        @keyframes kittLento {
+            0% {
+                top: 0%;
+                opacity: 0.2;
+            }
+
+            15% {
+                opacity: 0.8;
+            }
+
+            48% {
+                top: 90%;
+                opacity: 0.8;
+            }
+
+            52% {
+                top: 90%;
+                opacity: 0.8;
+            }
+
+            85% {
+                top: 0%;
+                opacity: 0.8;
+            }
+
+            100% {
+                top: 0%;
+                opacity: 0.2;
+            }
+        }
+
+        @keyframes kittMedio {
+            0% {
+                top: 0%;
+                opacity: 0.2;
+            }
+
+            10% {
+                opacity: 0.9;
+            }
+
+            45% {
+                top: 90%;
+                opacity: 0.9;
+            }
+
+            55% {
+                top: 90%;
+                opacity: 0.9;
+            }
+
+            90% {
+                top: 0%;
+                opacity: 0.9;
+            }
+
+            100% {
+                top: 0%;
+                opacity: 0.2;
+            }
+        }
+
+        @keyframes kittMuyLento {
+            0% {
+                top: 0%;
+                opacity: 0.1;
+            }
+
+            20% {
+                opacity: 0.7;
+            }
+
+            45% {
+                top: 90%;
+                opacity: 0.7;
+            }
+
+            55% {
+                top: 90%;
+                opacity: 0.7;
+            }
+
+            80% {
+                top: 0%;
+                opacity: 0.7;
+            }
+
+            100% {
+                top: 0%;
+                opacity: 0.1;
+            }
+        }
+
+        @keyframes kittAcelera {
+            0% {
+                top: 0%;
+                opacity: 0.2;
+                animation-timing-function: ease-out;
+            }
+
+            40% {
+                top: 85%;
+                opacity: 1;
+                animation-timing-function: ease-in;
+            }
+
+            60% {
+                top: 85%;
+                opacity: 1;
+            }
+
+            100% {
+                top: 0%;
+                opacity: 0.2;
+            }
+        }
+
+        @keyframes kittPausado {
+            0% {
+                top: 0%;
+                opacity: 0.2;
+            }
+
+            10% {
+                opacity: 0.8;
+            }
+
+            35% {
+                top: 90%;
+                opacity: 0.8;
+            }
+
+            45% {
+                top: 90%;
+                opacity: 0.2;
+            }
+
+            55% {
+                top: 90%;
+                opacity: 0.2;
+            }
+
+            65% {
+                top: 90%;
+                opacity: 0.8;
+            }
+
+            90% {
+                top: 0%;
+                opacity: 0.8;
+            }
+
+            100% {
+                top: 0%;
+                opacity: 0.2;
             }
         }
     </style>
