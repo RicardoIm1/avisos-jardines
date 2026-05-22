@@ -1103,7 +1103,7 @@
                     <span class="stat-item dislike-btn ${isDisliked ? 'disliked' : ''}" onclick="darDislikeWrapper('${aviso.id}', event)">
                         👎 <span class="stat-value">${dislikes}</span>
                     </span>
-                    ${apiKey ? `
+                    ${localStorage.getItem('api_key') ? `
 <span class="stat-item comments-stat" onclick="abrirComentarios('${aviso.id}', event)">
     💬 <span class="stat-value">${comentarios}</span>
 </span>
