@@ -447,19 +447,9 @@
             }
         }
     </style>
-    <script>
-        async function probarRegistroVista() {
-            const avisoId = AVISO_ID;
-            const apiKey = localStorage.getItem('api_key');
-            const resultado = await API.peticion('REGISTRAR_VISTA', { id: avisoId }, apiKey);
-            console.log('Resultado prueba:', resultado);
-            alert('Vista registrada: ' + (resultado?.success ? '✅' : '❌'));
-        }
-    </script>
 </head>
 
 <body>
-    <button onclick="probarRegistroVista()">🔧 Probar registro de vista</button>
     <div id="header-container"></div>
     <main>
         <div id="aviso-container" class="aviso-paper">
