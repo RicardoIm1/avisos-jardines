@@ -549,51 +549,57 @@
     </style>
 
     <style>
-        /* Efecto KITT suave y calmado */
+        /* Efecto KITT solo en el borde lateral */
         .aviso-card.aviso-destacado {
             border-left: 6px solid #dc3545 !important;
             border-radius: 20px !important;
             position: relative;
-            overflow: hidden;
         }
 
+        /* Luz que viaja solo por el borde */
         .aviso-card.aviso-destacado::before {
             content: '';
             position: absolute;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 25px;
-            background: radial-gradient(ellipse at center, rgba(255, 100, 100, 0.9), transparent);
-            animation: kittSuave 4s ease-in-out infinite;
+            left: -6px;
+            width: 6px;
+            height: 30px;
+            background: rgba(255, 150, 150, 0.9);
+            border-radius: 3px;
+            animation: kittBorde 3s ease-in-out infinite;
             pointer-events: none;
-            z-index: 2;
+            z-index: 3;
         }
 
-        @keyframes kittSuave {
+        @keyframes kittBorde {
             0% {
                 top: 0%;
-                opacity: 0.3;
+                opacity: 0.5;
+                box-shadow: 0 0 3px #ff6b6b;
             }
 
             25% {
-                top: 40%;
+                top: 30%;
                 opacity: 1;
+                box-shadow: 0 0 8px #ff4444;
             }
 
             50% {
-                top: 80%;
+                top: 70%;
                 opacity: 1;
+                box-shadow: 0 0 8px #ff4444;
             }
 
             75% {
-                top: 40%;
+                top: 95%;
                 opacity: 1;
+                box-shadow: 0 0 8px #ff4444;
             }
 
             100% {
                 top: 0%;
-                opacity: 0.3;
+                opacity: 0.5;
+                box-shadow: 0 0 3px #ff6b6b;
             }
         }
     </style>
