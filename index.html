@@ -1135,15 +1135,24 @@
             const container = document.getElementById('avisos-container');
             if (!container) return;
 
+            // Función para limpiar título
+            const limpiarTitulo = (titulo) => {
+                if (!titulo) return '';
+                return titulo
+                    .replace(/[¡!¿?*+°]/g, '')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+            };
+
             const html = avisos.map(aviso => {
                 const userVote = userVotes[aviso.id];
                 const isLiked = userVote === 'like';
                 const isDisliked = userVote === 'dislike';
                 const whatsappNumber = aviso.contacto ? String(aviso.contacto).replace(/[^0-9]/g, '') : '';
-                // Mensaje más simple que evita caracteres problemáticos
-                const mensaje = encodeURIComponent(
-                    `Hola, me interesa tu aviso "${aviso.titulo}" publicado en El Barrio.`
-                );
+
+                // ✅ Título limpio para WhatsApp
+                const tituloLimpio = limpiarTitulo(aviso.titulo);
+                const mensaje = `Hola, me interesa tu aviso "${tituloLimpio}" publicado en El Barrio.`;
 
                 const likes = parseInt(aviso.intereses) || 0;
                 const dislikes = parseInt(aviso.votos_negativos) || 0;
