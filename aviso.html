@@ -1060,13 +1060,13 @@
             html += `</div>`; // cierre article-body
 
             <!-- ========== NUEVO CONTENEDOR DE PUBLICIDAD ========== -->
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 1.5rem; margin: 1rem 0; text-align: center; color: white;">
-                <div style="font-size: 0.7rem; opacity: 0.8;">Patrocinado</div>
-                <div style="font-size: 1.2rem; font-weight: 600;">Lleva tu negocio al siguiente nivel</div>
-                <div style="margin-top: 1rem;">
-                    <a href="#" style="background: white; color: #667eea; padding: 0.5rem 1.5rem; border-radius: 25px; text-decoration: none; font-weight: 600;">Saber más →</a>
-                </div>
-            </div>
+            html += `
+<div style="text-align: center; padding: 2rem; margin: 1rem 0;">
+    <div style="font-size: 0.7rem; color: #999; margin-bottom: 0.5rem;">—— Publicidad ——</div>
+    <div style="font-size: 0.9rem; color: #666;">¿Quieres aparecer aquí?</div>
+    <a href="#" style="color: #1e4620; text-decoration: none; font-weight: 600; border-bottom: 1px dashed #f5b042;">info@elbarrio.com</a>
+</div>
+`;
 
             document.getElementById('aviso-container').innerHTML = html;
             iniciarPolling();
