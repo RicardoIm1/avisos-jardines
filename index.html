@@ -1724,6 +1724,42 @@
         }, 30000);        
     </script>
 
+    <script>
+        // ========== ACTUALIZAR CLICKS DE WHATSAPP EN TIEMPO REAL ==========
+        async function actualizarWhatsAppClicksEnTiempoReal() {
+            const cards = document.querySelectorAll('.aviso-card');
+            if (cards.length === 0) return;
+
+            const apiKey = localStorage.getItem('api_key');
+
+            for (const card of cards) {
+                const id = card.getAttribute('data-id');
+                if (!id) continue;
+
+                try {
+                    const resultado = await API.peticion('OBTENER_ESTADISTICAS', { id: id }, apiKey);
+                    if (resultado && resultado.success && resultado.data) {
+                        const clicksSpan = card.querySelector('.whatsapp-stat .stat-value');
+                        if (clicksSpan) {
+                            const nuevosClicks = resultado.data.clicks_whatsapp || resultado.data.whatsapp_clicks || 0;
+                            clicksSpan.textContent = nuevosClicks;
+                        }
+                    }
+                } catch (e) {
+                    console.warn(`Error actualizando WhatsApp clicks del aviso ${id}:`, e);
+                }
+            }
+        }
+
+        // Agregar al intervalo de actualización
+        setInterval(() => {
+            if (!document.hidden) {
+                actualizarTodasLasVistas();
+                actualizarWhatsAppClicksEnTiempoReal();  // ← Agregar esta línea
+            }
+        }, 30000);
+    </script>
+
 </body>
 
 </html>
