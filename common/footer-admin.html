@@ -515,15 +515,131 @@
     }
 
     // ========== VARIABLES GLOBALES ==========
-    let temporalChart = null;
-    let currentMetric = 'usuarios';
+    // ========== VARIABLES PARA GRÁFICAS ==========
+    let chartUsuarios = null;
+    let chartAvisos = null;
+    let chartConexiones = null;
     let temporalData = null;
-    let currentUserRole = 'user';
-    let currentUser = null;
-    let chartDetailedView = false;
-    let allNotices = [];  // Almacenar todos los avisos para cálculos
 
-    // ========== CARGAR ESTADÍSTICAS AVANZADAS ==========
+    // Renderizar las 3 gráficas separadas
+    function renderAllCharts() {
+        if (!temporalData || !temporalData.diario) {
+            console.warn('No hay datos para gráficas');
+            return;
+        }
+
+        const labels = temporalData.diario.map(d => {
+            const [year, month, day] = d.fecha.split('-');
+            return `${day}/${month}`;
+        });
+
+        // Datos
+        const usuariosData = temporalData.diario.map(d => d.usuarios);
+        const avisosData = temporalData.diario.map(d => d.avisos);
+        const conexionesData = temporalData.diario.map(d => d.conexiones);
+
+        // Destruir gráficas existentes
+        if (chartUsuarios) chartUsuarios.destroy();
+        if (chartAvisos) chartAvisos.destroy();
+        if (chartConexiones) chartConexiones.destroy();
+
+        // Gráfica 1: Usuarios
+        const ctxUsuarios = document.getElementById('chartUsuariosCanvas')?.getContext('2d');
+        if (ctxUsuarios) {
+            chartUsuarios = new Chart(ctxUsuarios, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Nuevos usuarios',
+                        data: usuariosData,
+                        backgroundColor: 'rgba(76, 175, 80, 0.6)',
+                        borderColor: '#4caf50',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: chartOptions
+            });
+        }
+
+        // Gráfica 2: Avisos
+        const ctxAvisos = document.getElementById('chartAvisosCanvas')?.getContext('2d');
+        if (ctxAvisos) {
+            chartAvisos = new Chart(ctxAvisos, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Avisos publicados',
+                        data: avisosData,
+                        backgroundColor: 'rgba(245, 176, 66, 0.6)',
+                        borderColor: '#f5b042',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: chartOptions
+            });
+        }
+
+        // Gráfica 3: Conexiones
+        const ctxConexiones = document.getElementById('chartConexionesCanvas')?.getContext('2d');
+        if (ctxConexiones) {
+            chartConexiones = new Chart(ctxConexiones, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Usuarios activos',
+                        data: conexionesData,
+                        backgroundColor: 'rgba(33, 150, 243, 0.6)',
+                        borderColor: '#2196f3',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: chartOptions
+            });
+        }
+
+        // Actualizar stats individuales
+        updateStatsMini('usuariosStats', usuariosData, labels, 'nuevos usuarios');
+        updateStatsMini('avisosStats', avisosData, labels, 'avisos publicados');
+        updateStatsMini('conexionesStats', conexionesData, labels, 'usuarios activos');
+    }
+
+    // Opciones comunes para todas las gráficas
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: { labels: { color: '#ccc' } },
+            tooltip: { backgroundColor: '#1a1a2e', titleColor: '#f5b042', bodyColor: '#ccc' }
+        },
+        scales: {
+            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888', stepSize: 1 } },
+            x: { grid: { display: false }, ticks: { color: '#888', maxRotation: 45, minRotation: 45 } }
+        }
+    };
+
+    function updateStatsMini(elementId, dataValues, labels, labelName) {
+        const statsDiv = document.getElementById(elementId);
+        if (!statsDiv) return;
+
+        const maxValue = Math.max(...dataValues);
+        const maxIndex = dataValues.indexOf(maxValue);
+        const total = dataValues.reduce((a, b) => a + b, 0);
+        const promedio = (total / dataValues.length).toFixed(1);
+
+        if (maxValue > 0 && maxIndex !== -1) {
+            statsDiv.innerHTML = `📈 Total: ${total} | 📊 Promedio diario: ${promedio} | 🔥 Día pico: ${labels[maxIndex]} (${maxValue} ${labelName})`;
+        } else {
+            statsDiv.innerHTML = `📈 Total: ${total} | 📊 Promedio diario: ${promedio}`;
+        }
+    }
+
+    // Modificar loadAdvancedStats para mostrar las 3 gráficas
     async function loadAdvancedStats() {
         try {
             const apiKey = localStorage.getItem('api_key');
@@ -552,19 +668,21 @@
                 // Actualizar usuarios en línea
                 updateOnlineUsers(response.data.enLinea);
 
-                // Renderizar gráfica
-                renderTemporalChart();
+                // Renderizar las 3 gráficas
+                renderAllCharts();
 
-                // Mostrar secciones
-                const chartTemporal = document.getElementById('chartTemporal');
+                // Mostrar todas las secciones
+                const chartUsuarios = document.getElementById('chartUsuariosDiarios');
+                const chartAvisos = document.getElementById('chartAvisosDiarios');
+                const chartConexiones = document.getElementById('chartConexionesDiarias');
                 const chartOnline = document.getElementById('chartOnline');
                 const statsSummary = document.getElementById('statsSummary');
 
-                if (chartTemporal) chartTemporal.style.display = 'block';
+                if (chartUsuarios) chartUsuarios.style.display = 'block';
+                if (chartAvisos) chartAvisos.style.display = 'block';
+                if (chartConexiones) chartConexiones.style.display = 'block';
                 if (chartOnline) chartOnline.style.display = 'block';
                 if (statsSummary) statsSummary.style.display = 'flex';
-            } else {
-                console.warn('No se pudieron cargar estadísticas avanzadas:', response);
             }
         } catch (error) {
             console.error('Error cargando estadísticas avanzadas:', error);
