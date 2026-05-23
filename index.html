@@ -1195,10 +1195,9 @@
                 }
 
                 return `
-        <div class="aviso-card tarjeta-moderna ${aviso.destacado ? 'aviso-destacado' : ''}" data-id="${aviso.id}" onclick="abrirWhatsApp('${whatsappNumber}', '${mensaje}', '${aviso.id}', event)"
-            <div class="categoria-badge" style="background: ${getColorCategoria(aviso.categoria)}; color: white;">
-                ${getIconoCategoria(aviso.categoria)} ${aviso.categoria?.toUpperCase() || 'GENERAL'}
-            </div>
+<div class="aviso-card tarjeta-moderna ${aviso.destacado ? 'aviso-destacado' : ''}" 
+     data-id="${aviso.id}" 
+     onclick="verAviso(this.getAttribute('data-id'))">
             ${multimediaHTML}
             <div class="card-contenido-moderno">
                 <div class="card-header-moderno">
