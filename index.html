@@ -664,23 +664,26 @@
 
             #avisos-container {
                 display: grid !important;
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(3, 1fr);
                 gap: 20px;
                 height: auto !important;
                 overflow-y: visible !important;
                 scroll-snap-type: none !important;
             }
 
-            /* ✅ POSTS DESTACADOS: primeros 2 ocupan doble ancho */
-            #avisos-container .aviso-card:nth-child(1),
-            #avisos-container .aviso-card:nth-child(2) {
-                grid-column: span 2;
+            /* ✅ POSTS DESTACADOS: primeros 3 ocupan toda la fila (cada uno 1fr) */
+            /* En grid de 3 columnas, cada uno ya ocupa su espacio natural */
+
+            /* ✅ Para que sean más grandes visualmente, aumentamos la altura de imagen */
+            #avisos-container .aviso-card:nth-child(-n+3) .aviso-imagen,
+            #avisos-container .aviso-card:nth-child(-n+3) .aviso-video {
+                height: 280px !important;
             }
 
-            /* ✅ IMAGEN MÁS ALTA EN LOS PRIMEROS 2 */
-            #avisos-container .aviso-card:nth-child(-n+2) .aviso-imagen,
-            #avisos-container .aviso-card:nth-child(-n+2) .aviso-video {
-                height: 280px !important;
+            /* Opcional: darle un poco más de énfasis a los destacados */
+            #avisos-container .aviso-card:nth-child(-n+3) {
+                transform: scale(1.02);
+                transition: transform 0.3s ease;
             }
 
             .aviso-card {
