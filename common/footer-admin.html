@@ -72,24 +72,43 @@
             <div class="chart-stats-mini" id="chartStatsMini"></div>
         </div>
 
-        <!-- GRÁFICA EVOLUCIÓN DIARIA -->
-        <div class="dashboard-chart" id="chartTemporal" style="display: none;">
+        <!-- GRÁFICA 1: USUARIOS REGISTRADOS POR DÍA -->
+        <div class="dashboard-chart" id="chartUsuariosDiarios" style="display: none;">
             <div class="chart-header">
-                <h4>📈 Evolución Diaria (últimos 30 días)</h4>
-                <div class="chart-toggles">
-                    <button class="chart-toggle" onclick="toggleMetric('usuarios')">👥 Usuarios</button>
-                    <button class="chart-toggle" onclick="toggleMetric('avisos')">📰 Avisos</button>
-                    <button class="chart-toggle" onclick="toggleMetric('conexiones')">🟢 Conexiones</button>
-                </div>
+                <h4>👥 Usuarios Registrados por Día</h4>
             </div>
             <div class="temporal-chart-container">
-                <canvas id="temporalChart" width="400" height="200"
+                <canvas id="chartUsuariosCanvas" width="400" height="200"
                     style="max-width: 100%; height: auto; background: rgba(0,0,0,0.2); border-radius: 12px;"></canvas>
             </div>
-            <div class="chart-stats-mini" id="temporalStats"></div>
+            <div class="chart-stats-mini" id="usuariosStats"></div>
         </div>
 
-        <!-- USUARIOS EN LÍNEA -->
+        <!-- GRÁFICA 2: AVISOS PUBLICADOS POR DÍA -->
+        <div class="dashboard-chart" id="chartAvisosDiarios" style="display: none;">
+            <div class="chart-header">
+                <h4>📰 Avisos Publicados por Día</h4>
+            </div>
+            <div class="temporal-chart-container">
+                <canvas id="chartAvisosCanvas" width="400" height="200"
+                    style="max-width: 100%; height: auto; background: rgba(0,0,0,0.2); border-radius: 12px;"></canvas>
+            </div>
+            <div class="chart-stats-mini" id="avisosStats"></div>
+        </div>
+
+        <!-- GRÁFICA 3: USUARIOS CONECTADOS POR DÍA (actividad) -->
+        <div class="dashboard-chart" id="chartConexionesDiarias" style="display: none;">
+            <div class="chart-header">
+                <h4>🟢 Usuarios Activos por Día</h4>
+            </div>
+            <div class="temporal-chart-container">
+                <canvas id="chartConexionesCanvas" width="400" height="200"
+                    style="max-width: 100%; height: auto; background: rgba(0,0,0,0.2); border-radius: 12px;"></canvas>
+            </div>
+            <div class="chart-stats-mini" id="conexionesStats"></div>
+        </div>
+
+        <!-- USUARIOS EN LÍNEA (TIEMPO REAL) -->
         <div class="dashboard-chart" id="chartOnline" style="display: none;">
             <div class="chart-header">
                 <h4>🟢 Usuarios en Línea (últimos 10 minutos)</h4>
