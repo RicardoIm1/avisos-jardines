@@ -1279,7 +1279,7 @@
                 <small>📢 VARIOS</small>
                 ${aviso.video_url ? '<br><small>🎥 Video</small>' : ''}
             </td>
-            <td data-label="Contacto">${escapeHTML(aviso.contacto || 'No especificado')}</td>
+<td data-label="Contacto">${escapeHTML(aviso.contacto !== undefined ? String(aviso.contacto) : 'No especificado')}</td>
             <td data-label="Estado">
                 ${esAdmin ? `
                 <select class="select-estado ${estado}" onchange="cambiarEstadoAviso('${aviso.id}', this.value)">
