@@ -841,7 +841,7 @@
             window.location.href = `/barrio/aviso.html?id=${id}`;
         };
 
-        window.abrirWhatsApp = async function (numero, texto, id, event) {
+        window.abrirWhatsApp = function (numero, texto, id, event) {
             if (event) event.stopPropagation();
 
             console.log('📱 Intentando abrir WhatsApp:');
@@ -855,16 +855,15 @@
                 return;
             }
 
-            if (id) await registrarClickWhatsApp(id);
-
-            // ✅ Asegurar que el número tenga el formato correcto
+            // ✅ PRIMERO: Abrir WhatsApp (sin await, inmediato)
             let numeroLimpio = String(numero).replace(/[^0-9]/g, '');
-            console.log('  - Número limpio:', numeroLimpio);
-
             const url = `https://wa.me/52${numeroLimpio}?text=${encodeURIComponent(texto)}`;
-            console.log('  - URL final:', url);
-
             window.open(url, '_blank');
+
+            // ✅ DESPUÉS: Registrar el clic (no bloquea la apertura)
+            if (id) {
+                registrarClickWhatsApp(id).catch(e => console.warn('Error registrando click:', e));
+            }
         };
 
         window.darLikeWrapper = async function (id, event) {
