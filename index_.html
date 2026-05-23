@@ -632,284 +632,39 @@
             }
         }
     </style>
-    <style>
-        /* ========== SCROLL SNAP TIPO iOS (ENGRANE) ========== */
-        .posts-container-ios {
-            height: 100vh;
-            overflow-y: auto;
-            scroll-snap-type: y mandatory;
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-        }
-
-        .posts-container-ios::-webkit-scrollbar {
-            display: none;
-        }
-
-        .post-card-ios {
-            scroll-snap-align: start;
-            scroll-snap-stop: always;
-            min-height: 100vh;
-            transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            transform-origin: center;
-        }
-
-        .post-card-ios.active {
-            transform: scale(1.02);
-        }
-
-        /* Animación de "clic" del engranaje */
-        @keyframes gearClick {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(0.98);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        .post-card-ios.gear-click {
-            animation: gearClick 0.12s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
-    </style>
-    <style>
-        /* ========== RESPONSIVE: EFECTO ENGRANE SOLO EN MÓVIL ========== */
-        /* Móviles (ancho menor a 768px) - activar scroll snap */
-        @media (max-width: 767px) {
-            #avisos-container.posts-container-ios {
-                display: block !important;
-                height: 100vh;
-                overflow-y: auto;
-                scroll-snap-type: y mandatory;
-                scroll-behavior: smooth;
-                -webkit-overflow-scrolling: touch;
-                scrollbar-width: none;
-                padding: 0;
-            }
-
-            #avisos-container.posts-container-ios::-webkit-scrollbar {
-                display: none;
-            }
-
-            #avisos-container.posts-container-ios .aviso-card {
-                scroll-snap-align: start;
-                scroll-snap-stop: always;
-                min-height: 100vh;
-                margin-bottom: 0;
-                border-radius: 0;
-                width: 100%;
-            }
-
-            .post-card-ios.active {
-                transform: scale(1.02);
-            }
-
-            @keyframes gearClick {
-                0% {
-                    transform: scale(1);
-                }
-
-                50% {
-                    transform: scale(0.98);
-                }
-
-                100% {
-                    transform: scale(1);
-                }
-            }
-
-            .post-card-ios.gear-click {
-                animation: gearClick 0.12s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            }
-        }
-
-        /* Desktop (ancho mayor o igual a 768px) - layout normal de cuadrícula */
-        @media (min-width: 768px) {
-            #avisos-container {
-                display: grid !important;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 20px;
-                height: auto !important;
-                overflow-y: visible !important;
-                scroll-snap-type: none !important;
-            }
-
-            #avisos-container .aviso-card {
-                min-height: auto !important;
-                height: auto !important;
-                margin-bottom: 0 !important;
-                scroll-snap-align: none !important;
-                scroll-snap-stop: unset !important;
-            }
-
-            /* Grid responsivo para desktop más grande */
-            @media (min-width: 1024px) {
-                #avisos-container {
-                    grid-template-columns: repeat(3, 1fr);
-                }
-            }
-
-            @media (min-width: 1280px) {
-                #avisos-container {
-                    grid-template-columns: repeat(4, 1fr);
-                }
-            }
-        }
-    </style>
-    <style>
-        /* ========== SCROLL UNIFICADO PARA MÓVIL ========== */
-        @media (max-width: 767px) {
-
-            /* El contenedor scrollable ocupa toda la pantalla menos el header */
-            .scrollable-container {
-                height: calc(100vh - 60px);
-                /* Ajusta 60px a la altura de tu header */
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-                scroll-snap-type: y mandatory;
-                scroll-behavior: smooth;
-            }
-
-            /* Ocultar scrollbar en móvil para que se vea limpio */
-            .scrollable-container::-webkit-scrollbar {
-                display: none;
-            }
-
-            /* El contenedor de avisos ya no es scrollable independiente */
-            #avisos-container {
-                display: block !important;
-                scroll-snap-type: none !important;
-                height: auto !important;
-            }
-
-            /* Cada card es un snap point */
-            .aviso-card {
-                scroll-snap-align: start;
-                scroll-snap-stop: always;
-                min-height: calc(100vh - 60px);
-                /* Altura completa menos header */
-                margin-bottom: 0 !important;
-                border-radius: 0 !important;
-                display: flex;
-                flex-direction: column;
-            }
-
-            /* Hacer que el contenido ocupe todo el espacio disponible */
-            .card-contenido-moderno {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-            }
-
-            /* Imagen o video más protagonista */
-            .aviso-imagen,
-            .aviso-video {
-                height: 55vh !important;
-                /* Más de la mitad de la pantalla */
-                border-radius: 0 !important;
-            }
-
-            .aviso-video video {
-                object-fit: cover;
-            }
-
-            /* Reducir espacios blancos internos */
-            .card-contenido-moderno {
-                padding: 12px 16px;
-            }
-
-            .card-header-moderno {
-                margin-bottom: 8px;
-            }
-
-            .card-preview-moderno {
-                margin-bottom: 8px;
-                font-size: 0.9rem;
-            }
-
-            .card-stats-moderno {
-                padding-top: 8px;
-                margin-top: 0;
-            }
-        }
-    </style>
-    <style>
-        /* Desktop: todo normal, sin efecto raro */
-        @media (min-width: 768px) {
-            .scrollable-container {
-                height: auto;
-                overflow-y: visible;
-                scroll-snap-type: none;
-            }
-
-            #avisos-container {
-                display: grid !important;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 20px;
-            }
-
-            @media (min-width: 1024px) {
-                #avisos-container {
-                    grid-template-columns: repeat(3, 1fr);
-                }
-            }
-
-            @media (min-width: 1280px) {
-                #avisos-container {
-                    grid-template-columns: repeat(4, 1fr);
-                }
-            }
-
-            .aviso-imagen,
-            .aviso-video {
-                height: 180px !important;
-                border-radius: 20px 20px 0 0 !important;
-            }
-        }
-    </style>
 </head>
 
 <body>
     <div id="header-container"></div>
+    <!-- ========== BANNER HERO ========== -->
+    <picture>
+        <source srcset="/barrio/img/banner-elbarrio2.webp" type="image/webp">
+        <img class="hero-banner" src="/barrio/img/banner-elbarrio2.png" decoding="async"
+            alt="El Barrio - Comunidad vecinal en tu colonia" width="1200" height="400" loading="eager"
+            fetchpriority="high" decoding="async"
+            onerror="this.onerror=null; this.src='/barrio/img/fallback-banner.png'; console.warn('⚠️ Banner principal no encontrado');">
+    </picture>
 
-    <div id="scrollable-content" class="scrollable-container">
-        <!-- ========== BANNER HERO ========== -->
-        <picture>
-            <source srcset="/barrio/img/banner-elbarrio2.webp" type="image/webp">
-            <img class="hero-banner" src="/barrio/img/banner-elbarrio2.png" decoding="async"
-                alt="El Barrio - Comunidad vecinal en tu colonia" width="1200" height="400" loading="eager"
-                fetchpriority="high" decoding="async"
-                onerror="this.onerror=null; this.src='/barrio/img/fallback-banner.png'; console.warn('⚠️ Banner principal no encontrado');">
-        </picture>
-
-        <main class="contenedor">
-            <div style="display: flex; justify-content: center; width: 100%;">
-                <button id="btnProbarNotificacion" class="btn-login">
-                    <!-- style="background:#2c3e50; color:white; padding:8px 16px; border-radius:20px; margin:10px; border:none; cursor: pointer; "-->
-                    📝 Regístrate y publica tus avisos gratis
-                </button>
+    <main class="contenedor">
+        <div style="display: flex; justify-content: center; width: 100%;">
+            <button id="btnProbarNotificacion" class="btn-login">
+                <!-- style="background:#2c3e50; color:white; padding:8px 16px; border-radius:20px; margin:10px; border:none; cursor: pointer; "-->
+                📝 Regístrate y publica tus avisos gratis
+            </button>
+        </div>
+        <div class="filtros-buscador-wrapper">
+            <div class="buscador-container">
+                <input type="text" id="buscador-input" class="buscador-input" placeholder="🔍 Buscar...">
             </div>
-            <div class="filtros-buscador-wrapper">
-                <div class="buscador-container">
-                    <input type="text" id="buscador-input" class="buscador-input" placeholder="🔍 Buscar...">
-                </div>
-            </div>
+        </div>
 
-            <div id="avisos-container" class="grid-avisos">
-                <div class="cargando">📰 Cargando avisos...</div>
-            </div>
+        <div id="avisos-container" class="grid-avisos">
+            <div class="cargando">📰 Cargando avisos...</div>
+        </div>
 
-            <div id="loading-trigger" class="loading-trigger" style="display: none;">📡 Cargando más avisos...</div>
-            <div id="paginacion" class="paginacion"></div>
-        </main>
-    </div>
+        <div id="loading-trigger" class="loading-trigger" style="display: none;">📡 Cargando más avisos...</div>
+        <div id="paginacion" class="paginacion"></div>
+    </main>
 
     <div id="footer-container"></div>
     <div id="toast" class="toast-notification"></div>
@@ -923,7 +678,7 @@
         function registrarVisita(pagina) {
             const userAgent = navigator.userAgent;
             const referer = document.referrer;
-            const url = `https://script.google.com/macros/s/AKfycbxfKbjZuNLervPF3JTpNRAv_Cn5dGkk1vCLt3x-WX-NLRWdb-TxbBtMkJdDEGypggDY/exec?accion=REGISTRAR_VISITA&pagina=${pagina}&user_agent=${encodeURIComponent(userAgent)}&referer=${encodeURIComponent(referer)}`;
+            const url = `https://script.google.com/macros/s/AKfycbyU0SnvEzuXY_m4HpMympOZRn5svNrog4tR3VhpRiCmS6PtvndSAJpbaNU0muCxCbFS/exec?accion=REGISTRAR_VISITA&pagina=${pagina}&user_agent=${encodeURIComponent(userAgent)}&referer=${encodeURIComponent(referer)}`;
             fetch(url).catch(e => console.warn('Error registrando visita:', e));
         }
 
@@ -1087,20 +842,16 @@
         };
 
         window.abrirWhatsApp = function (numero, texto, id, event) {
+
             if (event) {
                 event.preventDefault();
                 event.stopPropagation();
             }
 
-            // 🔐 VALIDAR QUE EL USUARIO ESTÉ LOGUEADO
-            const apiKey = localStorage.getItem('api_key');
-            if (!apiKey) {
-                showToast('🔐 Inicia sesión para ver el contacto de WhatsApp', 2000);
-                return;
-            }
-
             let numeroLimpio = String(numero).replace(/[^0-9]/g, '');
+
             const url = `https://wa.me/52${numeroLimpio}?text=${encodeURIComponent(texto)}`;
+
             window.open(url, '_blank');
 
             if (id) {
@@ -1483,8 +1234,6 @@
         </div>`;
             }).join('');
             container.insertAdjacentHTML('beforeend', html);
-            // ✅ ACTUALIZAR EL EFECTO ENGRANE PARA LOS NUEVOS POSTS
-            if (window.barrioScrollSnap) window.barrioScrollSnap.refresh();
         }
 
         async function cargarAvisos() {
@@ -1504,18 +1253,6 @@
 
                     avisosCargados = true;
                     applyFiltersAndSearch();
-                    // ✅ INICIALIZAR EL EFECTO ENGRANE (después de que los posts existan)
-                    // En cargarAvisos(), dentro del setTimeout:
-                    setTimeout(() => {
-                        // Usar el contenedor scrollable, no avisos-container
-                        const container = document.querySelector('.scrollable-container');
-                        if (container && !window.barrioScrollSnap) {
-                            window.barrioScrollSnap = new BarrioScrollSnap('.scrollable-container', '.aviso-card');
-                        } else if (window.barrioScrollSnap) {
-                            window.barrioScrollSnap.refresh();
-                        }
-                    }, 200);
-
                 } else {
                     if (container) container.innerHTML = '<div class="mensaje mensaje-info">📭 No hay avisos disponibles</div>';
                 }
@@ -1669,7 +1406,7 @@
                 return;
             }
 
-            const url = 'https://script.google.com/macros/s/AKfycbxfKbjZuNLervPF3JTpNRAv_Cn5dGkk1vCLt3x-WX-NLRWdb-TxbBtMkJdDEGypggDY/exec';
+            const url = 'https://script.google.com/macros/s/AKfycbyU0SnvEzuXY_m4HpMympOZRn5svNrog4tR3VhpRiCmS6PtvndSAJpbaNU0muCxCbFS/exec';
 
             try {
                 const response = await fetch(`${url}?accion=ENVIAR_PRUEBA_PUSH&api_key=${apiKey}`);
@@ -1807,7 +1544,7 @@
         }
 
         async function guardarSuscripcionEnBackend(subscription, apiKey) {
-            const url = 'https://script.google.com/macros/s/AKfycbxfKbjZuNLervPF3JTpNRAv_Cn5dGkk1vCLt3x-WX-NLRWdb-TxbBtMkJdDEGypggDY/exec';
+            const url = 'https://script.google.com/macros/s/AKfycbyU0SnvEzuXY_m4HpMympOZRn5svNrog4tR3VhpRiCmS6PtvndSAJpbaNU0muCxCbFS/exec';
             const response = await fetch(`${url}?accion=REGISTRAR_TOKEN_PUSH&api_key=${apiKey}&token=${JSON.stringify(subscription)}&dispositivo=web`);
             return await response.json();
         }
@@ -2139,181 +1876,6 @@
             // El scroll se guarda periódicamente de todas formas
         });
     </script>
-
-    <script>
-        // ========== EFECTO ENGRANE TIPO iOS (SCROLL SNAP + HAPTICS) ==========
-        class BarrioScrollSnap {
-            constructor(containerSelector, itemSelector) {
-                this.container = document.querySelector(containerSelector);
-                if (!this.container) return;
-
-                const isMobile = window.innerWidth < 768 || ('ontouchstart' in window);
-                if (!isMobile) {
-                    console.log('🖥️ Desktop: efecto desactivado');
-                    return;
-                }
-
-                this.items = () => this.container.querySelectorAll(itemSelector);
-                this.currentIndex = 0;
-                this.init();
-            }
-
-            init() {
-                // Agregar clase al contenedor
-                this.container.classList.add('posts-container-ios');
-
-                // Aplicar clase a cada post existente y futuro
-                this.aplicarClaseAPosts();
-
-                // Detectar cambios de scroll
-                this.container.addEventListener('scroll', () => this.handleScroll());
-
-                // También detectar cuando termina de hacer scroll (para snap más preciso)
-                this.container.addEventListener('scrollend', () => this.handleScrollEnd());
-            }
-
-            aplicarClaseAPosts() {
-                const posts = this.items();
-                posts.forEach(post => {
-                    if (!post.classList.contains('post-card-ios')) {
-                        post.classList.add('post-card-ios');
-                    }
-                });
-            }
-
-            handleScroll() {
-                if (this.scrollTimer) clearTimeout(this.scrollTimer);
-
-                // Calcular cuál post está más cerca del centro de la pantalla
-                const containerRect = this.container.getBoundingClientRect();
-                const centerY = containerRect.top + containerRect.height / 2;
-
-                const posts = this.items();
-                let closestIndex = this.currentIndex;
-                let closestDistance = Infinity;
-
-                posts.forEach((post, idx) => {
-                    const postRect = post.getBoundingClientRect();
-                    const postCenter = postRect.top + postRect.height / 2;
-                    const distance = Math.abs(centerY - postCenter);
-
-                    if (distance < closestDistance) {
-                        closestDistance = distance;
-                        closestIndex = idx;
-                    }
-                });
-
-                // Si cambió el índice, disparar el efecto "engranaje"
-                if (closestIndex !== this.currentIndex) {
-                    this.currentIndex = closestIndex;
-                    this.triggerGearEffect(closestIndex);
-                }
-
-                // Marcar el post activo visualmente
-                this.markActivePost(closestIndex);
-            }
-
-            handleScrollEnd() {
-                // Al soltar, asegurar el snap más preciso
-                const posts = this.items();
-                if (posts[this.currentIndex]) {
-                    posts[this.currentIndex].scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            }
-
-            triggerGearEffect(index) {
-                const posts = this.items();
-                const activePost = posts[index];
-                if (!activePost) return;
-
-                // 1. Efecto visual de "clic"
-                activePost.classList.add('gear-click');
-                setTimeout(() => {
-                    activePost.classList.remove('gear-click');
-                }, 150);
-
-                // 2. Feedback háptico (vibración) - solo si el dispositivo lo soporta
-                if (window.navigator && window.navigator.vibrate) {
-                    window.navigator.vibrate(8);  // Vibración sutil de 8ms
-                }
-
-                // 3. Sonido opcional (Web Audio - muy sutil, solo si quieres)
-                // this.playTickSound();
-
-                // 4. Disparar evento personalizado (por si quieres hacer algo más)
-                const event = new CustomEvent('postChanged', {
-                    detail: { index: index, post: activePost }
-                });
-                this.container.dispatchEvent(event);
-
-                console.log(`⚙️ Engranaje: post ${index} activado`);
-            }
-
-            markActivePost(activeIndex) {
-                const posts = this.items();
-                posts.forEach((post, idx) => {
-                    if (idx === activeIndex) {
-                        post.classList.add('active');
-                    } else {
-                        post.classList.remove('active');
-                    }
-                });
-            }
-
-            playTickSound() {
-                try {
-                    if (!this.audioCtx) {
-                        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    }
-                    const osc = this.audioCtx.createOscillator();
-                    const gain = this.audioCtx.createGain();
-                    osc.connect(gain);
-                    gain.connect(this.audioCtx.destination);
-                    osc.frequency.value = 1200;
-                    gain.gain.value = 0.03;
-                    osc.start();
-                    gain.gain.exponentialRampToValueAtTime(0.00001, this.audioCtx.currentTime + 0.08);
-                    osc.stop(this.audioCtx.currentTime + 0.08);
-                } catch (e) { /* silencio */ }
-            }
-
-            // Actualizar la referencia a los posts (útil si se cargan dinámicamente)
-            refresh() {
-                this.aplicarClaseAPosts();
-            }
-        }
-    </script>
-    <script>
-        // Re-evaluar si es móvil cuando cambia el tamaño de la pantalla
-        let resizeTimer;
-        window.addEventListener('resize', function () {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(function () {
-                const isMobile = window.innerWidth < 768 || ('ontouchstart' in window);
-                const container = document.getElementById('avisos-container');
-
-                if (isMobile) {
-                    // Si es móvil y no existe el efecto, recrearlo
-                    if (!window.barrioScrollSnap && container) {
-                        window.barrioScrollSnap = new BarrioScrollSnap('#avisos-container', '.aviso-card');
-                    }
-                } else {
-                    // Si es desktop y existe el efecto, destruirlo (remover clases)
-                    if (window.barrioScrollSnap) {
-                        container.classList.remove('posts-container-ios');
-                        const posts = document.querySelectorAll('.aviso-card');
-                        posts.forEach(post => {
-                            post.classList.remove('post-card-ios', 'active', 'gear-click');
-                        });
-                        window.barrioScrollSnap = null;
-                    }
-                    // Asegurar que el grid se vea bien
-                    if (container) container.style.display = 'grid';
-                }
-            }, 250);
-        });
-    </script>
-
 
 </body>
 
