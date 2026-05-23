@@ -461,11 +461,11 @@
             }
         }
 
-        /* Botón WhatsApp circular (mismo estilo que en index.html) */
+        /* Botón WhatsApp circular - MISMO ESTILO QUE INDEX */
         .whatsapp-btn-circle {
             background-color: #25D366;
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             display: inline-flex;
             align-items: center;
@@ -474,9 +474,11 @@
             transition: all 0.25s ease;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/960px-WhatsApp.svg.png');
-            background-size: 55%;
+            background-size: 60%;
             background-position: center;
             background-repeat: no-repeat;
+            border: none;
+            cursor: pointer;
         }
 
         .whatsapp-btn-circle:hover {
@@ -504,6 +506,18 @@
 
         .contact-info-item .icon {
             font-size: 1.2rem;
+        }
+
+        /* Botón WhatsApp en stats-row */
+        .stat-item.whatsapp-stat {
+            background: #25D366;
+            border-color: #25D366;
+            color: white;
+        }
+
+        .stat-item.whatsapp-stat .stat-value,
+        .stat-item.whatsapp-stat .stat-icon {
+            color: white;
         }
     </style>
 </head>
@@ -940,7 +954,7 @@
             html += `<div class="article-body">`;
             html += `<div class="article-content">${formatearContenido(avisoActual.contenido)}</div>`;
             
-            // Mostrar ubicación, fecha del evento y WhatsApp juntos
+            // ========== SECCIÓN DE CONTACTO (igual que en index) ==========
             html += `<div class="contact-info-row">`;
 
             // Ubicación
@@ -971,13 +985,12 @@
                 </div>`;
             }
 
-            // Botón WhatsApp circular (solo si hay contacto) - MISMA VALIDACIÓN QUE INDEX
+            // ========== WHATSAPP DEL ANUNCIANTE (botón circular, IGUAL QUE EN INDEX) ==========
             if (tieneContacto) {
                 html += `<div class="contact-info-item" style="margin-left: auto;">
-                    <a href="#" 
-                       class="whatsapp-btn-circle"
-                       onclick="handleWhatsAppClick('${avisoActual.id}', '${numero}', '${mensaje.replace(/'/g, "\\'")}', event)">
-                    </a>
+                    <button class="whatsapp-btn-circle" 
+                            onclick="handleWhatsAppClick('${avisoActual.id}', '${numero}', '${mensaje.replace(/'/g, "\\'")}', event)">
+                    </button>
                 </div>`;
             }
 
@@ -986,36 +999,38 @@
             // stats-row con todas las acciones integradas
             html += `<div class="stats-row">`;
 
-            // 1. Vistas (solo estadística)
+            // 1. Vistas
             html += `<div class="stat-item">
                         <span class="stat-icon">👁️</span>
                         <span class="stat-value vistas-count">${vistas}</span>
                     </div>`;
 
-            // 2. Like (botón)
+            // 2. Like
             html += `<div class="stat-item action-btn like-btn" onclick="darLike('${avisoActual.id}')">
                         <span class="stat-icon">👍</span>
                         <span class="stat-value likes-count">${likes}</span>
                     </div>`;
 
-            // 3. Dislike (botón)
+            // 3. Dislike
             html += `<div class="stat-item action-btn dislike-btn" onclick="darDislike('${avisoActual.id}')">
                         <span class="stat-icon">👎</span>
                         <span class="stat-value dislikes-count">${dislikes}</span>
                     </div>`;
 
-            // 4. Comentarios (botón)
+            // 4. Comentarios
             html += `<div class="stat-item action-btn" onclick="abrirComentarios('${avisoActual.id}', event)">
                         <span class="stat-icon">💬</span>
                         <span class="stat-value comments-count">${comentarios}</span>
                     </div>`;
 
-            // 5. WhatsApp en la barra de stats (solo si hay contacto)
+            // 5. WhatsApp en stats-row (otro acceso directo al anunciante, opcional)
             if (tieneContacto) {
-                html += `<a href="#" class="stat-item action-btn" style="background: #25D366; color: white; text-decoration: none;" onclick="handleWhatsAppClick('${avisoActual.id}', '${numero}', '${mensaje.replace(/'/g, "\\'")}', event)">
+                html += `<button class="stat-item action-btn whatsapp-stat" 
+                                onclick="handleWhatsAppClick('${avisoActual.id}', '${numero}', '${mensaje.replace(/'/g, "\\'")}', event)"
+                                style="background: #25D366; color: white; border: none; cursor: pointer;">
                             <span class="stat-icon">📱</span>
                             <span class="stat-value">WhatsApp</span>
-                        </a>`;
+                        </button>`;
             }
 
             // 6. Botones admin
@@ -1062,7 +1077,7 @@
 
             html += `</div>`; // cierre article-body
 
-            // Anuncio con botón circular de WhatsApp
+            // ========== WHATSAPP DEL PATROCINADOR (anuncio publicitario) ==========
             html += `
             <div style="margin: 2rem 0 1rem;">
                 <div style="display: flex; align-items: center; gap: 0.75rem; background: #f8f9fa; border-radius: 14px; padding: 0.75rem 1rem;">
@@ -1073,10 +1088,9 @@
                         <div style="font-weight: 500; font-size: 0.85rem;">¿Quieres promocionar tu negocio?</div>
                         <div style="font-size: 0.75rem; color: #666;">Llega a más vecinos en El Barrio</div>
                     </div>
-                    <a href="#" 
-                       class="whatsapp-btn-circle"
-                       onclick="handleWhatsAppClick('anuncio', '3222354331', 'Hola,%20quiero%20anunciarme%20en%20EL%20BARRIO', event)">
-                    </a>
+                    <button class="whatsapp-btn-circle" 
+                            onclick="handleWhatsAppClick('anuncio', '3222354331', 'Hola%20quiero%20anunciarme%20en%20EL%20BARRIO', event)">
+                    </button>
                 </div>
             </div>
             `;
