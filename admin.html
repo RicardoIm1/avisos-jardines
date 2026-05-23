@@ -3,7 +3,6 @@
 <!-- ESTABLE 07:23 20may -->
 
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes">
     <title>Administración | EL BARRIO</title>
@@ -1141,16 +1140,14 @@
         let filtroStatusActual = 'todos';
 
         // Función de escape HTML (existente)
-        function safeHTML(valor) {
-            if (valor === undefined || valor === null) return '';
-            if (typeof valor === 'number') return valor.toString();
-            if (typeof valor !== 'string') valor = String(valor);
-            return valor
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
+        function escapeHTML(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>]/g, function (m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
         }
 
         // Helper para íconos de categoría
