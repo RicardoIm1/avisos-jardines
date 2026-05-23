@@ -1946,6 +1946,14 @@
                 this.container = document.querySelector(containerSelector);
                 if (!this.container) return;
 
+                // 🚀 DETECTAR SI ES MÓVIL (ancho < 768px o si soporta touch)
+                const isMobile = window.innerWidth < 768 || ('ontouchstart' in window);
+
+                if (!isMobile) {
+                    console.log('🖥️ Desktop detectado: efecto engrane DESACTIVADO');
+                    return; // No hacer nada en desktop
+                }
+
                 this.items = () => document.querySelectorAll(itemSelector);
                 this.currentIndex = 0;
                 this.isScrolling = false;
