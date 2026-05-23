@@ -10,12 +10,24 @@
 
 html {
     height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
     scroll-behavior: smooth;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-        Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+
+    font-family: -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
 
     background: var(--color-fondo);
     color: var(--color-texto);
@@ -23,12 +35,13 @@ body {
     line-height: 1.5;
     font-size: var(--fuente-cuerpo);
 
-    min-height: 100vh;
+    overflow-x: hidden;
+}
 
-    display: flex;
-    flex-direction: column;
-
-    overflow-x: clip;
+main,
+.contenido-principal {
+    flex: 1;
+    width: 100%;
 }
 
 /* =========================================================
@@ -154,11 +167,9 @@ body {
 .logo-icon {
     font-size: 2rem;
 
-    background: linear-gradient(
-        135deg,
-        var(--color-verde),
-        #1e4620
-    );
+    background: linear-gradient(135deg,
+            var(--color-verde),
+            #1e4620);
 
     border-radius: 50%;
 
@@ -178,11 +189,9 @@ body {
     font-size: 1.2rem;
     line-height: 1.2;
 
-    background: linear-gradient(
-        135deg,
-        var(--color-verde),
-        var(--color-dorado)
-    );
+    background: linear-gradient(135deg,
+            var(--color-verde),
+            var(--color-dorado));
 
     background-clip: text;
     -webkit-background-clip: text;
@@ -274,11 +283,9 @@ body {
 }
 
 .btn-login {
-    background: linear-gradient(
-        135deg,
-        var(--color-naranja),
-        #ff8c42
-    );
+    background: linear-gradient(135deg,
+            var(--color-naranja),
+            #ff8c42);
 
     color: white;
 
@@ -292,11 +299,9 @@ body {
 }
 
 .btn-admin {
-    background: linear-gradient(
-        135deg,
-        var(--color-dorado),
-        #b8860b
-    );
+    background: linear-gradient(135deg,
+            var(--color-dorado),
+            #b8860b);
 
     color: white;
 }
@@ -623,11 +628,9 @@ body {
 ========================================================= */
 
 .footer {
-    background: linear-gradient(
-        135deg,
-        #1a1a2e 0%,
-        #16213e 100%
-    );
+    background: linear-gradient(135deg,
+            #1a1a2e 0%,
+            #16213e 100%);
 
     color: #e0e0e0;
 
@@ -696,6 +699,7 @@ body {
 }
 
 @media (max-width: 400px) {
+
     .btn-login,
     .btn-admin,
     .btn-logout {
