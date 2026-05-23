@@ -2171,6 +2171,37 @@
             }
         }
     </script>
+    <script>
+        // Re-evaluar si es móvil cuando cambia el tamaño de la pantalla
+        let resizeTimer;
+        window.addEventListener('resize', function () {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function () {
+                const isMobile = window.innerWidth < 768 || ('ontouchstart' in window);
+                const container = document.getElementById('avisos-container');
+
+                if (isMobile) {
+                    // Si es móvil y no existe el efecto, recrearlo
+                    if (!window.barrioScrollSnap && container) {
+                        window.barrioScrollSnap = new BarrioScrollSnap('#avisos-container', '.aviso-card');
+                    }
+                } else {
+                    // Si es desktop y existe el efecto, destruirlo (remover clases)
+                    if (window.barrioScrollSnap) {
+                        container.classList.remove('posts-container-ios');
+                        const posts = document.querySelectorAll('.aviso-card');
+                        posts.forEach(post => {
+                            post.classList.remove('post-card-ios', 'active', 'gear-click');
+                        });
+                        window.barrioScrollSnap = null;
+                    }
+                    // Asegurar que el grid se vea bien
+                    if (container) container.style.display = 'grid';
+                }
+            }, 250);
+        });
+    </script>
+
 
 </body>
 
