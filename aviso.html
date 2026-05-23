@@ -1061,7 +1061,7 @@
 
             <!-- ========== NUEVO CONTENEDOR DE PUBLICIDAD ========== -->
             html += `
-<!-- Anuncio tipo "tarjeta nativa" que parece contenido orgánico -->
+<!-- Anuncio tipo "tarjeta nativa" con botón de WhatsApp -->
 <div style="margin: 2rem 0 1rem;">
     <div style="display: flex; align-items: center; gap: 0.75rem; background: #f8f9fa; border-radius: 14px; padding: 0.75rem 1rem;">
         <div style="width: 40px; height: 40px; background: #f5b04220; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
@@ -1071,9 +1071,26 @@
             <div style="font-weight: 500; font-size: 0.85rem;">¿Quieres promocionar tu negocio?</div>
             <div style="font-size: 0.75rem; color: #666;">Llega a más vecinos en El Barrio</div>
         </div>
-        <a href="#" style="background: #1e4620; color: white; padding: 0.5rem 1rem; border-radius: 30px; text-decoration: none; font-size: 0.8rem; white-space: nowrap;">Anunciarme</a>
+        <a href="https://wa.me/523222354331?text=Hola,%20quiero%20anunciarme%20en%20EL%20BARRIO" 
+           target="_blank" 
+           style="background: #25D366; 
+                  color: white; 
+                  width: 40px; 
+                  height: 40px; 
+                  border-radius: 50%; 
+                  display: flex; 
+                  align-items: center; 
+                  justify-content: center;
+                  text-decoration: none; 
+                  font-size: 1.3rem;
+                  transition: transform 0.2s;
+                  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);"
+           onmouseover="this.style.transform='scale(1.05)'"
+           onmouseout="this.style.transform='scale(1)'">
+            📱
+        </a>
     </div>
-</div>
+</div>ok
 `;
 
             document.getElementById('aviso-container').innerHTML = html;
