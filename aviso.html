@@ -957,15 +957,13 @@
             // ========== SECCIÓN DE CONTACTO (igual que en index) ==========
             html += `<div class="contact-info-row">`;
 
-            // Ubicación y Fecha juntos (uno al lado del otro)
-            let infoLine = '<div class="info-row" style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px;">';
+            // Ubicación y fecha en la misma línea dentro de contact-info-item
+            let ubicacionFecha = '';
 
-            // Ubicación
             if (avisoActual.ubicacion) {
-                infoLine += `<span style="display: inline-flex; align-items: center; gap: 4px;">📍 ${escapeHTML(avisoActual.ubicacion)}</span>`;
+                ubicacionFecha += `📍 ${escapeHTML(avisoActual.ubicacion)}`;
             }
 
-            // Fecha del evento (si existe)
             if (avisoActual.fecha_evento && avisoActual.fecha_evento.trim() !== '') {
                 let fechaEvento = avisoActual.fecha_evento;
                 try {
@@ -977,15 +975,18 @@
                             year: 'numeric'
                         });
                     }
-                } catch (e) { /* mantener fecha original */ }
+                } catch (e) { }
 
-                infoLine += `<span style="display: inline-flex; align-items: center; gap: 4px;">📅 ${escapeHTML(fechaEvento)}</span>`;
+                if (ubicacionFecha) ubicacionFecha += ' • ';
+                ubicacionFecha += `📅 ${escapeHTML(fechaEvento)}`;
             }
 
-            infoLine += '</div>';
-
-            // Agregar la línea completa al HTML
-            html += infoLine;
+            if (ubicacionFecha) {
+                html += `<div class="contact-info-item">
+        <span class="icon">📍📅</span>
+        <span>${ubicacionFecha}</span>
+    </div>`;
+            }
 
             // ========== WHATSAPP DEL ANUNCIANTE (botón circular, IGUAL QUE EN INDEX) ==========
             if (tieneContacto) {
