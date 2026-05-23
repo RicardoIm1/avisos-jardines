@@ -671,6 +671,18 @@
                 scroll-snap-type: none !important;
             }
 
+            /* ✅ POSTS DESTACADOS: primeros 2 ocupan doble ancho */
+            #avisos-container .aviso-card:nth-child(1),
+            #avisos-container .aviso-card:nth-child(2) {
+                grid-column: span 2;
+            }
+
+            /* ✅ IMAGEN MÁS ALTA EN LOS PRIMEROS 2 */
+            #avisos-container .aviso-card:nth-child(-n+2) .aviso-imagen,
+            #avisos-container .aviso-card:nth-child(-n+2) .aviso-video {
+                height: 280px !important;
+            }
+
             .aviso-card {
                 min-height: auto !important;
                 height: auto !important;
