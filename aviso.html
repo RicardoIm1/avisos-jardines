@@ -1061,10 +1061,18 @@
 
             <!-- ========== NUEVO CONTENEDOR DE PUBLICIDAD ========== -->
             html += `
-<div style="text-align: center; padding: 2rem; margin: 1rem 0;">
-    <div style="font-size: 0.7rem; color: #999; margin-bottom: 0.5rem;">—— Publicidad ——</div>
-    <div style="font-size: 0.9rem; color: #666;">¿Quieres aparecer aquí?</div>
-    <a href="#" style="color: #1e4620; text-decoration: none; font-weight: 600; border-bottom: 1px dashed #f5b042;">info@elbarrio.com</a>
+<!-- Anuncio tipo "tarjeta nativa" que parece contenido orgánico -->
+<div style="margin: 2rem 0 1rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem; background: #f8f9fa; border-radius: 14px; padding: 0.75rem 1rem;">
+        <div style="width: 40px; height: 40px; background: #f5b04220; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+            <span>📢</span>
+        </div>
+        <div style="flex: 1;">
+            <div style="font-weight: 500; font-size: 0.85rem;">¿Quieres promocionar tu negocio?</div>
+            <div style="font-size: 0.75rem; color: #666;">Llega a más vecinos en El Barrio</div>
+        </div>
+        <a href="#" style="background: #1e4620; color: white; padding: 0.5rem 1rem; border-radius: 30px; text-decoration: none; font-size: 0.8rem; white-space: nowrap;">Anunciarme</a>
+    </div>
 </div>
 `;
 
