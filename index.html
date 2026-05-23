@@ -1140,7 +1140,9 @@
                 const isLiked = userVote === 'like';
                 const isDisliked = userVote === 'dislike';
                 const whatsappNumber = aviso.contacto ? String(aviso.contacto).replace(/[^0-9]/g, '') : '';
-                const mensaje = encodeURIComponent(`Hola, vi tu aviso "${aviso.titulo}" en EL BARRIO. Me interesa.`);
+                const mensaje = encodeURIComponent(
+                    `Hola, vi tu aviso "${aviso.titulo}" en El Barrio y me interesa.`
+                );
 
                 const likes = parseInt(aviso.intereses) || 0;
                 const dislikes = parseInt(aviso.votos_negativos) || 0;
