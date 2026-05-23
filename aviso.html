@@ -247,7 +247,7 @@
             padding: 0.4rem 0.9rem;
             border-radius: 40px;
             transition: all 0.2s ease;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
             cursor: pointer;
             border: 1px solid transparent;
         }
@@ -257,47 +257,57 @@
             background: white;
             border-color: #e2e6ea;
         }
+
         .stat-item.action-btn:hover {
             transform: translateY(-2px);
             background: #fff;
             border-color: #f5b042;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
+
         .stat-item.liked {
             background: #ff4757;
             border-color: #ff4757;
             color: white;
         }
+
         .stat-item.liked .stat-value,
         .stat-item.liked .stat-icon {
             color: white;
         }
+
         .stat-item.disliked {
             background: #7f8c8d;
             border-color: #7f8c8d;
             color: white;
         }
+
         .stat-item.disliked .stat-value,
         .stat-item.disliked .stat-icon {
             color: white;
         }
+
         .stat-item.admin-action {
             background: #1e4620;
             border-color: #1e4620;
         }
+
         .stat-item.admin-action .stat-value,
         .stat-item.admin-action .stat-icon {
             color: white;
         }
+
         .stat-item.whatsapp-btn {
             background: #25D366;
             border-color: #25D366;
             color: white;
         }
+
         .stat-item.whatsapp-btn .stat-value,
         .stat-item.whatsapp-btn .stat-icon {
             color: white;
         }
+
         .back-link {
             margin-left: auto;
             background: transparent;
@@ -305,6 +315,7 @@
             color: #1a2a3a;
             text-decoration: none;
         }
+
         .back-link:hover {
             background: #e9ecef;
             transform: translateY(-1px);
@@ -314,11 +325,13 @@
             font-size: 1.1rem;
             line-height: 1;
         }
+
         .stat-value {
             font-weight: 600;
             font-size: 0.9rem;
             color: #1e4620;
         }
+
         .stat-label {
             display: none;
         }
@@ -463,42 +476,53 @@
             .aviso-paper {
                 margin: 1rem;
             }
+
             .article-title {
                 font-size: 1.5rem;
             }
+
             .article-header,
             .article-body {
                 padding: 1.2rem;
             }
+
             .ad-container {
                 padding: 1rem 1.2rem;
             }
+
             .article-meta {
                 gap: 1rem;
                 font-size: 0.7rem;
             }
+
             .gallery {
                 grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
                 gap: 0.5rem;
             }
+
             .stats-row {
                 gap: 0.4rem;
                 padding: 0.5rem;
                 border-radius: 30px;
                 flex-wrap: wrap;
             }
+
             .stat-item {
                 padding: 0.3rem 0.7rem;
             }
+
             .featured-video {
                 max-height: 300px;
             }
+
             .featured-image {
                 max-height: 300px;
             }
+
             .comments-panel {
                 max-width: 100%;
             }
+
             .back-link {
                 margin-left: 0;
             }
@@ -995,22 +1019,22 @@
 
             html += `</div>`; // cierre article-body
 
-            // ========== NUEVO CONTENEDOR DE PUBLICIDAD (ex article-actions) ==========
+            <!-- ========== NUEVO CONTENEDOR DE PUBLICIDAD ========== -->
             html += `
-            <div class="ad-container">
-                <div class="ad-content">
-                    <div class="ad-label">✨ Publicidad ✨</div>
-                    <!-- REEMPLAZA ESTE CONTENIDO CON TU CÓDIGO DE PUBLICIDAD -->
-                    <div class="demo-ad">
-                        🚀 <strong>Espacio para tu anuncio</strong><br>
-                        <small>Contacta: <a href="mailto:publicidad@elbarrio.com">publicidad@elbarrio.com</a></small>
-                        <br><br>
-                        <span style="font-size:0.8rem;">← Aquí va Google Ads, banner, o cualquier contenido →</span>
-                    </div>
-                    <!-- FIN DEL BLOQUE REEMPLAZABLE -->
-                </div>
-            </div>
-            `;
+<div class="ad-container">
+    <div class="ad-content">
+        <div class="ad-label">✨ Publicidad ✨</div>
+        <!-- REEMPLAZA ESTE CONTENIDO CON TU CÓDIGO DE PUBLICIDAD -->
+        <div class="demo-ad">
+            🚀 <strong>Espacio para tu anuncio</strong><br>
+            <small>Contacta: <a href="mailto:publicidad@elbarrio.com">publicidad@elbarrio.com</a></small>
+            <br><br>
+            <span style="font-size:0.8rem;">← Aquí va Google Ads, banner, o cualquier contenido →</span>
+        </div>
+        <!-- FIN DEL BLOQUE REEMPLAZABLE -->
+    </div>
+</div>
+`;
 
             document.getElementById('aviso-container').innerHTML = html;
             iniciarPolling();
