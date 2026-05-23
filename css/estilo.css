@@ -767,34 +767,12 @@ main,
    STICKY HEADER REAL
 ========================= */
 
-html {
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-
-body {
-    min-height: 100vh;
-}
-
-/* CONTENEDOR DEL HEADER */
-#header-container {
+.header {
     position: sticky;
     position: -webkit-sticky;
 
     top: 0;
-
-    z-index: 999999;
-
-    width: 100%;
-}
-
-.contenido-principal {
-    min-height: calc(100vh - 200px);
-}
-
-/* HEADER */
-.header {
-    position: relative;
+    z-index: 9999;
 
     width: 100%;
 
@@ -804,4 +782,8 @@ body {
     -webkit-backdrop-filter: blur(10px);
 
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.contenido-principal {
+    min-height: calc(100vh - 200px);
 }
