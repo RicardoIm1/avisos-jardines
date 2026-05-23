@@ -108,13 +108,17 @@ main,
    HEADER STICKY
 ========================================================= */
 
+/* =========================
+   HEADER
+========================= */
+
 .header {
     position: sticky;
     position: -webkit-sticky;
 
     top: 0;
 
-    z-index: 99999;
+    z-index: 9999;
 
     width: 100%;
 
@@ -124,9 +128,9 @@ main,
     -webkit-backdrop-filter: blur(10px);
 
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-
-    isolation: isolate;
 }
+
+/* CONTENIDO HEADER */
 
 .header-contenido {
     max-width: 1400px;
