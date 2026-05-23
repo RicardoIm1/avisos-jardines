@@ -106,6 +106,54 @@
             color: #2c3e2f;
         }
 
+        /* NUEVO: Contenedor de publicidad donde antes estaba article-actions */
+        .ad-container {
+            padding: 1rem 2.5rem 2rem;
+            background: linear-gradient(135deg, #fef9e6 0%, #fff9ef 100%);
+            border-top: 2px dashed #f5b042;
+            border-bottom: 2px dashed #f5b042;
+            margin: 0;
+            text-align: center;
+        }
+
+        .ad-content {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .ad-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #f5b042;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            display: inline-block;
+            background: white;
+            padding: 0.2rem 1rem;
+            border-radius: 20px;
+        }
+
+        /* Ejemplo de banner publicitario */
+        .demo-ad {
+            background: #2c3e50;
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .demo-ad a {
+            color: #f5b042;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .demo-ad a:hover {
+            text-decoration: underline;
+        }
+
         .gallery-section {
             margin: 1.5rem 0;
         }
@@ -178,7 +226,7 @@
             cursor: pointer;
         }
 
-        /* stats-row como barra de acciones */
+        /* NUEVO ESTILO: stats-row como barra de acciones */
         .stats-row {
             display: flex;
             flex-wrap: wrap;
@@ -249,6 +297,17 @@
             color: white;
         }
 
+        .stat-item.whatsapp-btn {
+            background: #25D366;
+            border-color: #25D366;
+            color: white;
+        }
+
+        .stat-item.whatsapp-btn .stat-value,
+        .stat-item.whatsapp-btn .stat-icon {
+            color: white;
+        }
+
         .back-link {
             margin-left: auto;
             background: transparent;
@@ -271,6 +330,10 @@
             font-weight: 600;
             font-size: 0.9rem;
             color: #1e4620;
+        }
+
+        .stat-label {
+            display: none;
         }
 
         .comments-panel {
@@ -423,6 +486,10 @@
                 padding: 1.2rem;
             }
 
+            .ad-container {
+                padding: 1rem 1.2rem;
+            }
+
             .article-meta {
                 gap: 1rem;
                 font-size: 0.7rem;
@@ -461,8 +528,7 @@
             }
         }
 
-        /* Botón WhatsApp circular (mismo estilo que en index.html) */
-        .whatsapp-btn-circle {
+        .whatsapp-btn {
             background-color: #25D366;
             width: 40px;
             height: 40px;
@@ -479,31 +545,38 @@
             background-repeat: no-repeat;
         }
 
-        .whatsapp-btn-circle:hover {
+        .whatsapp-btn:hover {
             transform: scale(1.12);
             background-color: #128C7E;
         }
 
-        /* Contenedor flexible para info de contacto */
-        .contact-info-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin: 1rem 0;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 12px;
+        /* Botón WhatsApp flotante para vista detalle */
+        .whatsapp-btn-detalle {
+            display: inline-flex;
             align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background-color: #25D366;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 16px 0;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            width: auto;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/960px-WhatsApp.svg.png');
+            background-size: 24px;
+            background-position: 16px center;
+            background-repeat: no-repeat;
+            padding-left: 52px;
         }
 
-        .contact-info-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .contact-info-item .icon {
-            font-size: 1.2rem;
+        .whatsapp-btn-detalle:hover {
+            transform: scale(1.02);
+            background-color: #128C7E;
         }
     </style>
 </head>
@@ -621,33 +694,8 @@
         }
 
         async function registrarClickWhatsApp(id) {
-            try {
-                const apiKey = localStorage.getItem('api_key');
-                if (apiKey) {
-                    await API.peticion('REGISTRAR_CLICK_WHATSAPP', { id: id }, apiKey);
-                }
-            } catch (e) { console.warn('Error registrando click WhatsApp:', e); }
-        }
-
-        // ========== MANEJADOR DE WHATSAPP CON VALIDACIÓN DE SESIÓN ==========
-        function handleWhatsAppClick(avisoId, numero, mensaje, event) {
-            if (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            
-            const apiKey = localStorage.getItem('api_key');
-            if (!apiKey) {
-                showToast('🔐 Inicia sesión para contactar por WhatsApp', 2000);
-                return;
-            }
-            
-            // Abrir WhatsApp
-            const url = `https://wa.me/52${numero}?text=${encodeURIComponent(mensaje)}`;
-            window.open(url, '_blank');
-            
-            // Registrar el click
-            registrarClickWhatsApp(avisoId);
+            try { await API.peticion('REGISTRAR_CLICK_WHATSAPP', { id: id }); }
+            catch (e) { console.warn('Error registrando click WhatsApp:', e); }
         }
 
         // ========== POLLING PARA TIEMPO REAL ==========
@@ -909,7 +957,7 @@
 
             const tieneContacto = avisoActual.contacto && typeof avisoActual.contacto === 'string' && avisoActual.contacto.trim();
             const numero = tieneContacto ? String(avisoActual.contacto).replace(/[^0-9]/g, '') : '';
-            const mensaje = `Hola, vi tu aviso "${avisoActual.titulo}" en BARRIO. Me interesa.`;
+            const mensaje = encodeURIComponent(`Hola, vi tu aviso "${avisoActual.titulo}" en BARRIO. Me interesa.`);
 
             let html = `
             <div class="article-header">
@@ -921,7 +969,7 @@
                     <span>🏷️ ${escapeHTML(categoriaLegible)}</span>
                 </div>
             </div>
-            `;
+        `;
 
             // Video destacado o imagen principal
             if (videoUrl) {
@@ -939,21 +987,21 @@
 
             html += `<div class="article-body">`;
             html += `<div class="article-content">${formatearContenido(avisoActual.contenido)}</div>`;
-            
             // Mostrar ubicación, fecha del evento y WhatsApp juntos
-            html += `<div class="contact-info-row">`;
+            html += `<div style="display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 12px; align-items: center;">`;
 
             // Ubicación
             if (avisoActual.ubicacion) {
-                html += `<div class="contact-info-item">
-                    <span class="icon">📍</span>
-                    <span><strong>Ubicación:</strong> ${escapeHTML(avisoActual.ubicacion)}</span>
-                </div>`;
+                html += `<div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.2rem;">📍</span>
+                <span><strong>Ubicación:</strong> ${escapeHTML(avisoActual.ubicacion)}</span>
+            </div>`;
             }
 
             // Fecha del evento (si existe)
             if (avisoActual.fecha_evento && avisoActual.fecha_evento.trim() !== '') {
                 let fechaEvento = avisoActual.fecha_evento;
+                // Formatear la fecha si es necesario
                 try {
                     const fechaObj = new Date(fechaEvento);
                     if (!isNaN(fechaObj.getTime())) {
@@ -965,20 +1013,20 @@
                     }
                 } catch (e) { /* mantener fecha original */ }
 
-                html += `<div class="contact-info-item">
-                    <span class="icon">📅</span>
-                    <span><strong>Fecha del evento:</strong> ${escapeHTML(fechaEvento)}</span>
-                </div>`;
+                html += `<div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.2rem;">📅</span>
+                <span><strong>Fecha del evento:</strong> ${escapeHTML(fechaEvento)}</span>
+            </div>`;
             }
 
-            // Botón WhatsApp circular (solo si hay contacto) - MISMA VALIDACIÓN QUE INDEX
+            // Botón WhatsApp (si hay contacto)
             if (tieneContacto) {
-                html += `<div class="contact-info-item" style="margin-left: auto;">
-                    <a href="#" 
-                       class="whatsapp-btn-circle"
-                       onclick="handleWhatsAppClick('${avisoActual.id}', '${numero}', '${mensaje.replace(/'/g, "\\'")}', event)">
-                    </a>
-                </div>`;
+                html += `<a href="https://wa.me/52${numero}?text=${mensaje}" 
+                style="display: inline-flex; align-items: center; gap: 0.5rem; background: #25D366; color: white; padding: 0.5rem 1rem; border-radius: 40px; text-decoration: none; font-weight: 600; margin-left: auto;"
+                target="_blank" 
+                onclick="registrarClickWhatsApp('${avisoActual.id}')">
+                <span>📱</span> WhatsApp
+            </a>`;
             }
 
             html += `</div>`;
@@ -1010,9 +1058,12 @@
                         <span class="stat-value comments-count">${comentarios}</span>
                     </div>`;
 
-            // 5. WhatsApp en la barra de stats (solo si hay contacto)
+            // 5. WhatsApp
             if (tieneContacto) {
-                html += `<a href="#" class="stat-item action-btn" style="background: #25D366; color: white; text-decoration: none;" onclick="handleWhatsAppClick('${avisoActual.id}', '${numero}', '${mensaje.replace(/'/g, "\\'")}', event)">
+                html += `<a href="https://wa.me/52${numero}?text=${mensaje}" class="stat-item action-btn" target="_blank" style="background: #25D366; color: white;">
+    <span class="stat-icon">📱</span>
+    <span class="stat-value">WhatsApp</span>
+</a> onclick="registrarClickWhatsApp('${avisoActual.id}')">
                             <span class="stat-icon">📱</span>
                             <span class="stat-value">WhatsApp</span>
                         </a>`;
@@ -1062,24 +1113,25 @@
 
             html += `</div>`; // cierre article-body
 
-            // Anuncio con botón circular de WhatsApp
+            <!-- ========== NUEVO CONTENEDOR DE PUBLICIDAD ========== -->
             html += `
-            <div style="margin: 2rem 0 1rem;">
-                <div style="display: flex; align-items: center; gap: 0.75rem; background: #f8f9fa; border-radius: 14px; padding: 0.75rem 1rem;">
-                    <div style="width: 40px; height: 40px; background: #f5b04220; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                        <span>📢</span>
-                    </div>
-                    <div style="flex: 1;">
-                        <div style="font-weight: 500; font-size: 0.85rem;">¿Quieres promocionar tu negocio?</div>
-                        <div style="font-size: 0.75rem; color: #666;">Llega a más vecinos en El Barrio</div>
-                    </div>
-                    <a href="#" 
-                       class="whatsapp-btn-circle"
-                       onclick="handleWhatsAppClick('anuncio', '3222354331', 'Hola,%20quiero%20anunciarme%20en%20EL%20BARRIO', event)">
-                    </a>
-                </div>
-            </div>
-            `;
+<!-- Anuncio con botón circular de WhatsApp usando el logo real -->
+<div style="margin: 2rem 0 1rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem; background: #f8f9fa; border-radius: 14px; padding: 0.75rem 1rem;">
+        <div style="width: 40px; height: 40px; background: #f5b04220; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+            <span>📢</span>
+        </div>
+        <div style="flex: 1;">
+            <div style="font-weight: 500; font-size: 0.85rem;">¿Quieres promocionar tu negocio?</div>
+            <div style="font-size: 0.75rem; color: #666;">Llega a más vecinos en El Barrio</div>
+        </div>
+        <a href="https://wa.me/523222354331?text=Hola,%20quiero%20anunciarme%20en%20EL%20BARRIO" 
+           class="whatsapp-btn"
+           target="_blank">
+        </a>
+    </div>
+</div>
+`;
 
             document.getElementById('aviso-container').innerHTML = html;
             iniciarPolling();
@@ -1135,7 +1187,6 @@
         }
 
         window.irAEditar = (id) => window.location.href = `/barrio/admin.html?editar=${id}`;
-        
         window.eliminarAviso = async (id) => {
             if (!confirm('¿Eliminar este aviso permanentemente?')) return;
             try {
@@ -1152,7 +1203,6 @@
         window.abrirLightbox = abrirLightbox;
         window.cerrarLightbox = cerrarLightbox;
         window.registrarClickWhatsApp = registrarClickWhatsApp;
-        window.handleWhatsAppClick = handleWhatsAppClick;
 
         // ========== HEADER Y ACTUALIZACIÓN DE SESIÓN ==========
         function actualizarHeaderPorSesion() {
