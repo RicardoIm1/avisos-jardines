@@ -632,6 +632,52 @@
             }
         }
     </style>
+    <style>
+        /* ========== SCROLL SNAP TIPO iOS (ENGRANE) ========== */
+        .posts-container-ios {
+            height: 100vh;
+            overflow-y: auto;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .posts-container-ios::-webkit-scrollbar {
+            display: none;
+        }
+
+        .post-card-ios {
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+            min-height: 100vh;
+            transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            transform-origin: center;
+        }
+
+        .post-card-ios.active {
+            transform: scale(1.02);
+        }
+
+        /* Animación de "clic" del engranaje */
+        @keyframes gearClick {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(0.98);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .post-card-ios.gear-click {
+            animation: gearClick 0.12s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+    </style>
 </head>
 
 <body>
@@ -1234,6 +1280,8 @@
         </div>`;
             }).join('');
             container.insertAdjacentHTML('beforeend', html);
+            // ✅ ACTUALIZAR EL EFECTO ENGRANE PARA LOS NUEVOS POSTS
+            if (window.barrioScrollSnap) window.barrioScrollSnap.refresh();
         }
 
         async function cargarAvisos() {
@@ -1253,6 +1301,16 @@
 
                     avisosCargados = true;
                     applyFiltersAndSearch();
+                    // ✅ INICIALIZAR EL EFECTO ENGRANE (después de que los posts existan)
+                    setTimeout(() => {
+                        const container = document.getElementById('avisos-container');
+                        if (container && !window.barrioScrollSnap) {
+                            window.barrioScrollSnap = new BarrioScrollSnap('#avisos-container', '.aviso-card');
+                        } else if (window.barrioScrollSnap) {
+                            window.barrioScrollSnap.refresh();
+                        }
+                    }, 200);
+
                 } else {
                     if (container) container.innerHTML = '<div class="mensaje mensaje-info">📭 No hay avisos disponibles</div>';
                 }
@@ -1875,6 +1933,147 @@
         document.addEventListener('touchstart', () => {
             // El scroll se guarda periódicamente de todas formas
         });
+    </script>
+
+    <script>
+        // ========== EFECTO ENGRANE TIPO iOS (SCROLL SNAP + HAPTICS) ==========
+        class BarrioScrollSnap {
+            constructor(containerSelector, itemSelector) {
+                this.container = document.querySelector(containerSelector);
+                if (!this.container) return;
+
+                this.items = () => document.querySelectorAll(itemSelector);
+                this.currentIndex = 0;
+                this.isScrolling = false;
+                this.scrollTimer = null;
+
+                this.init();
+            }
+
+            init() {
+                // Agregar clase al contenedor
+                this.container.classList.add('posts-container-ios');
+
+                // Aplicar clase a cada post existente y futuro
+                this.aplicarClaseAPosts();
+
+                // Detectar cambios de scroll
+                this.container.addEventListener('scroll', () => this.handleScroll());
+
+                // También detectar cuando termina de hacer scroll (para snap más preciso)
+                this.container.addEventListener('scrollend', () => this.handleScrollEnd());
+            }
+
+            aplicarClaseAPosts() {
+                const posts = this.items();
+                posts.forEach(post => {
+                    if (!post.classList.contains('post-card-ios')) {
+                        post.classList.add('post-card-ios');
+                    }
+                });
+            }
+
+            handleScroll() {
+                if (this.scrollTimer) clearTimeout(this.scrollTimer);
+
+                // Calcular cuál post está más cerca del centro de la pantalla
+                const containerRect = this.container.getBoundingClientRect();
+                const centerY = containerRect.top + containerRect.height / 2;
+
+                const posts = this.items();
+                let closestIndex = this.currentIndex;
+                let closestDistance = Infinity;
+
+                posts.forEach((post, idx) => {
+                    const postRect = post.getBoundingClientRect();
+                    const postCenter = postRect.top + postRect.height / 2;
+                    const distance = Math.abs(centerY - postCenter);
+
+                    if (distance < closestDistance) {
+                        closestDistance = distance;
+                        closestIndex = idx;
+                    }
+                });
+
+                // Si cambió el índice, disparar el efecto "engranaje"
+                if (closestIndex !== this.currentIndex) {
+                    this.currentIndex = closestIndex;
+                    this.triggerGearEffect(closestIndex);
+                }
+
+                // Marcar el post activo visualmente
+                this.markActivePost(closestIndex);
+            }
+
+            handleScrollEnd() {
+                // Al soltar, asegurar el snap más preciso
+                const posts = this.items();
+                if (posts[this.currentIndex]) {
+                    posts[this.currentIndex].scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+
+            triggerGearEffect(index) {
+                const posts = this.items();
+                const activePost = posts[index];
+                if (!activePost) return;
+
+                // 1. Efecto visual de "clic"
+                activePost.classList.add('gear-click');
+                setTimeout(() => {
+                    activePost.classList.remove('gear-click');
+                }, 150);
+
+                // 2. Feedback háptico (vibración) - solo si el dispositivo lo soporta
+                if (window.navigator && window.navigator.vibrate) {
+                    window.navigator.vibrate(8);  // Vibración sutil de 8ms
+                }
+
+                // 3. Sonido opcional (Web Audio - muy sutil, solo si quieres)
+                // this.playTickSound();
+
+                // 4. Disparar evento personalizado (por si quieres hacer algo más)
+                const event = new CustomEvent('postChanged', {
+                    detail: { index: index, post: activePost }
+                });
+                this.container.dispatchEvent(event);
+
+                console.log(`⚙️ Engranaje: post ${index} activado`);
+            }
+
+            markActivePost(activeIndex) {
+                const posts = this.items();
+                posts.forEach((post, idx) => {
+                    if (idx === activeIndex) {
+                        post.classList.add('active');
+                    } else {
+                        post.classList.remove('active');
+                    }
+                });
+            }
+
+            playTickSound() {
+                try {
+                    if (!this.audioCtx) {
+                        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+                    const osc = this.audioCtx.createOscillator();
+                    const gain = this.audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(this.audioCtx.destination);
+                    osc.frequency.value = 1200;
+                    gain.gain.value = 0.03;
+                    osc.start();
+                    gain.gain.exponentialRampToValueAtTime(0.00001, this.audioCtx.currentTime + 0.08);
+                    osc.stop(this.audioCtx.currentTime + 0.08);
+                } catch (e) { /* silencio */ }
+            }
+
+            // Actualizar la referencia a los posts (útil si se cargan dinámicamente)
+            refresh() {
+                this.aplicarClaseAPosts();
+            }
+        }
     </script>
 
 </body>
