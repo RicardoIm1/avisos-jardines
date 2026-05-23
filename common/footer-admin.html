@@ -482,25 +482,52 @@
 </style>
 
 <script>
-    // ========== VARIABLES PARA GRÁFICAS TEMPORALES ==========
-    let temporalChart = null;
-    let currentMetric = 'usuarios'; // 'usuarios', 'avisos', 'conexiones'
-    let temporalData = null;
+    // ========== FUNCIÓN ESCAPE HTML MEJORADA ==========
+    function escapeHTML(str) {
+        if (str === undefined || str === null) return '';
+        if (typeof str === 'number') return str.toString();
+        if (typeof str !== 'string') str = String(str);
+        return str.replace(/[&<>]/g, function (m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
 
-    // Cargar estadísticas avanzadas desde API
+    // ========== VARIABLES GLOBALES ==========
+    let temporalChart = null;
+    let currentMetric = 'usuarios';
+    let temporalData = null;
+    let currentUserRole = 'user';
+    let currentUser = null;
+    let chartDetailedView = false;
+    let allNotices = [];  // Almacenar todos los avisos para cálculos
+
+    // ========== CARGAR ESTADÍSTICAS AVANZADAS ==========
     async function loadAdvancedStats() {
         try {
             const apiKey = localStorage.getItem('api_key');
+            if (!apiKey) {
+                console.warn('No hay API key');
+                return;
+            }
+
             const response = await API.peticion('ESTADISTICAS_AVANZADAS', {}, apiKey);
+            console.log('📊 Estadísticas avanzadas:', response);
 
             if (response && response.success && response.data) {
                 temporalData = response.data;
 
                 // Actualizar resúmenes
                 if (response.data.resumen) {
-                    document.getElementById('promUsuarios').innerText = response.data.resumen.promedioDiarioUsuarios;
-                    document.getElementById('promAvisos').innerText = response.data.resumen.promedioDiarioAvisos;
-                    document.getElementById('totalUsuarios').innerText = response.data.resumen.totalUsuarios;
+                    const promUsuarios = document.getElementById('promUsuarios');
+                    const promAvisos = document.getElementById('promAvisos');
+                    const totalUsuarios = document.getElementById('totalUsuarios');
+
+                    if (promUsuarios) promUsuarios.innerText = response.data.resumen.promedioDiarioUsuarios || 0;
+                    if (promAvisos) promAvisos.innerText = response.data.resumen.promedioDiarioAvisos || 0;
+                    if (totalUsuarios) totalUsuarios.innerText = response.data.resumen.totalUsuarios || 0;
                 }
 
                 // Actualizar usuarios en línea
@@ -510,26 +537,32 @@
                 renderTemporalChart();
 
                 // Mostrar secciones
-                document.getElementById('chartTemporal').style.display = 'block';
-                document.getElementById('chartOnline').style.display = 'block';
-                document.getElementById('statsSummary').style.display = 'flex';
+                const chartTemporal = document.getElementById('chartTemporal');
+                const chartOnline = document.getElementById('chartOnline');
+                const statsSummary = document.getElementById('statsSummary');
+
+                if (chartTemporal) chartTemporal.style.display = 'block';
+                if (chartOnline) chartOnline.style.display = 'block';
+                if (statsSummary) statsSummary.style.display = 'flex';
+            } else {
+                console.warn('No se pudieron cargar estadísticas avanzadas:', response);
             }
         } catch (error) {
             console.error('Error cargando estadísticas avanzadas:', error);
         }
     }
 
-    // Actualizar lista de usuarios en línea
     function updateOnlineUsers(onlineData) {
         const countSpan = document.getElementById('onlineCount');
         const listDiv = document.getElementById('onlineUsersList');
 
         if (countSpan) {
-            countSpan.innerHTML = `${onlineData.total} conectado${onlineData.total !== 1 ? 's' : ''}`;
+            const total = onlineData?.total || 0;
+            countSpan.innerHTML = `${total} conectado${total !== 1 ? 's' : ''}`;
         }
 
         if (listDiv) {
-            if (onlineData.usuarios.length === 0) {
+            if (!onlineData?.usuarios || onlineData.usuarios.length === 0) {
                 listDiv.innerHTML = '<p style="color:#888;">📭 No hay usuarios conectados en este momento</p>';
                 return;
             }
@@ -543,13 +576,16 @@
         }
     }
 
-    // Renderizar gráfica temporal con Chart.js
     function renderTemporalChart() {
-        if (!temporalData || !temporalData.diario) return;
+        if (!temporalData || !temporalData.diario) {
+            console.warn('No hay datos para gráfica temporal');
+            return;
+        }
 
-        const ctx = document.getElementById('temporalChart').getContext('2d');
+        const canvas = document.getElementById('temporalChart');
+        if (!canvas) return;
 
-        // Preparar datos
+        const ctx = canvas.getContext('2d');
         const labels = temporalData.diario.map(d => {
             const [year, month, day] = d.fecha.split('-');
             return `${day}/${month}`;
@@ -573,7 +609,6 @@
                 break;
         }
 
-        // Destruir gráfica anterior si existe
         if (temporalChart) {
             temporalChart.destroy();
         }
@@ -596,69 +631,34 @@
                 responsive: true,
                 maintainAspectRatio: true,
                 plugins: {
-                    legend: {
-                        labels: { color: '#ccc' }
-                    },
-                    tooltip: {
-                        backgroundColor: '#1a1a2e',
-                        titleColor: '#f5b042',
-                        bodyColor: '#ccc'
-                    }
+                    legend: { labels: { color: '#ccc' } },
+                    tooltip: { backgroundColor: '#1a1a2e', titleColor: '#f5b042', bodyColor: '#ccc' }
                 },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(255,255,255,0.05)' },
-                        ticks: { color: '#888', stepSize: 1 }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: '#888', maxRotation: 45, minRotation: 45 }
-                    }
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#888', stepSize: 1 } },
+                    x: { grid: { display: false }, ticks: { color: '#888', maxRotation: 45, minRotation: 45 } }
                 }
             }
         });
 
-        // Actualizar mini stats
         const maxValue = Math.max(...dataValues);
         const maxIndex = dataValues.indexOf(maxValue);
         const statsDiv = document.getElementById('temporalStats');
-        if (statsDiv) {
+        if (statsDiv && maxIndex !== -1) {
             statsDiv.innerHTML = `📊 Día con más ${labelY.toLowerCase()}: ${labels[maxIndex]} (${maxValue})`;
         }
     }
 
-    // Cambiar métrica mostrada
     function toggleMetric(metric) {
         currentMetric = metric;
         renderTemporalChart();
-
-        // Actualizar estilo de botones
         document.querySelectorAll('.chart-toggles .chart-toggle').forEach(btn => {
             btn.style.opacity = '0.6';
         });
-        event.target.style.opacity = '1';
+        if (event && event.target) event.target.style.opacity = '1';
     }
 
-    // Función auxiliar para escapar HTML
-    function escapeHTML(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, function (m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
-    }
-</script>
-<script>
-    // ========== DASHBOARD FUNCTIONS - CONECTADO A API REAL ==========
-    let currentUserRole = 'user';
-    let currentUser = null;
-    let chartDetailedView = false;
-
-    // Detectar usuario actual desde API
-    // Detectar usuario actual desde API
+    // ========== DETECTAR ROL DE USUARIO ==========
     async function detectUserRole() {
         try {
             currentUser = API.getUsuarioActual();
@@ -666,7 +666,6 @@
                 currentUserRole = 'admin';
                 const badge = document.getElementById('userRoleBadge');
                 if (badge) {
-                    // ✅ Mostrar nombre del usuario admin
                     badge.innerHTML = `👑 ${currentUser.nombre || currentUser.email || 'Administrador'}`;
                     badge.style.background = 'rgba(255, 193, 7, 0.2)';
                 }
@@ -678,13 +677,11 @@
                 currentUserRole = 'user';
                 const badge = document.getElementById('userRoleBadge');
                 if (badge) {
-                    // ✅ Mostrar nombre del usuario normal
                     badge.innerHTML = `👤 ${currentUser.nombre || currentUser.email || 'Usuario'}`;
                 }
                 const pendingCard = document.getElementById('pendingCard');
                 if (pendingCard) pendingCard.style.display = 'none';
             } else {
-                // Sin sesión
                 const badge = document.getElementById('userRoleBadge');
                 if (badge) badge.innerHTML = '👤 Invitado';
             }
@@ -695,43 +692,30 @@
         }
     }
 
-    // Formatear fecha
-    function formatDate(dateString) {
-        if (!dateString) return 'Fecha desconocida';
-        try {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
-        } catch (e) {
-            return dateString;
-        }
-    }
-
-    // Obtener todos los avisos desde la API
+    // ========== OBTENER AVISOS DESDE API ==========
     async function getAllNoticesFromAPI() {
         try {
             const apiKey = localStorage.getItem('api_key');
             let respuesta;
 
             if (currentUserRole === 'admin') {
-                // Admin obtiene TODOS los avisos
                 respuesta = await API.peticion('LISTAR_AVISOS_PUBLICOS', {}, apiKey);
             } else {
-                // Usuario normal obtiene SOLO sus avisos
                 respuesta = await API.peticion('LISTAR_MIS_AVISOS', {}, apiKey);
             }
 
             console.log('Dashboard - Respuesta API:', respuesta);
 
             if (respuesta && respuesta.success) {
-                let avisos = [];
                 if (respuesta.data && respuesta.data.datos && Array.isArray(respuesta.data.datos)) {
-                    avisos = respuesta.data.datos;
-                } else if (respuesta.datos && Array.isArray(respuesta.datos)) {
-                    avisos = respuesta.datos;
-                } else if (Array.isArray(respuesta.data)) {
-                    avisos = respuesta.data;
+                    return respuesta.data.datos;
                 }
-                return avisos;
+                if (respuesta.datos && Array.isArray(respuesta.datos)) {
+                    return respuesta.datos;
+                }
+                if (Array.isArray(respuesta.data)) {
+                    return respuesta.data;
+                }
             }
             return [];
         } catch (error) {
@@ -740,27 +724,20 @@
         }
     }
 
-    // Calcular estadísticas
+    // ========== CALCULAR ESTADÍSTICAS REALES ==========
     function calculateStats(notices) {
         const total = notices.length;
 
-        // ✅ Versión mejorada - cuenta TODO lo que NO sea 'pendiente', 'rechazado', 'eliminado'
+        // Contar activos: TODO excepto 'pendiente', 'rechazado', 'eliminado', 'inactivo'
         const activos = notices.filter(a => {
-            const status = a.status;
-            // Si no tiene status o es undefined, también contarlo como activo
-            if (!status) return true;
-            // Excluir solo estos estados
-            const excluidos = ['pendiente', 'rechazado', 'eliminado', 'inactivo'];
-            return !excluidos.includes(status.toLowerCase());
+            const status = (a.status || '').toLowerCase();
+            return status !== 'pendiente' && status !== 'rechazado' && status !== 'eliminado' && status !== 'inactivo';
         }).length;
 
-        const pendientes = notices.filter(a => {
-            const status = a.status;
-            return status && status.toLowerCase() === 'pendiente';
-        }).length;
+        const pendientes = notices.filter(a => (a.status || '').toLowerCase() === 'pendiente').length;
 
         // Categorías únicas en uso
-        const categoriasSet = new Set(notices.map(a => a.categoria).filter(c => c));
+        const categoriasSet = new Set(notices.map(a => a.categoria).filter(c => c && c !== ''));
         const totalCategorias = categoriasSet.size;
 
         // Visitas totales
@@ -773,10 +750,12 @@
             return sum + likes + comentarios;
         }, 0);
 
+        console.log('📊 Estadísticas calculadas:', { total, activos, pendientes, totalCategorias, totalVisitas, totalInteracciones });
+
         return { total, activos, pendientes, totalCategorias, totalVisitas, totalInteracciones };
     }
 
-    // Estadísticas por categoría
+    // ========== ESTADÍSTICAS POR CATEGORÍA ==========
     function getStatsByCategory(notices) {
         const categories = ['urgente', 'escuelas', 'servicios', 'comercios', 'eventos', 'gobierno', 'varios'];
         const stats = {};
@@ -786,26 +765,28 @@
         return stats;
     }
 
-    // Actualizar tarjetas
+    // ========== ACTUALIZAR TARJETAS ==========
     function updateCards(stats) {
-        const totalAvisos = document.getElementById('totalAvisos');
-        const avisosActivos = document.getElementById('avisosActivos');
-        const totalCategorias = document.getElementById('totalCategorias');
-        const totalVisitas = document.getElementById('totalVisitas');
-        const totalInteracciones = document.getElementById('totalInteracciones');
+        const elements = {
+            totalAvisos: document.getElementById('totalAvisos'),
+            avisosActivos: document.getElementById('avisosActivos'),
+            avisosPendientes: document.getElementById('avisosPendientes'),
+            totalCategorias: document.getElementById('totalCategorias'),
+            totalVisitas: document.getElementById('totalVisitas'),
+            totalInteracciones: document.getElementById('totalInteracciones')
+        };
 
-        if (totalAvisos) totalAvisos.innerText = stats.total;
-        if (avisosActivos) avisosActivos.innerText = stats.activos;
-        if (currentUserRole === 'admin') {
-            const avisosPendientes = document.getElementById('avisosPendientes');
-            if (avisosPendientes) avisosPendientes.innerText = stats.pendientes;
+        if (elements.totalAvisos) elements.totalAvisos.innerText = stats.total;
+        if (elements.avisosActivos) elements.avisosActivos.innerText = stats.activos;
+        if (currentUserRole === 'admin' && elements.avisosPendientes) {
+            elements.avisosPendientes.innerText = stats.pendientes;
         }
-        if (totalCategorias) totalCategorias.innerText = stats.totalCategorias;
-        if (totalVisitas) totalVisitas.innerText = stats.totalVisitas.toLocaleString();
-        if (totalInteracciones) totalInteracciones.innerText = stats.totalInteracciones.toLocaleString();
+        if (elements.totalCategorias) elements.totalCategorias.innerText = stats.totalCategorias;
+        if (elements.totalVisitas) elements.totalVisitas.innerText = stats.totalVisitas.toLocaleString();
+        if (elements.totalInteracciones) elements.totalInteracciones.innerText = stats.totalInteracciones.toLocaleString();
     }
 
-    // Renderizar gráfico de barras
+    // ========== RENDERIZAR GRÁFICO DE CATEGORÍAS ==========
     function renderChart(notices) {
         const stats = getStatsByCategory(notices);
         const maxValue = Math.max(...Object.values(stats), 1);
@@ -823,16 +804,16 @@
         for (const [key, value] of Object.entries(stats)) {
             const percentage = (value / maxValue) * 100;
             barsHtml += `
-                <div class="bar-item">
-                    <div class="bar-label">${categoryNames[key]}</div>
-                    <div class="bar-container">
-                        <div class="bar-fill" style="width: ${percentage}%;">
-                            ${chartDetailedView && value > 0 ? value : ''}
-                        </div>
+            <div class="bar-item">
+                <div class="bar-label">${categoryNames[key]}</div>
+                <div class="bar-container">
+                    <div class="bar-fill" style="width: ${percentage}%;">
+                        ${chartDetailedView && value > 0 ? value : ''}
                     </div>
-                    <div class="bar-count">${value}</div>
                 </div>
-            `;
+                <div class="bar-count">${value}</div>
+            </div>
+        `;
         }
 
         const chartBars = document.getElementById('chartBars');
@@ -849,97 +830,60 @@
         }
     }
 
-    // Renderizar últimos avisos en la tabla
-    function renderRecentNotices(notices) {
-        const recent = [...notices].sort((a, b) => {
-            const dateA = new Date(a.created_at || a.fecha || 0);
-            const dateB = new Date(b.created_at || b.fecha || 0);
-            return dateB - dateA;
-        }).slice(0, 5);
-
-        const tbody = document.getElementById('recentTableBody');
-        if (!tbody) return;
-
-        if (recent.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No hay avisos publicados</td></tr>';
-            return;
+    // ========== ACTUALIZAR FECHA ==========
+    function updateFecha() {
+        const fechaSpan = document.getElementById('fechaActual');
+        if (fechaSpan) {
+            fechaSpan.innerHTML = `📅 ${new Date().toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
         }
-
-        tbody.innerHTML = recent.map(aviso => {
-            let statusClass = 'status-active';
-            let statusText = 'Activo';
-            if (aviso.status === 'pendiente' || !aviso.status) {
-                statusClass = 'status-pending';
-                statusText = 'Pendiente';
-            } else if (aviso.status === 'rechazado') {
-                statusClass = 'status-inactive';
-                statusText = 'Rechazado';
-            }
-
-            const fecha = formatDate(aviso.created_at || aviso.fecha);
-            const titulo = (aviso.titulo || 'Sin título').substring(0, 40);
-            const categoriaIcon = {
-                'urgente': '🚨', 'escuelas': '🏫', 'servicios': '🛠️',
-                'comercios': '🛒', 'eventos': '📅', 'gobierno': '🏛️', 'varios': '📢'
-            }[aviso.categoria] || '📋';
-
-            return `
-                <tr>
-                    <td>${categoriaIcon} ${titulo}${aviso.titulo?.length > 40 ? '...' : ''}</td>
-                    <td>${aviso.categoria || 'General'}</td>
-                    <td>${fecha}</td>
-                    <td>${parseInt(aviso.vistas) || 0}</td>
-                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                </tr>
-            `;
-        }).join('');
     }
 
-    // Función principal de actualización
+    // ========== FUNCIÓN PRINCIPAL DE ACTUALIZACIÓN ==========
     async function refreshDashboardData() {
         try {
-            // ✅ Actualizar badge con el usuario actual
+            // Actualizar badge con usuario actual
             const usuarioActual = API.getUsuarioActual();
             const badge = document.getElementById('userRoleBadge');
             if (badge && usuarioActual) {
-                if (usuarioActual.rol === 'admin') {
-                    badge.innerHTML = `👑 ${usuarioActual.nombre || usuarioActual.email}`;
-                } else {
-                    badge.innerHTML = `👤 ${usuarioActual.nombre || usuarioActual.email}`;
-                }
+                badge.innerHTML = usuarioActual.rol === 'admin' ? `👑 ${usuarioActual.nombre || usuarioActual.email}` : `👤 ${usuarioActual.nombre || usuarioActual.email}`;
             }
 
+            // Obtener avisos reales
             const notices = await getAllNoticesFromAPI();
+            allNotices = notices;
+
+            // Calcular y actualizar estadísticas
             const stats = calculateStats(notices);
             updateCards(stats);
 
+            // Renderizar gráfico de categorías (solo admin)
             if (currentUserRole === 'admin') {
                 renderChart(notices);
             }
 
-            renderRecentNotices(notices);
+            // Actualizar fecha
+            updateFecha();
 
-            const now = new Date();
-            const fechaSpan = document.getElementById('fechaActual');
-            if (fechaSpan) {
-                fechaSpan.innerHTML = `📅 ${now.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
-            }
+            console.log('📊 Dashboard actualizado:', stats);
+
         } catch (error) {
             console.error('Error actualizando dashboard:', error);
         }
     }
 
-    // Alternar vista del gráfico
+    // ========== ALTERNAR VISTA DEL GRÁFICO ==========
     window.toggleChartView = function () {
         chartDetailedView = !chartDetailedView;
-        refreshDashboardData();
-        const btn = document.querySelector('.chart-toggle');
+        if (allNotices.length > 0) {
+            renderChart(allNotices);
+        }
+        const btn = document.querySelector('.chart-header .chart-toggle');
         if (btn) {
             btn.innerHTML = chartDetailedView ? '📊 Vista compacta' : '📈 Vista detallada';
         }
     };
 
-    // Inicializar dashboard
+    // ========== INICIALIZAR DASHBOARD ==========
     async function initDashboard() {
         await detectUserRole();
         await refreshDashboardData();
@@ -948,7 +892,7 @@
             await loadAdvancedStats();
         }
 
-        // Actualizar automáticamente cada 30 segundos
+        // Actualizar cada 30 segundos
         setInterval(refreshDashboardData, 30000);
 
         // Actualizar usuarios en línea cada 60 segundos
@@ -957,7 +901,7 @@
         }
     }
 
-    // Iniciar cuando el DOM esté listo
+    // ========== INICIAR CUANDO EL DOM ESTÉ LISTO ==========
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initDashboard);
     } else {
