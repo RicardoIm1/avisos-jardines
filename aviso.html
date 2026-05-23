@@ -936,9 +936,49 @@
 
             html += `<div class="article-body">`;
             html += `<div class="article-content">${formatearContenido(avisoActual.contenido)}</div>`;
+            // Mostrar ubicación, fecha del evento y WhatsApp juntos
+            html += `<div style="display: flex; flex-wrap: wrap; gap: 1rem; margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 12px; align-items: center;">`;
+
+            // Ubicación
             if (avisoActual.ubicacion) {
-                html += `<p><strong>📍 Ubicación:</strong> ${escapeHTML(avisoActual.ubicacion)}</p>`;
+                html += `<div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.2rem;">📍</span>
+                <span><strong>Ubicación:</strong> ${escapeHTML(avisoActual.ubicacion)}</span>
+            </div>`;
             }
+
+            // Fecha del evento (si existe)
+            if (avisoActual.fecha_evento && avisoActual.fecha_evento.trim() !== '') {
+                let fechaEvento = avisoActual.fecha_evento;
+                // Formatear la fecha si es necesario
+                try {
+                    const fechaObj = new Date(fechaEvento);
+                    if (!isNaN(fechaObj.getTime())) {
+                        fechaEvento = fechaObj.toLocaleDateString('es-MX', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        });
+                    }
+                } catch (e) { /* mantener fecha original */ }
+
+                html += `<div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="font-size: 1.2rem;">📅</span>
+                <span><strong>Fecha del evento:</strong> ${escapeHTML(fechaEvento)}</span>
+            </div>`;
+            }
+
+            // Botón WhatsApp (si hay contacto)
+            if (tieneContacto) {
+                html += `<a href="https://wa.me/52${numero}?text=${mensaje}" 
+                style="display: inline-flex; align-items: center; gap: 0.5rem; background: #25D366; color: white; padding: 0.5rem 1rem; border-radius: 40px; text-decoration: none; font-weight: 600; margin-left: auto;"
+                target="_blank" 
+                onclick="registrarClickWhatsApp('${avisoActual.id}')">
+                <span>📱</span> WhatsApp
+            </a>`;
+            }
+
+            html += `</div>`;
 
             // stats-row con todas las acciones integradas
             html += `<div class="stats-row">`;
