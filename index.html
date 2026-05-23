@@ -91,6 +91,139 @@
             box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
         }
 
+        /* ---------- HEADER FLOTANTE ESTILO iOS ---------- */
+        #header-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            #header-container {
+                background: rgba(0, 0, 0, 0.75);
+            }
+        }
+
+        #header-container nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 10px 16px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        #header-container .logo a {
+            font-size: 1.4rem;
+            font-weight: 700;
+            text-decoration: none;
+            background: linear-gradient(135deg, #1e4620, #2b7a2b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            white-space: nowrap;
+        }
+
+        .header-buscador {
+            flex: 1;
+            min-width: 180px;
+            max-width: 300px;
+        }
+
+        .buscador-input-header {
+            width: 100%;
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: none;
+            background: rgba(120, 120, 128, 0.12);
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            color: inherit;
+        }
+
+        .buscador-input-header:focus {
+            outline: none;
+            background: rgba(120, 120, 128, 0.2);
+            box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+        }
+
+        #login-link,
+        #user-area {
+            white-space: nowrap;
+        }
+
+        #user-name {
+            font-weight: 500;
+            font-size: 0.85rem;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #1e4620, #2b7a2b);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-login:hover {
+            transform: scale(1.02);
+            opacity: 0.95;
+        }
+
+        @media (max-width: 550px) {
+            #header-container nav {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .header-buscador {
+                order: 3;
+                min-width: 100%;
+                max-width: none;
+            }
+
+            .buscador-input-header {
+                width: 100%;
+            }
+
+            #header-container .logo a {
+                font-size: 1.2rem;
+            }
+
+            .btn-login {
+                padding: 4px 12px;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Ajuste del contenedor scrollable */
+        .scrollable-container {
+            padding-top: 70px;
+        }
+
+        @media (max-width: 550px) {
+            .scrollable-container {
+                padding-top: 110px;
+            }
+        }
+
+        /* Ocultar buscador viejo */
+        .filtros-buscador-wrapper {
+            display: none !important;
+        }
+
         /* ---------- TARJETAS / AVISOS (BASE) ---------- */
         .aviso-card {
             cursor: pointer;
@@ -372,8 +505,6 @@
        MÓVIL (ancho < 768px) - EFECTO ENGRANE + FONDO COMPLETO
     ====================================================== */
         @media (max-width: 767px) {
-
-            /* Contenedor scrollable */
             .scrollable-container {
                 height: 100vh;
                 overflow-y: auto;
@@ -381,20 +512,19 @@
                 scroll-snap-type: y mandatory;
                 scroll-snap-stop: always;
                 scroll-behavior: smooth;
+                padding-top: 70px;
             }
 
             .scrollable-container::-webkit-scrollbar {
                 display: none;
             }
 
-            /* Grid como bloque */
             #avisos-container {
                 display: block !important;
                 scroll-snap-type: none !important;
                 height: auto !important;
             }
 
-            /* Cada card es snap point */
             .aviso-card {
                 scroll-snap-align: start;
                 scroll-snap-stop: always;
@@ -403,11 +533,8 @@
                 margin-bottom: 0 !important;
                 border-radius: 0 !important;
                 background: #000;
-                position: relative;
-                overflow: hidden;
             }
 
-            /* Imagen como fondo */
             .aviso-imagen,
             .aviso-video {
                 position: absolute;
@@ -418,6 +545,7 @@
                 object-fit: cover;
                 z-index: 1;
                 border-radius: 0 !important;
+                margin-bottom: 0;
             }
 
             .aviso-video video {
@@ -426,7 +554,6 @@
                 width: 100%;
             }
 
-            /* Overlay oscuro */
             .aviso-card::after {
                 content: '';
                 position: absolute;
@@ -442,7 +569,6 @@
                 pointer-events: none;
             }
 
-            /* Contenido superpuesto */
             .card-contenido-moderno {
                 position: relative;
                 z-index: 3;
@@ -456,7 +582,6 @@
                 text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
             }
 
-            /* Badge: color original + legible */
             .categoria-badge {
                 position: absolute;
                 top: 12px;
@@ -467,7 +592,6 @@
                 backdrop-filter: blur(4px);
             }
 
-            /* Textos en blanco */
             .card-titulo-moderno,
             .card-preview-moderno,
             .card-fecha-moderna,
@@ -479,7 +603,6 @@
                 -webkit-line-clamp: 2;
             }
 
-            /* Stats semitransparentes */
             .card-stats-moderno .stat-item {
                 color: white !important;
                 background: rgba(0, 0, 0, 0.5);
@@ -496,7 +619,6 @@
                 color: #aaa !important;
             }
 
-            /* WhatsApp más grande */
             .whatsapp-btn {
                 width: 44px;
                 height: 44px;
@@ -506,7 +628,6 @@
                 z-index: 4;
             }
 
-            /* Animación de clic */
             .post-card-ios.gear-click {
                 animation: gearClick 0.12s cubic-bezier(0.2, 0.9, 0.4, 1.1);
             }
@@ -530,154 +651,6 @@
             }
         }
 
-        /* Contenedor scrollable unificado */
-        .scrollable-container {
-            height: calc(100vh - 60px);
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            scroll-snap-type: y mandatory;
-            scroll-behavior: smooth;
-        }
-
-        .scrollable-container::-webkit-scrollbar {
-            display: none;
-        }
-
-        /* Grid se convierte en bloque */
-        #avisos-container {
-            display: block !important;
-            scroll-snap-type: none !important;
-            height: auto !important;
-        }
-
-        /* Tarjeta: pantalla completa + imagen como fondo */
-        .aviso-card {
-            scroll-snap-align: start;
-            scroll-snap-stop: always;
-            min-height: calc(100vh - 60px);
-            margin-bottom: 0 !important;
-            border-radius: 0 !important;
-            background: #000;
-        }
-
-        /* Imagen/video como fondo absoluto */
-        .aviso-imagen,
-        .aviso-video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100% !important;
-            object-fit: cover;
-            z-index: 1;
-            border-radius: 0 !important;
-            margin-bottom: 0;
-        }
-
-        .aviso-video video {
-            object-fit: cover;
-        }
-
-        /* Overlay oscuro para legibilidad */
-        .aviso-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to bottom,
-                    rgba(0, 0, 0, 0.2) 0%,
-                    rgba(0, 0, 0, 0.5) 50%,
-                    rgba(0, 0, 0, 0.8) 100%);
-            z-index: 2;
-            pointer-events: none;
-        }
-
-        /* Contenido superpuesto */
-        .card-contenido-moderno {
-            position: relative;
-            z-index: 3;
-            background: transparent !important;
-            color: white !important;
-            padding: 20px;
-            min-height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-        }
-
-        .card-titulo-moderno,
-        .card-preview-moderno,
-        .card-fecha-moderna,
-        .aviso-footer span {
-            color: white !important;
-        }
-
-        .card-preview-moderno {
-            -webkit-line-clamp: 2;
-        }
-
-        /* Stats con fondo semitransparente */
-        .card-stats-moderno .stat-item {
-            color: white !important;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-            border-radius: 20px;
-            padding: 4px 10px;
-        }
-
-        .card-stats-moderno .stat-item.liked {
-            color: #ff4757 !important;
-        }
-
-        .card-stats-moderno .stat-item.disliked {
-            color: #aaa !important;
-        }
-
-        /* Badge con fondo oscuro */
-        .categoria-badge {
-            background: rgba(0, 0, 0, 0.7) !important;
-            z-index: 4;
-        }
-
-        /* WhatsApp más grande */
-        .whatsapp-btn {
-            width: 44px;
-            height: 44px;
-            bottom: 16px;
-            right: 16px;
-            background-size: 60%;
-            z-index: 4;
-        }
-
-        /* Animación de "clic" del engranaje */
-        .post-card-ios.gear-click {
-            animation: gearClick 0.12s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
-
-        .post-card-ios.active {
-            transform: scale(1.02);
-        }
-
-        @keyframes gearClick {
-            0% {
-                transform: scale(1);
-            }
-
-            50% {
-                transform: scale(0.98);
-            }
-
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        >>>>>>>ba2dcb081b8917b13ca9b805081bf51d6cb2a827
-        }
-
         /* ======================================================
        DESKTOP (ancho ≥ 768px) - CUADRÍCULA NORMAL
     ====================================================== */
@@ -686,6 +659,7 @@
                 height: auto;
                 overflow-y: visible;
                 scroll-snap-type: none;
+                padding-top: 70px;
             }
 
             #avisos-container {
@@ -708,10 +682,9 @@
             .aviso-video {
                 height: 180px !important;
                 border-radius: 20px 20px 0 0 !important;
-                position: relative;
+                position: relative !important;
             }
 
-            /* Quitar overlay en desktop */
             .aviso-card::after {
                 display: none;
             }
@@ -741,7 +714,6 @@
             }
         }
 
-        /* Desktop más grande: más columnas */
         @media (min-width: 1024px) {
             #avisos-container {
                 grid-template-columns: repeat(3, 1fr);
@@ -970,7 +942,6 @@
             cursor: pointer;
         }
 
-        /* Ajustes específicos para móvil en comentarios */
         @media (max-width: 767px) {
             .comments-panel {
                 max-width: 100%;
