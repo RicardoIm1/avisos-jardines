@@ -178,93 +178,101 @@
             cursor: pointer;
         }
 
-        .article-actions {
-            display: flex;
-            gap: 1rem;
-            margin: 2rem 0 1rem;
-            padding-top: 1rem;
-            border-top: 2px solid #e9ecef;
-            flex-wrap: wrap;
-        }
-
-        .btn-action {
-            padding: 0.6rem 1.2rem;
-            border-radius: 40px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: none;
-            background: #1e4620;
-            color: white;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
-        .btn-action.edit {
-            background: #d4a043;
-            color: #1a2a3a;
-        }
-
-        .btn-action.delete {
-            background: #c0392b;
-        }
-
-        .btn-action.back {
-            background: transparent;
-            border: 1px solid #e9ecef;
-            color: #1a2a3a;
-        }
-
-        .btn-action.comment {
-            background: #3498db;
-        }
-
-        .btn-action.liked {
-            background: #ff4757;
-            border-color: #ff4757;
-        }
-
-        .btn-action.disliked {
-            background: #7f8c8d;
-            border-color: #7f8c8d;
-        }
-
-        .btn-action:hover {
-            transform: translateY(-2px);
-            filter: brightness(1.05);
-        }
-
+        /* NUEVO ESTILO: stats-row se convierte en una barra de acciones + estadísticas */
         .stats-row {
             display: flex;
-            gap: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
             margin: 1rem 0 1.5rem 0;
-            padding: 0.8rem 1.2rem;
+            padding: 0.6rem 1.2rem;
             background: linear-gradient(135deg, #f8f9fa 0%, #f1f3f5 100%);
-            border-radius: 16px;
+            border-radius: 60px;
             border: 1px solid #e9ecef;
         }
 
         .stat-item {
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 0.3rem;
-            color: #495057;
-            font-weight: 500;
+            gap: 0.4rem;
+            background: white;
+            padding: 0.4rem 0.9rem;
+            border-radius: 40px;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        /* Estados de botones */
+        .stat-item.action-btn {
+            cursor: pointer;
+            background: white;
+            border-color: #e2e6ea;
+        }
+        .stat-item.action-btn:hover {
+            transform: translateY(-2px);
+            background: #fff;
+            border-color: #f5b042;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .stat-item.liked {
+            background: #ff4757;
+            border-color: #ff4757;
+            color: white;
+        }
+        .stat-item.liked .stat-value,
+        .stat-item.liked .stat-icon {
+            color: white;
+        }
+        .stat-item.disliked {
+            background: #7f8c8d;
+            border-color: #7f8c8d;
+            color: white;
+        }
+        .stat-item.disliked .stat-value,
+        .stat-item.disliked .stat-icon {
+            color: white;
+        }
+        .stat-item.admin-action {
+            background: #1e4620;
+            border-color: #1e4620;
+        }
+        .stat-item.admin-action .stat-value,
+        .stat-item.admin-action .stat-icon {
+            color: white;
+        }
+        .stat-item.whatsapp-btn {
+            background: #25D366;
+            border-color: #25D366;
+            color: white;
+        }
+        .stat-item.whatsapp-btn .stat-value,
+        .stat-item.whatsapp-btn .stat-icon {
+            color: white;
+        }
+        .back-link {
+            margin-left: auto;
+            background: transparent;
+            border: 1px solid #ced4da;
+            color: #1a2a3a;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            background: #e9ecef;
+            transform: translateY(-1px);
         }
 
         .stat-icon {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
+            line-height: 1;
         }
-
         .stat-value {
-            font-weight: 700;
+            font-weight: 600;
+            font-size: 0.9rem;
             color: #1e4620;
-            font-size: 1rem;
         }
-
+        /* El texto label se oculta en móvil pero se puede mantener */
         .stat-label {
             display: none;
         }
@@ -409,45 +417,44 @@
             .aviso-paper {
                 margin: 1rem;
             }
-
             .article-title {
                 font-size: 1.5rem;
             }
-
             .article-header,
             .article-body {
                 padding: 1.2rem;
             }
-
             .article-meta {
                 gap: 1rem;
                 font-size: 0.7rem;
             }
-
             .gallery {
                 grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
                 gap: 0.5rem;
             }
-
             .stats-row {
-                gap: 1rem;
+                gap: 0.4rem;
+                padding: 0.5rem;
+                border-radius: 30px;
                 flex-wrap: wrap;
             }
-
+            .stat-item {
+                padding: 0.3rem 0.7rem;
+            }
             .featured-video {
                 max-height: 300px;
             }
-
             .featured-image {
                 max-height: 300px;
             }
-
             .comments-panel {
                 max-width: 100%;
             }
+            .back-link {
+                margin-left: 0;
+            }
         }
     </style>
-
 </head>
 
 <body>
@@ -503,31 +510,22 @@
         function formatearFecha(fechaStr) {
             if (!fechaStr) return 'Fecha desconocida';
             try {
-                // Si ya es un objeto Date
                 let fecha = fechaStr;
                 if (typeof fechaStr === 'string') {
-                    // Intentar diferentes formatos
                     let fechaParseada = new Date(fechaStr);
-                    // Si es timestamp de Google Sheets (número)
                     if (!isNaN(parseFloat(fechaStr)) && isFinite(fechaStr)) {
                         const fechaExcel = new Date((parseFloat(fechaStr) - 25569) * 86400000);
                         if (!isNaN(fechaExcel.getTime())) fechaParseada = fechaExcel;
                     }
                     fecha = fechaParseada;
                 }
-
-                // Verificar si es fecha válida
                 if (isNaN(fecha.getTime())) {
-                    // Intentar parsear formato DD/MM/YYYY
                     const partes = fechaStr.split(/[/-]/);
                     if (partes.length === 3) {
                         fecha = new Date(partes[2], partes[1] - 1, partes[0]);
                     }
                 }
-
                 if (isNaN(fecha.getTime())) return fechaStr;
-
-                // Formato: "15 de mayo, 3:45 PM"
                 return fecha.toLocaleDateString('es-MX', {
                     day: 'numeric',
                     month: 'short',
@@ -616,27 +614,21 @@
 
         function iniciarPolling() {
             if (pollingInterval) clearInterval(pollingInterval);
-
-            // Solo obtener valores iniciales si existen
             const likesSpan = document.querySelector('.likes-count');
             const dislikesSpan = document.querySelector('.dislikes-count');
             const vistasSpan = document.querySelector('.vistas-count');
             const comentariosSpan = document.querySelector('.comments-count');
-
             ultimosDatos = {
                 likes: likesSpan ? parseInt(likesSpan.textContent) || 0 : 0,
                 dislikes: dislikesSpan ? parseInt(dislikesSpan.textContent) || 0 : 0,
                 vistas: vistasSpan ? parseInt(vistasSpan.textContent) || 0 : 0,
                 comentarios: comentariosSpan ? parseInt(comentariosSpan.textContent) || 0 : 0
             };
-
-            // ✅ POLLING CADA 60 SEGUNDOS (en lugar de 5)
-            // ✅ Solo actualiza si la pestaña está visible
             pollingInterval = setInterval(() => {
                 if (!document.hidden) {
                     obtenerActualizacionesEnTiempoReal();
                 }
-            }, 60000); // 60 segundos
+            }, 60000);
         }
 
         function detenerPolling() {
@@ -646,10 +638,8 @@
             }
         }
 
-        // ✅ OPCIONAL: Actualizar cuando la pestaña vuelve a ser visible
         document.addEventListener('visibilitychange', function () {
             if (!document.hidden && avisoActual && avisoActual.id) {
-                // Al volver a la pestaña, actualizar inmediatamente
                 obtenerActualizacionesEnTiempoReal();
             }
         });
@@ -703,12 +693,9 @@
             if (!commentsList) return;
             commentsList.innerHTML = '<div class="cargando">💬 Cargando comentarios...</div>';
             try {
-                // ✅ AGREGAR apiKey
                 const apiKey = localStorage.getItem('api_key');
                 const resultado = await API.peticion('LISTAR_COMENTARIOS', { avisoId: avisoId }, apiKey);
-
                 console.log('Comentarios respuesta:', resultado);
-
                 if (resultado && resultado.success) {
                     let comentarios = [];
                     if (resultado.data && Array.isArray(resultado.data)) {
@@ -716,21 +703,17 @@
                     } else if (resultado.datos && Array.isArray(resultado.datos)) {
                         comentarios = resultado.datos;
                     }
-
                     if (comentarios.length === 0) {
                         commentsList.innerHTML = '<div style="text-align:center; color:#888;">📝 No hay comentarios aún. ¡Sé el primero!</div>';
                     } else {
                         commentsList.innerHTML = comentarios.map(com => {
-                            // ✅ Detectar la fecha en cualquier campo posible
                             let fechaComentario = com.fecha || com.created_at || com.timestamp || com.fechacreacion;
-
                             return `
-              <div class="comment-item">
-            <div class="comment-author">${escapeHTML(com.autor || com.usuario_nombre || com.usuario_email || 'Anónimo')}</div>
-            <div class="comment-text">${escapeHTML(com.texto || com.comentario || com.contenido)}</div>
-            <div class="comment-date">${formatearFecha(fechaComentario)}</div>
-        </div>
-    `;
+                            <div class="comment-item">
+                                <div class="comment-author">${escapeHTML(com.autor || com.usuario_nombre || com.usuario_email || 'Anónimo')}</div>
+                                <div class="comment-text">${escapeHTML(com.texto || com.comentario || com.contenido)}</div>
+                                <div class="comment-date">${formatearFecha(fechaComentario)}</div>
+                            </div>`;
                         }).join('');
                     }
                 } else {
@@ -747,20 +730,16 @@
             const texto = input.value.trim();
             if (!texto) { showToast('✏️ Escribe un comentario primero', 1500); return; }
             if (!currentAvisoIdForComments) { showToast('❌ Error: No se identificó el aviso', 1500); return; }
-
             const apiKey = localStorage.getItem('api_key');
             if (!apiKey) { showToast('🔐 Inicia sesión para comentar', 1500); return; }
-
             const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
             const autor = usuario.nombre || usuario.email || 'Anónimo';
-
             try {
                 const resultado = await API.peticion('AGREGAR_COMENTARIO', {
                     avisoId: currentAvisoIdForComments,
                     texto: texto,
                     autor: autor
                 }, apiKey);
-
                 if (resultado && resultado.success) {
                     input.value = '';
                     showToast('💬 Comentario enviado', 1500);
@@ -781,14 +760,11 @@
 
         window.abrirComentarios = function (id, event) {
             if (event) event.stopPropagation();
-
-            // ✅ VERIFICAR SESIÓN ANTES DE ABRIR
             const apiKey = localStorage.getItem('api_key');
             if (!apiKey) {
                 showToast('🔐 Inicia sesión para ver y comentar', 2000);
                 return;
             }
-
             currentAvisoIdForComments = id;
             document.getElementById('comments-panel').classList.add('open');
             cargarComentarios(id);
@@ -829,10 +805,9 @@
             if (esUrgente) { categoriaClase = 'urgente'; categoriaTexto = '⚠️ URGENTE'; }
             else if (esPendiente) { categoriaClase = 'pendiente'; categoriaTexto = '⏳ PENDIENTE DE APROBACIÓN'; }
 
-            // ========== MULTIMEDIA: VIDEO + GALERÍA ==========
+            // Multimedia
             let videoUrl = null;
             let imagenesGaleria = [];
-
             if (avisoActual.video_url && avisoActual.video_url.trim() !== '') {
                 videoUrl = avisoActual.video_url;
                 if (videoUrl.includes('youtube.com/watch?v=')) {
@@ -843,7 +818,6 @@
                     videoUrl = `https://www.youtube.com/embed/${videoId}`;
                 }
             }
-
             if (avisoActual.imagen_url && avisoActual.imagen_url.trim() !== '') {
                 if (avisoActual.imagen_url.includes(',')) {
                     imagenesGaleria = avisoActual.imagen_url.split(',').map(u => u.trim()).filter(u => u);
@@ -862,89 +836,117 @@
             const mensaje = encodeURIComponent(`Hola, vi tu aviso "${avisoActual.titulo}" en BARRIO. Me interesa.`);
 
             let html = `
-        <div class="article-header">
-          <div class="article-category ${categoriaClase}">${categoriaTexto}</div>
-          <h1 class="article-title">${escapeHTML(avisoActual.titulo || 'Sin título')}</h1>
-          <div class="article-meta">
-            <span>📅 ${escapeHTML(fechaTexto)}</span>
-            <span>👤 ${escapeHTML(avisoActual.nombre_autor || avisoActual.autor_nombre || avisoActual.nombre_usuario || avisoActual.created_by || 'Vecino')}</span>
-            <span>🏷️ ${escapeHTML(categoriaLegible)}</span>
-          </div>
-        </div>
-      `;
+            <div class="article-header">
+                <div class="article-category ${categoriaClase}">${categoriaTexto}</div>
+                <h1 class="article-title">${escapeHTML(avisoActual.titulo || 'Sin título')}</h1>
+                <div class="article-meta">
+                    <span>📅 ${escapeHTML(fechaTexto)}</span>
+                    <span>👤 ${escapeHTML(avisoActual.nombre_autor || avisoActual.autor_nombre || avisoActual.nombre_usuario || avisoActual.created_by || 'Vecino')}</span>
+                    <span>🏷️ ${escapeHTML(categoriaLegible)}</span>
+                </div>
+            </div>
+        `;
 
-            // Video prioritario o imagen destacada
+            // Video destacado o imagen principal
             if (videoUrl) {
-                html += `
-          <div class="featured-video-container">
-            <video controls autoplay class="featured-video" poster="${imagenesGaleria[0] || ''}">
-              <source src="${escapeHTML(videoUrl)}" type="video/mp4">
-              Tu navegador no soporta videos.
-            </video>
-          </div>
-        `;
+                html += `<div class="featured-video-container">
+                            <video controls autoplay class="featured-video" poster="${imagenesGaleria[0] || ''}">
+                                <source src="${escapeHTML(videoUrl)}" type="video/mp4">
+                                Tu navegador no soporta videos.
+                            </video>
+                        </div>`;
             } else if (imagenesGaleria.length > 0) {
-                html += `
-          <div class="featured-image-container">
-            <img src="${escapeHTML(imagenesGaleria[0])}" class="featured-image" onclick="abrirLightbox('${escapeHTML(imagenesGaleria[0])}', 'imagen')">
-          </div>
-        `;
+                html += `<div class="featured-image-container">
+                            <img src="${escapeHTML(imagenesGaleria[0])}" class="featured-image" onclick="abrirLightbox('${escapeHTML(imagenesGaleria[0])}', 'imagen')">
+                        </div>`;
             }
 
             html += `<div class="article-body">`;
             html += `<div class="article-content">${formatearContenido(avisoActual.contenido)}</div>`;
-
             if (avisoActual.ubicacion) {
                 html += `<p><strong>📍 Ubicación:</strong> ${escapeHTML(avisoActual.ubicacion)}</p>`;
             }
 
-            // Estadísticas (solo íconos y números)
-            html += `
-        <div class="stats-row">
-          <div class="stat-item"><span class="stat-icon">👁️</span><span class="stat-value vistas-count">${vistas}</span></div>
-          <div class="stat-item"><span class="stat-icon">👍</span><span class="stat-value likes-count">${likes}</span></div>
-          <div class="stat-item"><span class="stat-icon">👎</span><span class="stat-value dislikes-count">${dislikes}</span></div>
-          <div class="stat-item"><span class="stat-icon">💬</span><span class="stat-value comments-count">${comentarios}</span></div>
-        </div>
-      `;
+            // ========== NUEVO stats-row con todas las acciones integradas ==========
+            html += `<div class="stats-row">`;
+
+            // 1. Vistas (solo estadística, sin acción)
+            html += `<div class="stat-item">
+                        <span class="stat-icon">👁️</span>
+                        <span class="stat-value vistas-count">${vistas}</span>
+                    </div>`;
+
+            // 2. Like (botón con contador)
+            html += `<div class="stat-item action-btn like-btn" onclick="darLike('${avisoActual.id}')">
+                        <span class="stat-icon">👍</span>
+                        <span class="stat-value likes-count">${likes}</span>
+                    </div>`;
+
+            // 3. Dislike (botón con contador)
+            html += `<div class="stat-item action-btn dislike-btn" onclick="darDislike('${avisoActual.id}')">
+                        <span class="stat-icon">👎</span>
+                        <span class="stat-value dislikes-count">${dislikes}</span>
+                    </div>`;
+
+            // 4. Comentarios (botón que abre panel)
+            html += `<div class="stat-item action-btn" onclick="abrirComentarios('${avisoActual.id}', event)">
+                        <span class="stat-icon">💬</span>
+                        <span class="stat-value comments-count">${comentarios}</span>
+                    </div>`;
+
+            // 5. WhatsApp (si tiene contacto)
+            if (tieneContacto) {
+                html += `<a href="https://wa.me/52${numero}?text=${mensaje}" class="stat-item action-btn whatsapp-btn" target="_blank" onclick="registrarClickWhatsApp('${avisoActual.id}')">
+                            <span class="stat-icon">📱</span>
+                            <span class="stat-value">WhatsApp</span>
+                        </a>`;
+            }
+
+            // 6. Botones de administración/edición si corresponde
+            if (puedeEditar) {
+                html += `<div class="stat-item action-btn admin-action" onclick="irAEditar('${avisoActual.id}')">
+                            <span class="stat-icon">✏️</span>
+                            <span class="stat-value">Editar</span>
+                        </div>`;
+                html += `<div class="stat-item action-btn admin-action" onclick="eliminarAviso('${avisoActual.id}')">
+                            <span class="stat-icon">🗑️</span>
+                            <span class="stat-value">Eliminar</span>
+                        </div>`;
+            }
+
+            // 7. Botón "Volver" (enlace a inicio o panel)
+            if (puedeEditar) {
+                html += `<a href="/barrio/admin.html" class="stat-item action-btn back-link">
+                            <span class="stat-icon">←</span>
+                            <span class="stat-value">Panel</span>
+                        </a>`;
+            } else {
+                html += `<a href="/barrio/index.html" class="stat-item action-btn back-link">
+                            <span class="stat-icon">←</span>
+                            <span class="stat-value">Inicio</span>
+                        </a>`;
+            }
+
+            html += `</div>`; // cierre stats-row
 
             // Galería de imágenes adicionales
             if (imagenesGaleria.length > 1) {
                 const imagenesAdicionales = imagenesGaleria.slice(1);
-                html += `
-          <div class="gallery-section">
-            <div class="gallery-title">📸 Galería de imágenes</div>
-            <div class="gallery">
-              ${imagenesAdicionales.map(img => `
-                <div class="gallery-item" onclick="abrirLightbox('${escapeHTML(img)}', 'imagen')">
-                  <img src="${escapeHTML(img)}" loading="lazy">
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        `;
+                html += `<div class="gallery-section">
+                            <div class="gallery-title">📸 Galería de imágenes</div>
+                            <div class="gallery">
+                                ${imagenesAdicionales.map(img => `
+                                    <div class="gallery-item" onclick="abrirLightbox('${escapeHTML(img)}', 'imagen')">
+                                        <img src="${escapeHTML(img)}" loading="lazy">
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>`;
             }
 
-            // Botones de acción
-            html += `<div class="article-actions">`;
-            if (puedeEditar) {
-                html += `<a href="/barrio/admin.html" class="btn-action back">← Volver al panel</a>`;
-                html += `<button class="btn-action edit" onclick="irAEditar('${avisoActual.id}')">✏️ Editar</button>`;
-                html += `<button class="btn-action delete" onclick="eliminarAviso('${avisoActual.id}')">🗑️ Eliminar</button>`;
-            } else {
-                html += `<a href="/barrio/index.html" class="btn-action back">← Volver al inicio</a>`;
-            }
-            html += `<button class="btn-action like-btn" onclick="darLike('${avisoActual.id}')">👍 Like</button>`;
-            html += `<button class="btn-action dislike-btn" onclick="darDislike('${avisoActual.id}')">👎 Dislike</button>`;
-            html += `<button class="btn-action comment" onclick="abrirComentarios('${avisoActual.id}', event)">💬 Comentar</button>`;
-            if (tieneContacto) {
-                html += `<a href="https://wa.me/52${numero}?text=${mensaje}" class="btn-action" target="_blank" onclick="registrarClickWhatsApp('${avisoActual.id}')">📱 WhatsApp</a>`;
-            }
-            html += `</div></div>`;
+            html += `</div>`; // cierre article-body
 
             document.getElementById('aviso-container').innerHTML = html;
-
-            // Iniciar polling para tiempo real
             iniciarPolling();
         }
 
@@ -977,16 +979,13 @@
                 registrarVista(AVISO_ID);
                 renderizarAviso();
                 cargarComentarios(AVISO_ID);
-                // Después de registrar vista, actualizar el contador local
-                setTimeout(() => {
-                    actualizarContadorVistas();
-                }, 500);
+                setTimeout(() => { actualizarContadorVistas(); }, 500);
             } catch (error) {
                 console.error('Error cargando aviso:', error);
                 container.innerHTML = `<div class="error-message">❌ Error al cargar el aviso: ${escapeHTML(error.message)}</div>`;
             }
-
         }
+
         async function actualizarContadorVistas() {
             try {
                 const apiKey = localStorage.getItem('api_key');
@@ -1026,9 +1025,7 @@
             const userArea = document.getElementById('user-area');
             const userNameSpan = document.getElementById('user-name');
             const cerrarBtn = document.getElementById('cerrar-sesion');
-
             if (!loginLink) { setTimeout(actualizarHeaderPorSesion, 200); return; }
-
             if (usuarioStr && apiKey) {
                 try {
                     const usuario = JSON.parse(usuarioStr);
@@ -1056,62 +1053,21 @@
             }
         }
 
-        // Cargar header y luego actualizar sesión
         document.addEventListener('DOMContentLoaded', function () {
             fetch('/barrio/common/header.html')
                 .then(res => res.ok ? res.text() : Promise.reject())
                 .then(html => {
                     document.getElementById('header-container').innerHTML = html;
-                    // Forzar actualización del header múltiples veces
                     setTimeout(actualizarHeaderPorSesion, 100);
                     setTimeout(actualizarHeaderPorSesion, 300);
                     setTimeout(actualizarHeaderPorSesion, 600);
                 })
                 .catch(err => console.error('Error cargando header:', err));
-
             cargarAviso();
         });
 
         window.addEventListener('beforeunload', () => { detenerPolling(); });
     </script>
-    <!--  <script>
-        // ========== ACTUALIZAR VISTAS EN TIEMPO REAL ==========
-        async function actualizarContadorVistas() {
-            try {
-                const apiKey = localStorage.getItem('api_key');
-                const resultado = await API.peticion('OBTENER_ESTADISTICAS', { id: AVISO_ID }, apiKey);
-
-                console.log('Respuesta de vistas:', resultado);
-
-                if (resultado && resultado.success && resultado.data) {
-                    const vistasSpan = document.querySelector('.vistas-count');
-                    if (vistasSpan) {
-                        const nuevasVistas = resultado.data.vistas || resultado.data.visitas || 0;
-                        const vistasActuales = parseInt(vistasSpan.textContent) || 0;
-
-                        if (nuevasVistas !== vistasActuales) {
-                            vistasSpan.textContent = nuevasVistas;
-                            console.log(`✅ Vistas actualizadas: ${vistasActuales} → ${nuevasVistas}`);
-                        }
-                    }
-                }
-            } catch (e) {
-                console.warn('Error actualizando vistas:', e);
-            }
-        }
-
-        // Llamar después de registrar la vista
-        setTimeout(() => {
-            actualizarContadorVistas();
-        }, 1000);
-
-        // También actualizar cada 30 segundos mientras la página está abierta
-        setInterval(() => {
-            if (!document.hidden) {
-                actualizarContadorVistas();
-            }
-        }, 30000);
-    </script> -->
 </body>
 
 </html>
