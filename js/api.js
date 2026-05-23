@@ -153,10 +153,19 @@ class API {
 
   // ==================== MÉTODOS DE AUTENTICACIÓN ====================
 
-  // Login
   static async login(email, password) {
     try {
-      const resultado = await API.post('LOGIN', { email: email, password: password });
+      // ✅ Declarar explícitamente todo antes de usarlo
+      const accion = 'LOGIN';
+      const datos = { email: email, password: password };
+
+      console.log('🔐 Login - accion:', accion);
+      console.log('🔐 Login - datos:', datos);
+
+      // Usar API.post directamente con parámetros claros
+      const resultado = await API.post(accion, datos);
+
+      console.log('🔐 Login - resultado:', resultado);
 
       if (resultado && resultado.success && resultado.data && resultado.data.api_key) {
         localStorage.setItem('api_key', resultado.data.api_key);
