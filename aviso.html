@@ -649,17 +649,17 @@
                 event.preventDefault();
                 event.stopPropagation();
             }
-            
+
             const apiKey = localStorage.getItem('api_key');
             if (!apiKey) {
                 showToast('🔐 Inicia sesión para contactar por WhatsApp', 2000);
                 return;
             }
-            
+
             // Abrir WhatsApp
             const url = `https://wa.me/52${numero}?text=${encodeURIComponent(mensaje)}`;
             window.open(url, '_blank');
-            
+
             // Registrar el click
             registrarClickWhatsApp(avisoId);
         }
@@ -953,16 +953,16 @@
 
             html += `<div class="article-body">`;
             html += `<div class="article-content">${formatearContenido(avisoActual.contenido)}</div>`;
-            
+
             // ========== SECCIÓN DE CONTACTO (igual que en index) ==========
             html += `<div class="contact-info-row">`;
 
+            // Ubicación y Fecha juntos (uno al lado del otro)
+            let infoLine = '<div class="info-row" style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px;">';
+
             // Ubicación
             if (avisoActual.ubicacion) {
-                html += `<div class="contact-info-item">
-                    <span class="icon">📍</span>
-                    <span><strong>Ubicación:</strong> ${escapeHTML(avisoActual.ubicacion)}</span>
-                </div>`;
+                infoLine += `<span style="display: inline-flex; align-items: center; gap: 4px;">📍 ${escapeHTML(avisoActual.ubicacion)}</span>`;
             }
 
             // Fecha del evento (si existe)
@@ -979,11 +979,13 @@
                     }
                 } catch (e) { /* mantener fecha original */ }
 
-                html += `<div class="contact-info-item">
-                    <span class="icon">📅</span>
-                    <span><strong>Fecha del evento:</strong> ${escapeHTML(fechaEvento)}</span>
-                </div>`;
+                infoLine += `<span style="display: inline-flex; align-items: center; gap: 4px;">📅 ${escapeHTML(fechaEvento)}</span>`;
             }
+
+            infoLine += '</div>';
+
+            // Agregar la línea completa al HTML
+            html += infoLine;
 
             // ========== WHATSAPP DEL ANUNCIANTE (botón circular, IGUAL QUE EN INDEX) ==========
             if (tieneContacto) {
@@ -1149,7 +1151,7 @@
         }
 
         window.irAEditar = (id) => window.location.href = `/barrio/admin.html?editar=${id}`;
-        
+
         window.eliminarAviso = async (id) => {
             if (!confirm('¿Eliminar este aviso permanentemente?')) return;
             try {
