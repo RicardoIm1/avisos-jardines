@@ -106,54 +106,6 @@
             color: #2c3e2f;
         }
 
-        /* NUEVO: Contenedor de publicidad donde antes estaba article-actions */
-        .ad-container {
-            padding: 1rem 2.5rem 2rem;
-            background: linear-gradient(135deg, #fef9e6 0%, #fff9ef 100%);
-            border-top: 2px dashed #f5b042;
-            border-bottom: 2px dashed #f5b042;
-            margin: 0;
-            text-align: center;
-        }
-
-        .ad-content {
-            max-width: 100%;
-            margin: 0 auto;
-        }
-
-        .ad-label {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #f5b042;
-            font-weight: 600;
-            margin-bottom: 0.8rem;
-            display: inline-block;
-            background: white;
-            padding: 0.2rem 1rem;
-            border-radius: 20px;
-        }
-
-        /* Ejemplo de banner publicitario */
-        .demo-ad {
-            background: #2c3e50;
-            color: white;
-            padding: 2rem;
-            border-radius: 12px;
-            text-align: center;
-            font-size: 0.9rem;
-        }
-
-        .demo-ad a {
-            color: #f5b042;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .demo-ad a:hover {
-            text-decoration: underline;
-        }
-
         .gallery-section {
             margin: 1.5rem 0;
         }
@@ -226,7 +178,7 @@
             cursor: pointer;
         }
 
-        /* NUEVO ESTILO: stats-row como barra de acciones */
+        /* NUEVO ESTILO: stats-row se convierte en una barra de acciones + estadísticas */
         .stats-row {
             display: flex;
             flex-wrap: wrap;
@@ -252,6 +204,7 @@
             border: 1px solid transparent;
         }
 
+        /* Estados de botones */
         .stat-item.action-btn {
             cursor: pointer;
             background: white;
@@ -319,6 +272,7 @@
             font-size: 0.9rem;
             color: #1e4620;
         }
+        /* El texto label se oculta en móvil pero se puede mantener */
         .stat-label {
             display: none;
         }
@@ -469,9 +423,6 @@
             .article-header,
             .article-body {
                 padding: 1.2rem;
-            }
-            .ad-container {
-                padding: 1rem 1.2rem;
             }
             .article-meta {
                 gap: 1rem;
@@ -916,34 +867,34 @@
                 html += `<p><strong>📍 Ubicación:</strong> ${escapeHTML(avisoActual.ubicacion)}</p>`;
             }
 
-            // stats-row con todas las acciones integradas
+            // ========== NUEVO stats-row con todas las acciones integradas ==========
             html += `<div class="stats-row">`;
 
-            // 1. Vistas (solo estadística)
+            // 1. Vistas (solo estadística, sin acción)
             html += `<div class="stat-item">
                         <span class="stat-icon">👁️</span>
                         <span class="stat-value vistas-count">${vistas}</span>
                     </div>`;
 
-            // 2. Like (botón)
+            // 2. Like (botón con contador)
             html += `<div class="stat-item action-btn like-btn" onclick="darLike('${avisoActual.id}')">
                         <span class="stat-icon">👍</span>
                         <span class="stat-value likes-count">${likes}</span>
                     </div>`;
 
-            // 3. Dislike (botón)
+            // 3. Dislike (botón con contador)
             html += `<div class="stat-item action-btn dislike-btn" onclick="darDislike('${avisoActual.id}')">
                         <span class="stat-icon">👎</span>
                         <span class="stat-value dislikes-count">${dislikes}</span>
                     </div>`;
 
-            // 4. Comentarios (botón)
+            // 4. Comentarios (botón que abre panel)
             html += `<div class="stat-item action-btn" onclick="abrirComentarios('${avisoActual.id}', event)">
                         <span class="stat-icon">💬</span>
                         <span class="stat-value comments-count">${comentarios}</span>
                     </div>`;
 
-            // 5. WhatsApp
+            // 5. WhatsApp (si tiene contacto)
             if (tieneContacto) {
                 html += `<a href="https://wa.me/52${numero}?text=${mensaje}" class="stat-item action-btn whatsapp-btn" target="_blank" onclick="registrarClickWhatsApp('${avisoActual.id}')">
                             <span class="stat-icon">📱</span>
@@ -951,7 +902,7 @@
                         </a>`;
             }
 
-            // 6. Botones admin
+            // 6. Botones de administración/edición si corresponde
             if (puedeEditar) {
                 html += `<div class="stat-item action-btn admin-action" onclick="irAEditar('${avisoActual.id}')">
                             <span class="stat-icon">✏️</span>
@@ -963,7 +914,7 @@
                         </div>`;
             }
 
-            // 7. Botón volver
+            // 7. Botón "Volver" (enlace a inicio o panel)
             if (puedeEditar) {
                 html += `<a href="/barrio/admin.html" class="stat-item action-btn back-link">
                             <span class="stat-icon">←</span>
@@ -994,23 +945,6 @@
             }
 
             html += `</div>`; // cierre article-body
-
-            // ========== NUEVO CONTENEDOR DE PUBLICIDAD (ex article-actions) ==========
-            html += `
-            <div class="ad-container">
-                <div class="ad-content">
-                    <div class="ad-label">✨ Publicidad ✨</div>
-                    <!-- REEMPLAZA ESTE CONTENIDO CON TU CÓDIGO DE PUBLICIDAD -->
-                    <div class="demo-ad">
-                        🚀 <strong>Espacio para tu anuncio</strong><br>
-                        <small>Contacta: <a href="mailto:publicidad@elbarrio.com">publicidad@elbarrio.com</a></small>
-                        <br><br>
-                        <span style="font-size:0.8rem;">← Aquí va Google Ads, banner, o cualquier contenido →</span>
-                    </div>
-                    <!-- FIN DEL BLOQUE REEMPLAZABLE -->
-                </div>
-            </div>
-            `;
 
             document.getElementById('aviso-container').innerHTML = html;
             iniciarPolling();
