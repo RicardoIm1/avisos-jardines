@@ -678,6 +678,90 @@
             animation: gearClick 0.12s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
     </style>
+    <style>
+        /* ========== RESPONSIVE: EFECTO ENGRANE SOLO EN MÓVIL ========== */
+        /* Móviles (ancho menor a 768px) - activar scroll snap */
+        @media (max-width: 767px) {
+            #avisos-container.posts-container-ios {
+                display: block !important;
+                height: 100vh;
+                overflow-y: auto;
+                scroll-snap-type: y mandatory;
+                scroll-behavior: smooth;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                padding: 0;
+            }
+
+            #avisos-container.posts-container-ios::-webkit-scrollbar {
+                display: none;
+            }
+
+            #avisos-container.posts-container-ios .aviso-card {
+                scroll-snap-align: start;
+                scroll-snap-stop: always;
+                min-height: 100vh;
+                margin-bottom: 0;
+                border-radius: 0;
+                width: 100%;
+            }
+
+            .post-card-ios.active {
+                transform: scale(1.02);
+            }
+
+            @keyframes gearClick {
+                0% {
+                    transform: scale(1);
+                }
+
+                50% {
+                    transform: scale(0.98);
+                }
+
+                100% {
+                    transform: scale(1);
+                }
+            }
+
+            .post-card-ios.gear-click {
+                animation: gearClick 0.12s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            }
+        }
+
+        /* Desktop (ancho mayor o igual a 768px) - layout normal de cuadrícula */
+        @media (min-width: 768px) {
+            #avisos-container {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+                height: auto !important;
+                overflow-y: visible !important;
+                scroll-snap-type: none !important;
+            }
+
+            #avisos-container .aviso-card {
+                min-height: auto !important;
+                height: auto !important;
+                margin-bottom: 0 !important;
+                scroll-snap-align: none !important;
+                scroll-snap-stop: unset !important;
+            }
+
+            /* Grid responsivo para desktop más grande */
+            @media (min-width: 1024px) {
+                #avisos-container {
+                    grid-template-columns: repeat(3, 1fr);
+                }
+            }
+
+            @media (min-width: 1280px) {
+                #avisos-container {
+                    grid-template-columns: repeat(4, 1fr);
+                }
+            }
+        }
+    </style>
 </head>
 
 <body>
