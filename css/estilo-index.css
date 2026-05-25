@@ -169,6 +169,22 @@
             margin-bottom: 0;
         }
 
+        /* ✅ VIDEO COMO FONDO */
+        .aviso-video {
+            position: absolute !important;
+            background: #000;
+            overflow: hidden;
+        }
+
+        .aviso-video video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
         .aviso-card::after {
             content: '';
             position: absolute;
