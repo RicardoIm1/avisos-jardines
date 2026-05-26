@@ -107,6 +107,28 @@ main,
 /* =========================================================
    HEADER STICKY
 ========================================================= */
+/* Asegurar que sticky funcione */
+html,
+body {
+    overflow-x: hidden;
+    overflow-y: auto;
+    /* ← Importante: auto, no hidden */
+    height: auto;
+}
+
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Si tienes un contenedor scrollable, asegurar que no tenga overflow hidden */
+.scrollable-container {
+    overflow: visible;
+    /* ← No hidden, no auto */
+}
 
 /* =========================
    HEADER
