@@ -1464,8 +1464,9 @@
 
             // Esperar a que el header cargue completamente
             const checkHeader = setInterval(() => {
-                const nav = headerContainer.querySelector('nav');
-                if (nav && !document.querySelector('.header-buscador')) {
+                // 🔥 CAMBIADO: de 'nav' a '.header-contenido'
+                const headerContenido = headerContainer.querySelector('.header-contenido');
+                if (headerContenido && !document.querySelector('.header-buscador')) {
                     clearInterval(checkHeader);
 
                     const buscadorHTML = `
@@ -1474,14 +1475,19 @@
                            placeholder="🔍 Buscar avisos...">
                 </div>
             `;
-                    nav.insertAdjacentHTML('beforeend', buscadorHTML);
+                    // Insertar antes de .header-acciones
+                    const headerAcciones = headerContenido.querySelector('.header-acciones');
+                    if (headerAcciones) {
+                        headerAcciones.insertAdjacentHTML('beforebegin', buscadorHTML);
+                    } else {
+                        headerContenido.insertAdjacentHTML('beforeend', buscadorHTML);
+                    }
 
                     // Conectar el evento del nuevo buscador
                     const buscadorHeader = document.getElementById('buscador-input-header');
                     if (buscadorHeader) {
                         buscadorHeader.addEventListener('input', (e) => {
                             currentSearchTerm = e.target.value;
-                            // También actualizar el buscador viejo si existe (por si acaso)
                             const buscadorViejo = document.getElementById('buscador-input');
                             if (buscadorViejo) buscadorViejo.value = currentSearchTerm;
                             applyFiltersAndSearch();
@@ -1492,7 +1498,6 @@
                 }
             }, 100);
 
-            // Timeout por si no aparece el nav
             setTimeout(() => clearInterval(checkHeader), 5000);
         }
     </script>
