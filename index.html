@@ -653,7 +653,7 @@
                 📝 Regístrate y publica tus avisos gratis
             </button>
         </div>
-      <!--   <div class="filtros-buscador-wrapper">
+        <!--   <div class="filtros-buscador-wrapper">
             <div class="buscador-container">
                 <input type="text" id="buscador-input" class="buscador-input" placeholder="🔍 Buscar...">
             </div>
@@ -1093,7 +1093,13 @@
         function applyFiltersAndSearch() {
             let filtered = [...allAvisos];
             if (currentSearchTerm) {
-                filtered = filtered.filter(aviso => searchInAviso(aviso, currentSearchTerm));
+                const term = currentSearchTerm.toLowerCase();
+                filtered = filtered.filter(aviso =>
+                    aviso.titulo?.toLowerCase().includes(term) ||
+                    aviso.contenido?.toLowerCase().includes(term) ||
+                    aviso.categoria?.toLowerCase().includes(term) ||
+                    aviso.ubicacion?.toLowerCase().includes(term)
+                );
             }
             filteredAvisos = filtered;
             renderedCount = 0;
@@ -1875,6 +1881,30 @@
         // Para iOS que maneja el scroll diferente
         document.addEventListener('touchstart', () => {
             // El scroll se guarda periódicamente de todas formas
+        });
+    </script>
+    <script>
+        // ========== CONECTAR BUSCADOR DEL HEADER ==========
+        function conectarBuscadorHeader() {
+            const buscador = document.getElementById('buscador-input-header');
+            if (!buscador) {
+                console.log('⏳ Buscador no encontrado, reintentando...');
+                setTimeout(conectarBuscadorHeader, 500);
+                return;
+            }
+
+            console.log('✅ Buscador encontrado, conectando evento...');
+
+            buscador.addEventListener('input', function (e) {
+                currentSearchTerm = e.target.value;
+                console.log('🔍 Buscando:', currentSearchTerm);
+                applyFiltersAndSearch();
+            });
+        }
+
+        // Ejecutar cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(conectarBuscadorHeader, 1000);
         });
     </script>
 
