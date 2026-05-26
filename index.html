@@ -637,28 +637,26 @@
 
 <body>
     <div id="header-container"></div>
-    <!-- ========== BANNER HERO ========== -->
-    <picture>
-        <source srcset="/barrio/img/banner-elbarrio2.webp" type="image/webp">
-        <img class="hero-banner" src="/barrio/img/banner-elbarrio2.png" decoding="async"
-            alt="El Barrio - Comunidad vecinal en tu colonia" width="1200" height="400" loading="eager"
-            fetchpriority="high" decoding="async"
-            onerror="this.onerror=null; this.src='/barrio/img/fallback-banner.png'; console.warn('⚠️ Banner principal no encontrado');">
-    </picture>
 
-    <main class="contenedor">
-        <div style="display: flex; justify-content: center; width: 100%;">
+    <!-- ========== BANNER HERO + BOTÓN FLOTANTE ========== -->
+    <div style="position: relative;">
+        <picture>
+            <source srcset="/barrio/img/banner-elbarrio2.webp" type="image/webp">
+            <img class="hero-banner" src="/barrio/img/banner-elbarrio2.png" decoding="async"
+                alt="El Barrio - Comunidad vecinal en tu colonia" width="1200" height="400" loading="eager"
+                fetchpriority="high"
+                onerror="this.onerror=null; this.src='/barrio/img/fallback-banner.png'; console.warn('⚠️ Banner principal no encontrado');">
+        </picture>
+
+        <!-- ✅ BOTÓN FLOTANTE CENTRADO SOBRE EL HERO -->
+        <div class="hero-button-wrapper">
             <button id="btnProbarNotificacion" class="btn-login">
-                <!-- style="background:#2c3e50; color:white; padding:8px 16px; border-radius:20px; margin:10px; border:none; cursor: pointer; "-->
                 📝 Regístrate y publica tus avisos gratis
             </button>
         </div>
-        <!--   <div class="filtros-buscador-wrapper">
-            <div class="buscador-container">
-                <input type="text" id="buscador-input" class="buscador-input" placeholder="🔍 Buscar...">
-            </div>
-        </div> -->
+    </div>
 
+    <main class="contenedor">
         <div id="avisos-container" class="grid-avisos">
             <div class="cargando">📰 Cargando avisos...</div>
         </div>
