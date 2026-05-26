@@ -1133,6 +1133,35 @@
                 console.error('Error cargando aviso:', error);
                 container.innerHTML = `<div class="error-message">❌ Error al cargar el aviso: ${escapeHTML(error.message)}</div>`;
             }
+
+            // Mostrar ubicación
+            if (aviso.ubicacion) {
+                document.getElementById('aviso-ubicacion').innerText = aviso.ubicacion;
+            }
+
+            // Mostrar fecha del evento
+            if (aviso.fecha_evento && aviso.fecha_evento !== '') {
+                document.getElementById('fecha-evento-group').style.display = 'block';
+                const fechaEvento = new Date(aviso.fecha_evento).toLocaleDateString('es-MX', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+                document.getElementById('aviso-fecha-evento').innerText = fechaEvento;
+            }
+
+            // Mostrar WhatsApp
+            if (aviso.contacto && aviso.contacto !== '') {
+                document.getElementById('whatsapp-group').style.display = 'block';
+                const numeroLimpio = aviso.contacto.toString().replace(/[^0-9]/g, '');
+                document.getElementById('aviso-whatsapp').innerText = aviso.contacto;
+
+                const btnWhatsApp = document.getElementById('btn-whatsapp');
+                btnWhatsApp.onclick = () => {
+                    const mensaje = `Hola, vi tu aviso "${aviso.titulo}" en El Barrio y me interesa.`;
+                    window.open(`https://wa.me/52${numeroLimpio}?text=${encodeURIComponent(mensaje)}`, '_blank');
+                };
+            }
         }
 
         async function actualizarContadorVistas() {
