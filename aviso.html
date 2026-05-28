@@ -567,9 +567,8 @@
 
         function formatearContenido(texto) {
             if (!texto) return '<p>Sin contenido</p>';
-            const stringTexto = String(texto);
-            const parrafos = stringTexto.split(/\n\s*\n/);
-            return parrafos.map(p => `<p>${escapeHTML(p).replace(/\n/g, '<br>')}</p>`).join('');
+            const parrafos = String(texto).split(/\n\s*\n/);
+            return parrafos.map(p => `<p>${convertirUrls(escapeHTML(p).replace(/\n/g, '<br>'))}</p>`).join('');
         }
 
         function formatearFecha(fechaStr) {
@@ -1218,6 +1217,13 @@
         });
 
         window.addEventListener('beforeunload', () => { detenerPolling(); });
+    </script>
+    <script>
+        function convertirUrls(texto) {
+            return texto.replace(/(https?:\/\/[^\s]+)/g, function (url) {
+                return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#1e4620; text-decoration:underline;">${url}</a>`;
+            });
+        }
     </script>
 </body>
 
