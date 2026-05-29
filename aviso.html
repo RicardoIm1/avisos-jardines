@@ -1107,27 +1107,19 @@
             container.innerHTML = '<div class="loading-state">📰 Cargando aviso...</div>';
             try {
                 usuarioActual = API.getUsuarioActual();
-                const resultado = await API.peticion('LISTAR_AVISOS_PUBLICOS', {});
-                let aviso = null;
-                if (resultado && resultado.success && resultado.data && resultado.data.datos) {
-                    aviso = resultado.data.datos.find(a => String(a.id) === String(AVISO_ID));
+
+                // ✅ NUEVO: Usar la acción específica para obtener el aviso por ID
+                const resultado = await API.peticion('OBTENER_AVISO_POR_ID', { id: AVISO_ID });
+
+                if (resultado && resultado.success && resultado.data) {
+                    avisoActual = resultado.data;
+                    registrarVista(AVISO_ID);
+                    renderizarAviso();
+                    cargarComentarios(AVISO_ID);
+                    setTimeout(() => { actualizarContadorVistas(); }, 500);
+                } else {
+                    container.innerHTML = `<div class="error-message">❌ Aviso no encontrado: ${AVISO_ID}</div>`;
                 }
-                if (!aviso && resultado && resultado.success && resultado.data) {
-                    if (Array.isArray(resultado.data)) {
-                        aviso = resultado.data.find(a => String(a.id) === String(AVISO_ID));
-                    } else if (resultado.data.datos) {
-                        aviso = resultado.data.datos.find(a => String(a.id) === String(AVISO_ID));
-                    }
-                }
-                if (!aviso) {
-                    container.innerHTML = `<div class="error-message">❌ Aviso no encontrado</div>`;
-                    return;
-                }
-                avisoActual = aviso;
-                registrarVista(AVISO_ID);
-                renderizarAviso();
-                cargarComentarios(AVISO_ID);
-                setTimeout(() => { actualizarContadorVistas(); }, 500);
             } catch (error) {
                 console.error('Error cargando aviso:', error);
                 container.innerHTML = `<div class="error-message">❌ Error al cargar el aviso: ${escapeHTML(error.message)}</div>`;
