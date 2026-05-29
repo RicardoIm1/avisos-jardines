@@ -882,6 +882,18 @@
                 event.stopPropagation();
             }
 
+            // 🔐 VALIDACIÓN DE SESIÓN - OBLIGATORIA
+            const apiKey = localStorage.getItem('api_key');
+            if (!apiKey) {
+                // Usa tu función showToast si existe, o alert
+                if (typeof showToast === 'function') {
+                    showToast('🔐 Inicia sesión para contactar por WhatsApp', 2000);
+                } else {
+                    alert('🔐 Debes iniciar sesión para contactar por WhatsApp');
+                }
+                return;
+            }
+
             let numeroLimpio = String(numero).replace(/[^0-9]/g, '');
 
             const url = `https://wa.me/52${numeroLimpio}?text=${encodeURIComponent(texto)}`;
