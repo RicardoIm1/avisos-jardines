@@ -1552,11 +1552,10 @@
 
                 tablaUsuarios.innerHTML = '<tr><td colspan="5">🔄 Cargando usuarios...</td></tr>';
 
-                // Probar diferentes acciones posibles
+                // Intentar diferentes acciones...
                 let respuesta = null;
                 let accionUsada = '';
 
-                // Intentar LISTAR_USUARIOS
                 try {
                     respuesta = await API.peticion('LISTAR_USUARIOS', {}, apiKey);
                     accionUsada = 'LISTAR_USUARIOS';
@@ -1565,7 +1564,6 @@
                     console.log('LISTAR_USUARIOS falló:', e);
                 }
 
-                // Si falló, intentar OBTENER_USUARIOS
                 if (!respuesta || !respuesta.success) {
                     try {
                         respuesta = await API.peticion('OBTENER_USUARIOS', {}, apiKey);
@@ -1576,7 +1574,6 @@
                     }
                 }
 
-                // Si falló, intentar LISTAR
                 if (!respuesta || !respuesta.success) {
                     try {
                         respuesta = await API.peticion('LISTAR', { coleccion: 'USUARIOS' }, apiKey);
@@ -1603,9 +1600,22 @@
                 }
 
                 if (!usuarios || usuarios.length === 0) {
-                    tablaUsuarios.innerHTML = '<tr><td colspan="5">📭 No hay usuarios registrados</td></tr>';
+                    tablaUsuarios.innerHTML = '<td><td colspan="5">📭 No hay usuarios registrados</td></tr>';
                     return;
                 }
+
+                // ========== ✅ ORDENAR: Del más reciente al más antiguo ==========
+                usuarios.sort((a, b) => {
+                    // Intentar diferentes campos de fecha
+                    const fechaA = a.created_at || a.fecha_registro || a.ultimo_acceso || a.fecha_creacion || 0;
+                    const fechaB = b.created_at || b.fecha_registro || b.ultimo_acceso || b.fecha_creacion || 0;
+
+                    // Si son strings, convertirlos a Date
+                    const fechaAObj = fechaA ? new Date(fechaA) : 0;
+                    const fechaBObj = fechaB ? new Date(fechaB) : 0;
+
+                    return fechaBObj - fechaAObj; // Más reciente primero
+                });
 
                 const escapeHtml = (str) => {
                     if (!str) return '';
@@ -1623,9 +1633,13 @@
                     const rol = user.rol === 'admin' ? 'admin' : 'usuario';
                     const activo = user.activo === 'TRUE' || user.activo === true ? '✅ Activo' : '❌ Inactivo';
 
+                    // Opcional: Mostrar fecha de registro como tooltip o columna extra
+                    const fechaRegistro = user.created_at || user.fecha_registro || '';
+                    const fechaMostrar = fechaRegistro ? new Date(fechaRegistro).toLocaleDateString('es-MX') : '—';
+
                     return `
             <tr>
-                <td data-label="Email">${email}</td>
+                <td data-label="Email">${email}${fechaRegistro ? `<br><small style="color:#888;">📅 ${fechaMostrar}</small>` : ''}</td>
                 <td data-label="Nombre">${nombre}</td>
                 <td data-label="Rol"><span class="rol-badge ${rol === 'admin' ? 'rol-admin' : 'rol-usuario'}">${rol}</span></td>
                 <td data-label="Estado">${activo}</td>
@@ -1635,14 +1649,14 @@
             </tr>
         `}).join('');
 
-                console.log(`✅ Cargados ${usuarios.length} usuarios`);
+                console.log(`✅ Cargados ${usuarios.length} usuarios (ordenados del más reciente al más antiguo)`);
 
             } catch (error) {
                 console.error('Error cargando usuarios:', error);
-                tablaUsuarios.innerHTML = `<td><td colspan="5">❌ Error: ${error.message}</td></tr>`;
+                tablaUsuarios.innerHTML = `<tr><td colspan="5">❌ Error: ${error.message}</td></tr>`;
             }
         }
-
+        
         // Función para eliminar usuario
         window.eliminarUsuario = async function (id) {
             if (!confirm('¿Eliminar este usuario?')) return;
