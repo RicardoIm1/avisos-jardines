@@ -836,28 +836,35 @@
             let respuesta;
 
             if (currentUserRole === 'admin') {
-                respuesta = await API.peticion('LISTAR_AVISOS_PUBLICOS', {}, apiKey);
+                respuesta = await API.peticion('LISTAR_AVISOS_PUBLICOS', { limite: 100 }, apiKey);
             } else {
-                respuesta = await API.peticion('LISTAR_MIS_AVISOS', {}, apiKey);
+                respuesta = await API.peticion('LISTAR_MIS_AVISOS', { limite: 100 }, apiKey);
             }
 
             console.log('Dashboard - Respuesta API:', respuesta);
 
             if (respuesta && respuesta.success) {
+                // Extraer datos y total
+                let datos = [];
+                let total = 0;
+
                 if (respuesta.data && respuesta.data.datos && Array.isArray(respuesta.data.datos)) {
-                    return respuesta.data.datos;
+                    datos = respuesta.data.datos;
+                    total = respuesta.data.total || datos.length;
+                } else if (respuesta.datos && Array.isArray(respuesta.datos)) {
+                    datos = respuesta.datos;
+                    total = datos.length;
+                } else if (Array.isArray(respuesta.data)) {
+                    datos = respuesta.data;
+                    total = datos.length;
                 }
-                if (respuesta.datos && Array.isArray(respuesta.datos)) {
-                    return respuesta.datos;
-                }
-                if (Array.isArray(respuesta.data)) {
-                    return respuesta.data;
-                }
+
+                return { datos, total };
             }
-            return [];
+            return { datos: [], total: 0 };
         } catch (error) {
             console.error('Error obteniendo avisos:', error);
-            return [];
+            return { datos: [], total: 0 };
         }
     }
 
@@ -977,37 +984,39 @@
 
     // ========== FUNCIÓN PRINCIPAL DE ACTUALIZACIÓN ==========
     async function refreshDashboardData() {
-        try {
-            // Actualizar badge con usuario actual
-            const usuarioActual = API.getUsuarioActual();
-            const badge = document.getElementById('userRoleBadge');
-            if (badge && usuarioActual) {
-                badge.innerHTML = usuarioActual.rol === 'admin' ? `👑 ${usuarioActual.nombre || usuarioActual.email}` : `👤 ${usuarioActual.nombre || usuarioActual.email}`;
-            }
-
-            // Obtener avisos reales
-            const notices = await getAllNoticesFromAPI();
-            allNotices = notices;
-
-            // Calcular y actualizar estadísticas
-            const stats = calculateStats(notices);
-            updateCards(stats);
-
-            // Renderizar gráfico de categorías (solo admin)
-            if (currentUserRole === 'admin') {
-                renderChart(notices);
-            }
-
-            // Actualizar fecha
-            updateFecha();
-
-            console.log('📊 Dashboard actualizado:', stats);
-
-        } catch (error) {
-            console.error('Error actualizando dashboard:', error);
+    try {
+        // Actualizar badge con usuario actual
+        const usuarioActual = API.getUsuarioActual();
+        const badge = document.getElementById('userRoleBadge');
+        if (badge && usuarioActual) {
+            badge.innerHTML = usuarioActual.rol === 'admin' ? `👑 ${usuarioActual.nombre || usuarioActual.email}` : `👤 ${usuarioActual.nombre || usuarioActual.email}`;
         }
-    }
 
+        // Obtener avisos (datos para el gráfico) y el total real
+        const { datos, total: totalReal } = await getAllNoticesFromAPI();
+        allNotices = datos;
+
+        // Calcular estadísticas basadas en los datos disponibles (para activos, categorías, etc.)
+        const stats = calculateStats(datos);
+        
+        // 🔥 SOBRESCRIBIR el total con el valor REAL de la API
+        stats.total = totalReal;
+        
+        updateCards(stats);
+
+        // Renderizar gráfico de categorías (solo admin)
+        if (currentUserRole === 'admin') {
+            renderChart(datos);
+        }
+
+        // Actualizar fecha
+        updateFecha();
+
+        console.log('📊 Dashboard actualizado:', { ...stats, totalReal });
+    } catch (error) {
+        console.error('Error actualizando dashboard:', error);
+    }
+}
     // ========== ALTERNAR VISTA DEL GRÁFICO ==========
     window.toggleChartView = function () {
         chartDetailedView = !chartDetailedView;
