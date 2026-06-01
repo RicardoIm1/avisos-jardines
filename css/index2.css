@@ -608,9 +608,7 @@
         }
     }
 
-    main,
-    .scrollable-container,
-    #avisos-container {
+    main {
         padding-top: 96px;
     }
 
@@ -1118,16 +1116,14 @@
         color: var(--color-texto-claro);
     }
 
-    .hero-banner {
+    /* .hero-banner {
         width: 100%;
         height: auto;
         max-height: 65vh;
         object-fit: contain;
-        /* ← Cambia 'cover' por 'contain' */
         display: block;
         background-color: #f0f0f0;
-        /* Color de fondo mientras carga o si sobran bordes */
-    }
+    } */
 
     @media (prefers-color-scheme: dark) {
         .hero-banner {
