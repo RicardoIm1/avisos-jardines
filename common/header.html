@@ -60,14 +60,16 @@
     }
 
     .notif-bell {
-        font-size: 0.9rem;
-        padding: 4px;
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-         /* color: #666; */
+        background: transparent;
+        border: none;
+        outline: none;
+        box-shadow: none;
+    }
+
+    .notif-bell:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
+        border-radius: 50%;
     }
 
     .notif-bell:hover {
