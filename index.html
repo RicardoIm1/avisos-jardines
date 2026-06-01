@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="/barrio/css/index2.css">
     <link rel="manifest" href="/barrio/manifest.json">
     <meta name="theme-color" content="#2c3e50">
-  <!--   <style>
+    <!--   <style>
         /* ========== ESTILOS PREMIUM PARA EL INDEX ========== */
 
         /* Tarjetas cliqueables */
@@ -693,12 +693,18 @@
     </div>
 
     <main class="contenedor">
-        <div id="avisos-container" class="grid-avisos">
-            <div class="cargando">📰 Cargando avisos...</div>
+
+        <div class="scrollable-container">
+
+            <div id="avisos-container" class="grid-avisos">
+                <div class="cargando">📰 Cargando avisos...</div>
+            </div>
+
         </div>
 
-        <div id="loading-trigger" class="loading-trigger" style="display: none;">📡 Cargando más avisos...</div>
+        <div id="loading-trigger" class="loading-trigger"></div>
         <div id="paginacion" class="paginacion"></div>
+
     </main>
 
     <div id="footer-container"></div>
