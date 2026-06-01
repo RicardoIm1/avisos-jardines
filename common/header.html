@@ -191,7 +191,7 @@
         flex: 1;
         max-width: 300px;
         margin: 0 15px;
-            display: none;
+        display: none;
     }
 
     /* Mostrar buscador SOLO en index.html */
@@ -345,10 +345,12 @@
             const response = await fetch(url);
             const data = await response.json();
 
-            if (data && data.success) {
-                const notis = data.data || [];
+            if (data && data.data) {
+                const notis = data.data;
                 actualizarBadge(notis.length);
                 renderNotificaciones(notis);
+            } else {
+                console.warn('Respuesta inválida:', data);
             }
         } catch (e) { console.error(e); }
     }
